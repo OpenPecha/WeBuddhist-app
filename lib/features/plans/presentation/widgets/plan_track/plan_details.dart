@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/analytics/analytics_events.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
@@ -23,6 +24,7 @@ import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.d
 import 'package:flutter_pecha/features/plans/data/utils/series_plan_utils.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_tasks_dto.dart';
 import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
+import 'package:flutter_pecha/features/plans/presentation/utils/plan_day_share.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_detail_response.dart';
@@ -60,6 +62,8 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   final Set<String> _togglingTaskIds = {};
   final Map<int, bool> _dayCompletionTracker = {};
   final Map<String, bool> _optimisticCompletions = {};
+  final GlobalKey _shareButtonKey = GlobalKey();
+  bool _isSharing = false;
 
   @override
   void initState() {
@@ -215,7 +219,14 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     return AppBar(
       leading: IconButton(
         icon: const Icon(AppAssets.arrowLeft),
-        onPressed: () => context.pop(),
+        onPressed: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            // Opened via deep link with no route beneath — go home.
+            context.go(AppRoutes.home);
+          }
+        },
       ),
       title: Text(widget.plan.title, style: TextStyle(fontSize: 20)),
       elevation: 0,
@@ -711,38 +722,101 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         tasks.isNotEmpty &&
         tasks.any(PlanSubtaskNavigation.isUserTaskNavigable);
 
+    final shareableImageUrl = dayData?.shareableImageUrl?.trim();
+    final showShareButton =
+        dayData != null &&
+        dayData.isCompleted &&
+        shareableImageUrl != null &&
+        shareableImageUrl.isNotEmpty;
+
+    final buttonStyle = FilledButton.styleFrom(
+      backgroundColor: Theme.of(context).colorScheme.onSurface,
+      foregroundColor: Theme.of(context).colorScheme.surface,
+      disabledBackgroundColor: Theme.of(
+        context,
+      ).colorScheme.onSurface.withValues(alpha: 0.5),
+      disabledForegroundColor: Theme.of(
+        context,
+      ).colorScheme.surface.withValues(alpha: 0.85),
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    );
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SizedBox(
           width: double.infinity,
-          child: FilledButton(
-            onPressed:
-                hasReadableContent
-                    ? () => _startReading(tasks, audioUrl: audioUrl)
-                    : null,
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.onSurface,
-              foregroundColor: Theme.of(context).colorScheme.surface,
-              disabledBackgroundColor: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.5),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            child: Text(
-              localizations.start_reading,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: -0.3,
-              ),
-            ),
-          ),
+          child:
+              showShareButton
+                  ? FilledButton.icon(
+                    key: _shareButtonKey,
+                    onPressed:
+                        _isSharing
+                            ? null
+                            : () =>
+                                _shareDay(shareableImageUrl, dayData.dayNumber),
+                    style: buttonStyle,
+                    icon:
+                        _isSharing
+                            ? SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.surface.withValues(alpha: 0.85),
+                              ),
+                            )
+                            : const Icon(AppAssets.readerShare, size: 22),
+                    label: Text(
+                      localizations.share,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  )
+                  : FilledButton(
+                    onPressed:
+                        hasReadableContent
+                            ? () => _startReading(tasks, audioUrl: audioUrl)
+                            : null,
+                    style: buttonStyle,
+                    child: Text(
+                      localizations.start_reading,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  ),
         ),
       ),
     );
+  }
+
+  Future<void> _shareDay(String shareableImageUrl, int dayNumber) async {
+    if (_isSharing) return;
+
+    setState(() => _isSharing = true);
+
+    try {
+      await sharePlanDayImage(
+        context: context,
+        shareableImageUrl: shareableImageUrl,
+        dayNumber: dayNumber,
+        planId: widget.plan.id,
+        planLanguage: widget.plan.language,
+        shareButtonKey: _shareButtonKey,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSharing = false);
+      }
+    }
   }
 }
