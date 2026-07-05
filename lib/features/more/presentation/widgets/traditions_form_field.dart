@@ -116,9 +116,9 @@ class _TraditionChip extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-          InkWell(
+          GestureDetector(
             onTap: onRemove,
-            borderRadius: BorderRadius.circular(12),
+            behavior: HitTestBehavior.opaque,
             child: const Padding(
               padding: EdgeInsets.all(4),
               child: Icon(

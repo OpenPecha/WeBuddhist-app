@@ -13,6 +13,7 @@ import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/user_state.dart';
+import 'package:flutter_pecha/features/more/presentation/providers/tradition_onboarding_paths_provider.dart';
 import 'package:flutter_pecha/features/more/presentation/providers/user_traditions_provider.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/profile_avatar_section.dart';
 import 'package:flutter_pecha/features/more/presentation/widgets/tradition_picker_sheet.dart';
@@ -79,6 +80,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (!mounted) return;
       setState(() => _isRefreshing = true);
       ref.read(userProvider.notifier).refreshUser();
+      // Warm the tradition picker list so opening the sheet does not flash.
+      ref.read(traditionOnboardingPathsProvider.future);
     });
   }
 
@@ -501,8 +504,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     context.push(AppRoutes.deleteAccount);
   }
 
-  void _showTraditionPicker() {
-    showTraditionPickerSheet(context);
+  Future<void> _showTraditionPicker() async {
+    await ref.read(traditionOnboardingPathsProvider.future);
+    if (!mounted) return;
+
+    final currentTraditions =
+        ref.read(userTraditionsProvider).valueOrNull ?? const [];
+    await showTraditionPickerSheet(
+      context,
+      initialSelectedCodes:
+          currentTraditions.map((t) => t.traditionCode).toSet(),
+    );
   }
 
   Future<void> _onRemoveTradition(String userTraditionId) async {
@@ -559,7 +571,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final userTraditionsAsync = ref.watch(userTraditionsProvider);
     final userTraditions = userTraditionsAsync.valueOrNull ?? const [];
-    final isLoadingTraditions = userTraditionsAsync.isLoading;
+    final isLoadingTraditions =
+        userTraditionsAsync.isLoading && userTraditions.isEmpty;
 
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
