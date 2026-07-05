@@ -3603,6 +3603,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drag to resize'**
   String get drag_to_resize;
+
+  /// No description provided for @day_completion_share_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I just completed a day of my practice on WeBuddhist. Join me and build a daily practice habit together.'**
+  String get day_completion_share_message;
 }
 
 class _AppLocalizationsDelegate

@@ -2023,4 +2023,8 @@ class AppLocalizationsMn extends AppLocalizations {
 
   @override
   String get drag_to_resize => 'Хэмжээг өөрчлөхийн тулд чирнэ үү';
+
+  @override
+  String get day_completion_share_message =>
+      'Би WeBuddhist дээр өөрийн дадлагын нэг өдрийг дуусгалаа. Надтай нэгдэж, хамтдаа өдөр тутмын дадлагын зуршил бий болгоцгооё.';
 }

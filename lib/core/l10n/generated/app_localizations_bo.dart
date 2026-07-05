@@ -2024,4 +2024,8 @@ class AppLocalizationsBo extends AppLocalizations {
 
   @override
   String get drag_to_resize => 'ཆེ་ཆུང་བསྒྱུར་བར་འདྲུད་རོགས།';
+
+  @override
+  String get day_completion_share_message =>
+      'ངས་ WeBuddhist ཐོག་ཉམས་ལེན་གྱི་ཉིན་གཅིག་མཐར་ཕྱིན་སོང་། ང་དང་ལྷན་དུ་ཉིན་རེའི་ཉམས་ལེན་གོམ་པ་འཇོག་རོགས།';
 }

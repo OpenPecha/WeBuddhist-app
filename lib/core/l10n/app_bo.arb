@@ -825,5 +825,6 @@
   "license_with_value": "ཆོག་མཆན། {value}",
   "loading_previous_pages": "སྔོན་མ་འཇུག་བཞིན་པ།.. (ཤོག་གྲངས་ {count})",
   "loading_more_pages": "མང་བ་འཇུག་བཞིན་པ།.. (ཤོག་གྲངས་ {count})",
-  "drag_to_resize": "ཆེ་ཆུང་བསྒྱུར་བར་འདྲུད་རོགས།"
+  "drag_to_resize": "ཆེ་ཆུང་བསྒྱུར་བར་འདྲུད་རོགས།",
+  "day_completion_share_message": "ངས་ WeBuddhist ཐོག་ཉམས་ལེན་གྱི་ཉིན་གཅིག་མཐར་ཕྱིན་སོང་། ང་དང་ལྷན་དུ་ཉིན་རེའི་ཉམས་ལེན་གོམ་པ་འཇོག་རོགས།"
 }

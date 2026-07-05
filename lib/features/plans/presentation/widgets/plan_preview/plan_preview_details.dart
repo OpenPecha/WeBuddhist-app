@@ -31,10 +31,16 @@ class PlanPreviewDetails extends ConsumerStatefulWidget {
     super.key,
     required this.plan,
     this.seriesId,
+    this.initialDay,
   });
 
   final Plan plan;
   final String? seriesId;
+
+  /// When non-null, the day carousel opens on this day instead of computing
+  /// a default from the plan start date. Used by deep links so the recipient
+  /// lands on the same day that was shared.
+  final int? initialDay;
 
   @override
   ConsumerState<PlanPreviewDetails> createState() => _PlanPreviewDetailsState();
@@ -48,7 +54,11 @@ class _PlanPreviewDetailsState extends ConsumerState<PlanPreviewDetails> {
   @override
   void initState() {
     super.initState();
-    selectedDay = _defaultSelectedDay();
+    // Use the explicit initial day when provided (e.g. from a plan-day deep
+    // link), otherwise fall back to computing today's day from the start date.
+    selectedDay =
+        widget.initialDay?.clamp(1, widget.plan.totalDays) ??
+        _defaultSelectedDay();
   }
 
   /// For fixed-date plans that have already started, default the carousel

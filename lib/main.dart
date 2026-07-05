@@ -9,6 +9,7 @@ import 'package:flutter_pecha/core/analytics/posthog_analytics_service.dart';
 import 'package:flutter_pecha/core/cache/cache_service.dart';
 import 'package:flutter_pecha/core/config/app_feature_flags.dart';
 import 'package:flutter_pecha/core/config/router/app_router.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/deep_linking/app_links_deep_link_service.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/l10n/l10n.dart';
@@ -16,6 +17,8 @@ import 'package:flutter_pecha/core/services/airbridge_deep_link_service.dart';
 import 'package:flutter_pecha/core/services/service_providers.dart';
 import 'package:flutter_pecha/core/theme/theme_notifier.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
+import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
+import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_bootstrap.dart';
 import 'package:flutter_pecha/features/notifications/application/notification_sync_engine.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
@@ -258,6 +261,26 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         AppLinksDeepLinkService.instance.setTabSetter((int tabIndex) {
           ref.read(mainNavigationIndexProvider.notifier).state = tabIndex;
         });
+        // Plan deep links resolve the specific plan the same way a PLAN push
+        // does: seed the pending nav, switch to the Practice tab, then open My
+        // Practices where RoutineFilledState resolves the plan + current day
+        // and pushes /practice/details.
+        AppLinksDeepLinkService.instance.setPlanNavigator(
+          (String planId, int? dayNumber, String? planLanguage) {
+            ref.read(pendingNotificationNavProvider.notifier).state =
+                NotificationNav(
+                  itemId: planId,
+                  itemType: RoutineItemType.series.name,
+                  planId: planId,
+                  dayNumber: dayNumber,
+                  planLanguage: planLanguage,
+                );
+            ref.read(mainNavigationIndexProvider.notifier).state =
+                MainTab.practice.index;
+            router.go(AppRoutes.home);
+            router.push(AppRoutes.practiceMyPractices);
+          },
+        );
       });
       _hasRegisteredDeepLinkRouters = true;
     }

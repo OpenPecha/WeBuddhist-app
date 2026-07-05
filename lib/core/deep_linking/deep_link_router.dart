@@ -15,12 +15,28 @@ class DeepLinkRouter {
     required String source,
     String? baseLocation,
     void Function(int tabIndex)? tabSetter,
+    void Function(String planId, int? dayNumber, String? planLanguage)?
+        planNavigator,
   }) {
     try {
       final destination = _resolveRoute(uri);
       if (destination == null) {
         _logger.warning('Unhandled deep link from $source: $uri');
         return false;
+      }
+
+      // Plan links can't be expressed as a plain location: opening a specific
+      // plan requires resolving the plan model from its id, which the injected
+      // [planNavigator] handles (mirroring the PLAN push-notification path).
+      // When no navigator is wired (e.g. the Airbridge path), fall through to
+      // the destination's fallback location instead.
+      final planId = destination.planId;
+      if (planId != null && planNavigator != null) {
+        _logger.info(
+          'Deep link from $source -> plan $planId day ${destination.dayNumber} lang ${destination.planLanguage} ($uri)',
+        );
+        planNavigator(planId, destination.dayNumber, destination.planLanguage);
+        return true;
       }
 
       _logger.info('Deep link from $source -> ${destination.location} ($uri)');
@@ -142,6 +158,29 @@ class DeepLinkRouter {
 
     if (segments.length >= 3 &&
         segments[0] == 'open' &&
+        segments[1] == 'plan') {
+      final planId = segments[2];
+      // /open/plan/{planId}/day/{dayNumber}?lang={language}  — specific day deep link
+      int? dayNumber;
+      if (segments.length >= 5 && segments[3] == 'day') {
+        dayNumber = int.tryParse(segments[4]);
+      }
+      // lang carries the content language the plan was enrolled in, so the
+      // recipient's app can find the enrollment even across locale differences.
+      final planLanguage = uri.queryParameters['lang'];
+      // Fallback location (My Practices) is used only when no planNavigator is
+      // wired; otherwise the navigator resolves and opens the specific plan.
+      return _DeepLinkDestination(
+        AppRoutes.practiceMyPractices,
+        planId: planId,
+        dayNumber: dayNumber,
+        planLanguage: planLanguage,
+        opensOnTop: true,
+      );
+    }
+
+    if (segments.length >= 3 &&
+        segments[0] == 'open' &&
         segments[1] == 'group') {
       final groupId = segments[2];
       return _DeepLinkDestination(
@@ -208,10 +247,26 @@ class _DeepLinkDestination {
   /// the `/home` route (e.g. the Me tab).
   final int? tabIndex;
 
+  /// When non-null, this destination targets a specific plan that must be
+  /// resolved from its id by the injected `planNavigator`. [location] then
+  /// acts only as a fallback for callers without a navigator.
+  final String? planId;
+
+  /// When non-null, the plan navigator should open this specific day instead
+  /// of computing today's day from the plan start date.
+  final int? dayNumber;
+
+  /// Content language of the shared plan (e.g. 'en', 'bo'). Passed to the
+  /// plan navigator so it can find the enrollment across locale differences.
+  final String? planLanguage;
+
   const _DeepLinkDestination(
     this.location, {
     this.extra,
     this.opensOnTop = false,
     this.tabIndex,
+    this.planId,
+    this.dayNumber,
+    this.planLanguage,
   });
 }

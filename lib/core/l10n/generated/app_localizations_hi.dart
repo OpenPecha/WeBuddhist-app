@@ -2018,4 +2018,8 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get drag_to_resize => 'आकार बदलने के लिए खींचें';
+
+  @override
+  String get day_completion_share_message =>
+      'मैंने WeBuddhist पर अपने अभ्यास का एक दिन पूरा किया। मेरे साथ जुड़ें और साथ मिलकर रोज़ाना अभ्यास की आदत बनाएं।';
 }

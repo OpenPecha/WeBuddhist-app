@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/models/notification_nav.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
 import 'package:flutter_pecha/features/plans/data/utils/plan_utils.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/use_case_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
@@ -134,6 +136,11 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
 
     final planId = pendingNav.planId ?? pendingNav.itemId;
     final routineItem = _findRoutineItem(widget.routineData, pendingNav.itemId);
+
+    // Prefer the language hint baked into the deep link; fall back to the
+    // routine item's language (push notifications) then null (same-language).
+    final hintLanguage = pendingNav.planLanguage ?? routineItem?.language;
+
     var userPlan =
         ref
             .read(myPlansPaginatedProvider)
@@ -143,19 +150,40 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
     userPlan ??= await resolveRoutineUserPlan(
       ref,
       planId,
-      language: routineItem?.language,
+      language: hintLanguage,
     );
-    if (!mounted || userPlan == null) {
+    if (!mounted) return;
+
+    // Not enrolled — fetch the public plan model and show the preview screen.
+    if (userPlan == null) {
+      final planEither = await ref.read(planByIdFutureProvider(planId).future);
+      final plan = planEither.fold((_) => null, (p) => p);
+      if (!mounted || plan == null) return;
+      ref.read(pendingNotificationNavProvider.notifier).state = null;
+      context.push(
+        AppRoutes.practicePlanPreview,
+        extra: {
+          'plan': plan,
+          'seriesId': null,
+          // Pass the shared day so preview opens on the correct day rather
+          // than defaulting to day 1.
+          if (pendingNav.dayNumber != null) 'selectedDay': pendingNav.dayNumber,
+        },
+      );
       return;
     }
 
     ref.read(pendingNotificationNavProvider.notifier).state = null;
     final startDate = userPlan.effectiveStartDate;
-    final selectedDay = PlanUtils.dayNumberFor(
-      startDate,
-      DateTime.now(),
-      userPlan.totalDays,
-    ).clamp(1, userPlan.totalDays);
+    // Use the specific day embedded in the deep link when available; otherwise
+    // fall back to computing today's day from the plan start date.
+    final selectedDay = pendingNav.dayNumber != null
+        ? pendingNav.dayNumber!.clamp(1, userPlan.totalDays)
+        : PlanUtils.dayNumberFor(
+            startDate,
+            DateTime.now(),
+            userPlan.totalDays,
+          ).clamp(1, userPlan.totalDays);
     _logger.info(
       '[ENROLL-NAV] notification open ${userPlan.id} '
       'seriesId=${pendingNav.itemId} selectedDay=$selectedDay/${userPlan.totalDays}',
