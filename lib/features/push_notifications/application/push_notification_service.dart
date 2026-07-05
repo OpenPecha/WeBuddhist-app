@@ -34,8 +34,8 @@ class PushNotificationService {
   PushNotificationService({
     required PushMessagingRepository repository,
     required LocalStorageService storage,
-  })  : _repository = repository,
-        _storage = storage;
+  }) : _repository = repository,
+       _storage = storage;
 
   final PushMessagingRepository _repository;
   final LocalStorageService _storage;
@@ -137,10 +137,8 @@ class PushNotificationService {
     if (token == _token) return;
     _token = token;
     await _storage.set(StorageKeys.fcmToken, token);
-    _logger.info('FCM token captured/refreshed');
     // Full token logged at debug level only (stripped from release builds) so
     // you can copy it into the Firebase console to send a test push.
-    _logger.debug('FCM token: $token');
     _logger.debug('FCM token: $token');
     await _registerToken();
   }
@@ -149,10 +147,13 @@ class PushNotificationService {
     final token = _token;
     if (token == null || !_loggedIn) return;
     final deviceId = await _deviceId();
-    final result =
-        await _repository.registerDeviceToken(token, deviceId: deviceId);
+    final result = await _repository.registerDeviceToken(
+      token,
+      deviceId: deviceId,
+    );
     result.fold(
-      (failure) => _logger.warning('Token registration failed: ${failure.message}'),
+      (failure) =>
+          _logger.warning('Token registration failed: ${failure.message}'),
       (_) => _logger.info('Token registered'),
     );
   }
@@ -187,8 +188,11 @@ class PushNotificationService {
 
   Future<void> _createAndroidChannel() async {
     // Resolver returns null off-Android, so this is a no-op on iOS/macOS.
-    final android = _localNotifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final android =
+        _localNotifications
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
     await android?.createNotificationChannel(
       NotificationChannels.pushDefaultChannel,
     );

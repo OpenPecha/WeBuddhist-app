@@ -1357,7 +1357,7 @@ abstract class AppLocalizations {
   /// No description provided for @connect_groups_empty_title.
   ///
   /// In en, this message translates to:
-  /// **'No groups yet'**
+  /// **'No more groups'**
   String get connect_groups_empty_title;
 
   /// No description provided for @connect_groups_empty_subtitle.

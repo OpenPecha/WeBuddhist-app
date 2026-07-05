@@ -693,7 +693,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Unable to load groups.\nCheck your connection and try again';
 
   @override
-  String get connect_groups_empty_title => 'No groups yet';
+  String get connect_groups_empty_title => 'No more groups';
 
   @override
   String get connect_groups_empty_subtitle =>

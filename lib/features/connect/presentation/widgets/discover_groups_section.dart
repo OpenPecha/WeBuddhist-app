@@ -1,0 +1,157 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
+import 'package:flutter_pecha/features/connect/presentation/screens/discover_groups_screen.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:go_router/go_router.dart';
+
+class DiscoverGroupsSection extends StatelessWidget {
+  const DiscoverGroupsSection({
+    super.key,
+    required this.groups,
+    required this.total,
+  });
+
+  final List<GroupProfile> groups;
+  final int total;
+
+  static const double _tileSize = 72;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final subtitleColor =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.l10n.discover_groups,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              if (total > 0)
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const DiscoverGroupsScreen(),
+                      ),
+                    );
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: subtitleColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    context.l10n.see_all,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 108,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: groups.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              return _DiscoverGroupTile(group: groups[index], isDark: isDark);
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+class _DiscoverGroupTile extends StatelessWidget {
+  const _DiscoverGroupTile({required this.group, required this.isDark});
+
+  final GroupProfile group;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final tileColor = isDark ? AppColors.surfaceDark : AppColors.surfaceWhite;
+    final subtitleColor =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
+    return SizedBox(
+      width: 80,
+      child: GestureDetector(
+        onTap: () => context.push('/home/group/${group.id}'),
+        child: Column(
+          children: [
+            Container(
+              width: DiscoverGroupsSection._tileSize,
+              height: DiscoverGroupsSection._tileSize,
+              decoration: BoxDecoration(
+                color: tileColor,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: _GroupAvatar(group: group, isDark: isDark),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              group.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: 12,
+                color: subtitleColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GroupAvatar extends StatelessWidget {
+  const _GroupAvatar({required this.group, required this.isDark});
+
+  final GroupProfile group;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    if (group.avatarUrl != null && group.avatarUrl!.isNotEmpty) {
+      return CachedNetworkImageWidget(imageUrl: group.avatarUrl!);
+    }
+
+    return ColoredBox(
+      color: isDark ? AppColors.surfaceVariantDark : AppColors.grey100,
+      child: Icon(
+        AppAssets.usersThree,
+        size: 28,
+        color: isDark ? AppColors.grey500 : AppColors.grey600,
+      ),
+    );
+  }
+}
