@@ -159,16 +159,27 @@ final malaSoundPlayerProvider = Provider.autoDispose<MalaSoundPlayer>((ref) {
 
 final malaCounterProvider = StateNotifierProvider.autoDispose
     .family<MalaCounterNotifier, MalaCounterState, Mantra>((ref, mantra) {
-      return MalaCounterNotifier(
+      final sync = ref.watch(malaSyncManagerProvider);
+      final notifier = MalaCounterNotifier(
         mantra: mantra,
         local: ref.watch(malaLocalDataSourceProvider),
         getAccumulatorDetail: ref.watch(getAccumulatorDetailUseCaseProvider),
         deleteUserAccumulator: ref.watch(deleteUserAccumulatorUseCaseProvider),
         downloadImageBytes:
             ref.watch(malaRemoteDataSourceProvider).fetchImageBytes,
-        sync: ref.watch(malaSyncManagerProvider),
+        sync: sync,
         currentUserId: () => resolveMalaUserId(ref),
         analytics: ref.watch(analyticsServiceProvider),
         sound: ref.watch(malaSoundPlayerProvider),
       );
+      void onPersonalCountSynced(String presetId) {
+        notifier.handlePersonalCountSynced(presetId);
+      }
+      sync.onPersonalCountSynced = onPersonalCountSynced;
+      ref.onDispose(() {
+        if (sync.onPersonalCountSynced == onPersonalCountSynced) {
+          sync.onPersonalCountSynced = null;
+        }
+      });
+      return notifier;
     });

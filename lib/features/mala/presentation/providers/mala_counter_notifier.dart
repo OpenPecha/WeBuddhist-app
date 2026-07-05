@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class MalaCounterState {
   const MalaCounterState({
     this.total = 0,
+    this.totalCounted = 0,
     this.beadsPerRound = kBeadsPerRound,
     this.isSeeding = true,
     this.seedFailed = false,
@@ -26,6 +27,9 @@ class MalaCounterState {
   });
 
   final int total;
+
+  /// Lifetime `total_counted` baseline from `GET /accumulators/{parent_id}`.
+  final int totalCounted;
   final int beadsPerRound;
 
   /// Per-user bead artwork from the accumulator detail. Null falls back to the
@@ -50,6 +54,7 @@ class MalaCounterState {
 
   MalaCounterState copyWith({
     int? total,
+    int? totalCounted,
     int? beadsPerRound,
     bool? isSeeding,
     bool? seedFailed,
@@ -58,6 +63,7 @@ class MalaCounterState {
     Uint8List? beadImageBytes,
   }) => MalaCounterState(
     total: total ?? this.total,
+    totalCounted: totalCounted ?? this.totalCounted,
     beadsPerRound: beadsPerRound ?? this.beadsPerRound,
     isSeeding: isSeeding ?? this.isSeeding,
     seedFailed: seedFailed ?? this.seedFailed,
@@ -112,6 +118,27 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
 
   String get _presetId => _mantra.presetId;
 
+  /// Lifetime total for [GroupAccumulationsSheet]: API `total_counted` baseline
+  /// plus any unsynced session taps.
+  int get displayLifetimeCount {
+    final userId = _userId;
+    if (userId == null) return state.totalCounted;
+    final local = _local.read(userId, _presetId);
+    final dirty = local.total - local.syncedTotal;
+    if (dirty <= 0) return state.totalCounted;
+    return state.totalCounted + dirty;
+  }
+
+  /// Refreshes [MalaCounterState.totalCounted] after a successful personal sync.
+  void handlePersonalCountSynced(String presetId) {
+    if (presetId != _presetId || !mounted) return;
+    final userId = _userId;
+    if (userId == null) return;
+    state = state.copyWith(
+      totalCounted: _local.read(userId, _presetId).totalCounted,
+    );
+  }
+
   static Future<List<int>> _emptyImageDownload(String _) async => const [];
 
   /// Seed local state first, then reconcile remote state when available.
@@ -131,6 +158,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
     final fallbackImageUrl = localState.beadImageUrl ?? _mantra.beadImageUrl;
     state = state.copyWith(
       total: localState.total,
+      totalCounted: localState.totalCounted,
       isSeeding: false,
       seedFailed: false,
       beadImageUrl: fallbackImageUrl,
@@ -167,12 +195,14 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
         final syncedTotal = serverAccId != null ? serverTotal : 0;
 
         final beadImageUrl = detail.beadImageUrl ?? localState.beadImageUrl;
+        final totalCounted = max(detail.totalCounted, localState.totalCounted);
         _local.write(
           userId,
           _presetId,
           localState.copyWith(
             total: total,
             syncedTotal: syncedTotal,
+            totalCounted: totalCounted,
             accumulatorId: serverAccId ?? localState.accumulatorId,
             beadImageUrl: beadImageUrl,
           ),
@@ -180,6 +210,7 @@ class MalaCounterNotifier extends StateNotifier<MalaCounterState> {
 
         state = state.copyWith(
           total: total,
+          totalCounted: totalCounted,
           isSeeding: false,
           seedFailed: false,
           beadImageUrl: beadImageUrl,
