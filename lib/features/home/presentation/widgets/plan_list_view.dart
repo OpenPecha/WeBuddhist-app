@@ -639,6 +639,7 @@ void _navigateToPlan(
         'plan': userPlan,
         'selectedDay': selectedDay,
         'startDate': startDate,
+        if (seriesId != null) 'seriesId': seriesId,
       },
     );
     return;

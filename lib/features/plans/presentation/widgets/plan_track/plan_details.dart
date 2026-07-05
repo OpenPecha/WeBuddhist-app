@@ -16,6 +16,7 @@ import 'package:flutter_pecha/features/home/presentation/providers/routine_info_
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
@@ -43,10 +44,12 @@ class PlanDetails extends ConsumerStatefulWidget {
     required this.plan,
     required this.selectedDay,
     required this.startDate,
+    this.seriesId,
   });
   final UserPlansModel plan;
   final int selectedDay;
   final DateTime startDate;
+  final String? seriesId;
 
   @override
   ConsumerState<PlanDetails> createState() => _PlanDetailsState();
@@ -289,21 +292,71 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   }
 
   int _firstPlanPreviewUnlockDayCount(WidgetRef ref) {
+    final seriesId = _resolvedSeriesId(ref);
+    if (seriesId != null) {
+      final seriesAsync = ref.watch(seriesByIdProvider(seriesId));
+      return seriesAsync.when(
+        data:
+            (either) => either.fold(
+              (_) => _previewUnlockDayCountFromSeriesList(ref),
+              (series) => SeriesPlanUtils.previewUnlockDayCountForPlan(
+                widget.plan.id,
+                series: series,
+              ),
+            ),
+        loading: () => _previewUnlockDayCountFromSeriesList(ref),
+        error: (_, __) => _previewUnlockDayCountFromSeriesList(ref),
+      );
+    }
+    return _previewUnlockDayCountFromSeriesList(ref);
+  }
+
+  int _previewUnlockDayCountFromSeriesList(WidgetRef ref) {
     final seriesAsync = ref.watch(seriesListFutureProvider);
     return seriesAsync.when(
       data:
           (either) => either.fold(
             (_) => 0,
-            (seriesList) =>
-                SeriesPlanUtils.isFirstPlanInAnySeries(
-                      widget.plan.id,
-                      seriesList,
-                    )
-                    ? SeriesPlanUtils.firstPlanPreviewDayCount
-                    : 0,
+            (seriesList) => SeriesPlanUtils.previewUnlockDayCountForPlan(
+              widget.plan.id,
+              seriesList: seriesList,
+            ),
           ),
       loading: () => 0,
       error: (_, __) => 0,
+    );
+  }
+
+  String? _resolvedSeriesId(WidgetRef ref) {
+    if (widget.seriesId != null) return widget.seriesId;
+
+    final fromList = _seriesIdFromList(ref);
+    if (fromList != null) return fromList;
+
+    final enrollments =
+        ref.watch(userSeriesEnrollmentsProvider).valueOrNull ?? {};
+    for (final seriesId in enrollments) {
+      final seriesEither = ref.watch(seriesByIdProvider(seriesId)).valueOrNull;
+      final containsPlan = seriesEither?.fold(
+        (_) => false,
+        (series) => series.plans.any((plan) => plan.id == widget.plan.id),
+      );
+      if (containsPlan == true) return seriesId;
+    }
+    return null;
+  }
+
+  String? _seriesIdFromList(WidgetRef ref) {
+    final seriesAsync = ref.watch(seriesListFutureProvider);
+    return seriesAsync.whenOrNull(
+      data:
+          (either) => either.fold(
+            (_) => null,
+            (seriesList) => SeriesPlanUtils.seriesIdContainingPlan(
+              widget.plan.id,
+              seriesList,
+            ),
+          ),
     );
   }
 
