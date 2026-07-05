@@ -465,10 +465,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map<String, dynamic>?;
           final plan = extra?['plan'] as Plan?;
           final seriesId = extra?['seriesId'] as String?;
+          final selectedDay = extra?['selectedDay'] as int?;
           if (plan == null) {
             throw Exception('Missing required parameters');
           }
-          return PlanPreviewDetails(plan: plan, seriesId: seriesId);
+          return PlanPreviewDetails(
+            plan: plan,
+            seriesId: seriesId,
+            initialDay: selectedDay,
+          );
         },
       ),
       GoRoute(

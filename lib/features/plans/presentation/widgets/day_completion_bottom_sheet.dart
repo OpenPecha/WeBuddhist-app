@@ -19,6 +19,7 @@ class DayCompletionBottomSheet extends StatefulWidget {
   final String? shareableImageUrl;
   final String planTitle;
   final String planId;
+  final String planLanguage;
 
   const DayCompletionBottomSheet({
     super.key,
@@ -30,6 +31,7 @@ class DayCompletionBottomSheet extends StatefulWidget {
     this.shareableImageUrl,
     required this.planTitle,
     required this.planId,
+    required this.planLanguage,
   });
 
   @override
@@ -167,6 +169,7 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
 
   Widget _buildShareButton(BuildContext context) {
     final buttonWidth = MediaQuery.of(context).size.width - 48;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return SizedBox(
       width: buttonWidth,
@@ -176,10 +179,13 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
         onPressed: _isSharing ? null : _shareImage,
         icon:
             _isSharing
-                ? const SizedBox(
+                ? SizedBox(
                   width: 18,
                   height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: colorScheme.surface.withValues(alpha: 0.85),
+                  ),
                 )
                 : const Icon(AppAssets.readerShare, size: 22),
         label: Text(
@@ -187,10 +193,10 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
         style: FilledButton.styleFrom(
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: Colors.black.withValues(alpha: 0.65),
-          disabledForegroundColor: Colors.white.withValues(alpha: 0.85),
+          backgroundColor: colorScheme.onSurface,
+          foregroundColor: colorScheme.surface,
+          disabledBackgroundColor: colorScheme.onSurface.withValues(alpha: 0.5),
+          disabledForegroundColor: colorScheme.surface.withValues(alpha: 0.85),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -234,6 +240,7 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
       final planLink = DeepLinkUrlBuilder.planDayLink(
         planId: widget.planId,
         dayNumber: widget.dayNumber,
+        language: widget.planLanguage,
       ).toString();
 
       await SharePlus.instance.share(

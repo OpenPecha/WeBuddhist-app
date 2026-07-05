@@ -21,7 +21,8 @@ class AppLinksDeepLinkService {
   DateTime? _lastDispatchedAt;
   bool _initialized = false;
   void Function(int tabIndex)? _tabSetter;
-  void Function(String planId, int? dayNumber)? _planNavigator;
+  void Function(String planId, int? dayNumber, String? planLanguage)?
+      _planNavigator;
 
   static const Duration _duplicateDispatchWindow = Duration(seconds: 5);
 
@@ -60,7 +61,10 @@ class AppLinksDeepLinkService {
     _tabSetter = setter;
   }
 
-  void setPlanNavigator(void Function(String planId, int? dayNumber) navigator) {
+  void setPlanNavigator(
+    void Function(String planId, int? dayNumber, String? planLanguage)
+        navigator,
+  ) {
     _planNavigator = navigator;
   }
 

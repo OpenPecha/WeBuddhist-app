@@ -34,15 +34,25 @@ class DeepLinkUrlBuilder {
   }
 
   /// Returns a link that opens a specific day inside a plan.
-  /// Format: https://webuddhist.com/open/plan/{planId}/day/{dayNumber}
+  ///
+  /// Format: https://webuddhist.com/open/plan/{planId}/day/{dayNumber}?lang={language}
+  ///
+  /// [language] is the content language of the plan (e.g. 'en', 'bo'). It is
+  /// included so the recipient's app can locate the correct enrollment even when
+  /// their app locale differs from the sharer's.
   static Uri planDayLink({
     required String planId,
     required int dayNumber,
+    String? language,
   }) {
+    final queryParameters = <String, String>{
+      if (language != null && language.isNotEmpty) 'lang': language,
+    };
     return Uri(
       scheme: 'https',
       host: _host,
       pathSegments: ['open', 'plan', planId, 'day', dayNumber.toString()],
+      queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
     );
   }
 

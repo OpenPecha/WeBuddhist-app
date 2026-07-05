@@ -194,6 +194,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                   shareableImageUrl: dayContent.shareableImageUrl,
                   planTitle: widget.plan.title,
                   planId: widget.plan.id,
+                  planLanguage: widget.plan.language,
                 ),
           );
         },

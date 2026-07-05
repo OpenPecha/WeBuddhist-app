@@ -136,6 +136,11 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
 
     final planId = pendingNav.planId ?? pendingNav.itemId;
     final routineItem = _findRoutineItem(widget.routineData, pendingNav.itemId);
+
+    // Prefer the language hint baked into the deep link; fall back to the
+    // routine item's language (push notifications) then null (same-language).
+    final hintLanguage = pendingNav.planLanguage ?? routineItem?.language;
+
     var userPlan =
         ref
             .read(myPlansPaginatedProvider)
@@ -145,20 +150,25 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
     userPlan ??= await resolveRoutineUserPlan(
       ref,
       planId,
-      language: routineItem?.language,
+      language: hintLanguage,
     );
     if (!mounted) return;
 
     // Not enrolled — fetch the public plan model and show the preview screen.
     if (userPlan == null) {
-      final planEither = await ref
-          .read(planByIdFutureProvider(planId).future);
+      final planEither = await ref.read(planByIdFutureProvider(planId).future);
       final plan = planEither.fold((_) => null, (p) => p);
       if (!mounted || plan == null) return;
       ref.read(pendingNotificationNavProvider.notifier).state = null;
       context.push(
         AppRoutes.practicePlanPreview,
-        extra: {'plan': plan, 'seriesId': null},
+        extra: {
+          'plan': plan,
+          'seriesId': null,
+          // Pass the shared day so preview opens on the correct day rather
+          // than defaulting to day 1.
+          if (pendingNav.dayNumber != null) 'selectedDay': pendingNav.dayNumber,
+        },
       );
       return;
     }

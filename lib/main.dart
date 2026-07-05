@@ -276,13 +276,14 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         // Practices where RoutineFilledState resolves the plan + current day
         // and pushes /practice/details.
         AppLinksDeepLinkService.instance.setPlanNavigator(
-          (String planId, int? dayNumber) {
+          (String planId, int? dayNumber, String? planLanguage) {
             ref.read(pendingNotificationNavProvider.notifier).state =
                 NotificationNav(
                   itemId: planId,
                   itemType: RoutineItemType.series.name,
                   planId: planId,
                   dayNumber: dayNumber,
+                  planLanguage: planLanguage,
                 );
             ref.read(mainNavigationIndexProvider.notifier).state =
                 MainTab.practice.index;
