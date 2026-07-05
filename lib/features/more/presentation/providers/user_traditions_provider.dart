@@ -45,28 +45,50 @@ class UserTraditionsNotifier extends AutoDisposeAsyncNotifier<List<UserTradition
     final current = state.valueOrNull ?? const <UserTradition>[];
     final currentCodes = current.map((t) => t.traditionCode).toSet();
     final codesToAdd = selectedCodes.difference(currentCodes);
-    final traditionsToRemove =
-        current.where((t) => !selectedCodes.contains(t.traditionCode));
+    final traditionsToRemove = current
+        .where((t) => !selectedCodes.contains(t.traditionCode))
+        .toList();
 
     if (codesToAdd.isEmpty && traditionsToRemove.isEmpty) {
       return true;
     }
 
-    try {
-      for (final tradition in traditionsToRemove) {
+    final failedCodes = <String>[];
+
+    for (final tradition in traditionsToRemove) {
+      try {
         await _remoteDatasource.deleteUserTradition(tradition.id);
+      } catch (e, stackTrace) {
+        failedCodes.add(tradition.traditionCode);
+        _logger.error(
+          'Failed to delete tradition ${tradition.traditionCode}',
+          e,
+          stackTrace,
+        );
       }
-      for (final code in codesToAdd) {
+    }
+
+    for (final code in codesToAdd) {
+      try {
         await _remoteDatasource.saveUserTradition(
           SaveTraditionRequest(traditionCode: code),
         );
+      } catch (e, stackTrace) {
+        failedCodes.add(code);
+        _logger.error('Failed to save tradition $code', e, stackTrace);
       }
-      state = await AsyncValue.guard(_remoteDatasource.fetchUserTraditions);
-      return !state.hasError;
-    } catch (e, stackTrace) {
-      _logger.error('Failed to sync user traditions', e, stackTrace);
-      state = await AsyncValue.guard(_remoteDatasource.fetchUserTraditions);
+    }
+
+    state = await AsyncValue.guard(_remoteDatasource.fetchUserTraditions);
+
+    if (failedCodes.isNotEmpty) {
+      _logger.error(
+        'Tradition sync partial failure: ${failedCodes.length} operation(s) '
+        'failed for codes $failedCodes',
+      );
       return false;
     }
+
+    return !state.hasError;
   }
 }

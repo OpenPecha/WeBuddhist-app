@@ -30,9 +30,17 @@ class UserTradition {
   final String traditionName;
 
   factory UserTradition.fromJson(Map<String, dynamic> json) {
+    final id = json['id'];
+    final traditionCode = json['tradition_code'];
+    if (id is! String || id.isEmpty) {
+      throw FormatException('UserTradition missing id', json);
+    }
+    if (traditionCode is! String || traditionCode.isEmpty) {
+      throw FormatException('UserTradition missing tradition_code', json);
+    }
     return UserTradition(
-      id: json['id'] as String,
-      traditionCode: json['tradition_code'] as String,
+      id: id,
+      traditionCode: traditionCode,
       traditionName: json['tradition_name'] as String? ?? '',
     );
   }

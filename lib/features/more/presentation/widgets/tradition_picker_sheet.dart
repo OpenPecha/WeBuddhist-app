@@ -64,7 +64,16 @@ class _TraditionPickerSheetState extends ConsumerState<TraditionPickerSheet> {
       return;
     }
 
-    setState(() => _isSaving = false);
+    final serverCodes = ref
+            .read(userTraditionsProvider)
+            .valueOrNull
+            ?.map((t) => t.traditionCode)
+            .toSet() ??
+        widget.initialSelectedCodes;
+    setState(() {
+      _isSaving = false;
+      _selectedCodes = Set<String>.from(serverCodes);
+    });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
