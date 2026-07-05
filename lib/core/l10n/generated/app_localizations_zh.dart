@@ -1889,4 +1889,8 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get drag_to_resize => '拖動以調整大小';
+
+  @override
+  String get day_completion_share_message =>
+      '我刚在 WeBuddhist 上完成了一天的修行练习。加入我，一起培养每日修行的好习惯。';
 }

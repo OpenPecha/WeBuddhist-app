@@ -2013,4 +2013,8 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get drag_to_resize => 'आकार परिवर्तन गर्न तान्नुहोस्';
+
+  @override
+  String get day_completion_share_message =>
+      'मैले WeBuddhist मा आफ्नो अभ्यासको एक दिन पूरा गरें। मसँगै सामेल हुनुस् र एकसाथ दैनिक अभ्यास बानी निर्माण गरौं।';
 }

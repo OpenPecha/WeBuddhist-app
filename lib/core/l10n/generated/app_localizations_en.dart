@@ -1985,4 +1985,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get drag_to_resize => 'Drag to resize';
+
+  @override
+  String get day_completion_share_message =>
+      'I just completed a day of my practice on WeBuddhist. Join me and build a daily practice habit together.';
 }

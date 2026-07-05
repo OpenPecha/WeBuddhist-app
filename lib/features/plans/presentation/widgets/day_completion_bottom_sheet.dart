@@ -230,10 +230,7 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
         globalKey: _shareButtonKey,
       );
 
-      // TODO: Replace with a localized, finalized share message.
-      const shareMessage =
-          'I just completed a day of my practice on WeBuddhist. '
-          'Join me and build a daily practice habit together.';
+      final shareMessage = context.l10n.day_completion_share_message;
       final planLink = DeepLinkUrlBuilder.planDayLink(
         planId: widget.planId,
         dayNumber: widget.dayNumber,

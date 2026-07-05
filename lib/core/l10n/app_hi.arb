@@ -887,5 +887,6 @@
   "license_with_value": "लाइसेंस: {value}",
   "loading_previous_pages": "पिछला लोड हो रहा है... ({count} पृष्ठ)",
   "loading_more_pages": "और लोड हो रहा है... ({count} पृष्ठ)",
-  "drag_to_resize": "आकार बदलने के लिए खींचें"
+  "drag_to_resize": "आकार बदलने के लिए खींचें",
+  "day_completion_share_message": "मैंने WeBuddhist पर अपने अभ्यास का एक दिन पूरा किया। मेरे साथ जुड़ें और साथ मिलकर रोज़ाना अभ्यास की आदत बनाएं।"
 }

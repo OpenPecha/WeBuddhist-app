@@ -821,5 +821,6 @@
   "license_with_value": "授權：{value}",
   "loading_previous_pages": "正在載入上文……（{count} 頁）",
   "loading_more_pages": "正在載入更多……（{count} 頁）",
-  "drag_to_resize": "拖動以調整大小"
+  "drag_to_resize": "拖動以調整大小",
+  "day_completion_share_message": "我刚在 WeBuddhist 上完成了一天的修行练习。加入我，一起培养每日修行的好习惯。"
 }

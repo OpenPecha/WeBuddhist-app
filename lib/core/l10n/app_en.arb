@@ -990,5 +990,6 @@
       }
     }
   },
-  "drag_to_resize": "Drag to resize"
+  "drag_to_resize": "Drag to resize",
+  "day_completion_share_message": "I just completed a day of my practice on WeBuddhist. Join me and build a daily practice habit together."
 }
