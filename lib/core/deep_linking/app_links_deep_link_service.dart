@@ -21,6 +21,7 @@ class AppLinksDeepLinkService {
   DateTime? _lastDispatchedAt;
   bool _initialized = false;
   void Function(int tabIndex)? _tabSetter;
+  void Function(String planId, int? dayNumber)? _planNavigator;
 
   static const Duration _duplicateDispatchWindow = Duration(seconds: 5);
 
@@ -57,6 +58,10 @@ class AppLinksDeepLinkService {
 
   void setTabSetter(void Function(int tabIndex) setter) {
     _tabSetter = setter;
+  }
+
+  void setPlanNavigator(void Function(String planId, int? dayNumber) navigator) {
+    _planNavigator = navigator;
   }
 
   bool drainPendingLink() {
@@ -152,6 +157,7 @@ class AppLinksDeepLinkService {
       source: 'app_links',
       baseLocation: baseLocation,
       tabSetter: _tabSetter,
+      planNavigator: _planNavigator,
     );
     if (routed) {
       _lastDispatchedUri = uri;

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -17,6 +18,7 @@ class DayCompletionBottomSheet extends StatefulWidget {
   final String? thumbnailUrl;
   final String? shareableImageUrl;
   final String planTitle;
+  final String planId;
 
   const DayCompletionBottomSheet({
     super.key,
@@ -27,6 +29,7 @@ class DayCompletionBottomSheet extends StatefulWidget {
     this.thumbnailUrl,
     this.shareableImageUrl,
     required this.planTitle,
+    required this.planId,
   });
 
   @override
@@ -227,9 +230,19 @@ class _DayCompletionBottomSheetState extends State<DayCompletionBottomSheet> {
         globalKey: _shareButtonKey,
       );
 
+      // TODO: Replace with a localized, finalized share message.
+      const shareMessage =
+          'I just completed a day of my practice on WeBuddhist. '
+          'Join me and build a daily practice habit together.';
+      final planLink = DeepLinkUrlBuilder.planDayLink(
+        planId: widget.planId,
+        dayNumber: widget.dayNumber,
+      ).toString();
+
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(tempFile.path)],
+          text: '$shareMessage\n\n$planLink',
           sharePositionOrigin: sharePositionOrigin,
         ),
       );
