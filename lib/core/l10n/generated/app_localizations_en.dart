@@ -1753,6 +1753,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'I\'d love for you to join our group. Let\'s practice together on WeBuddhist.';
 
   @override
+  String get share_group_accumulator_message =>
+      'I\'m doing a group accumulation practice on WeBuddhist and wanted to share it with you. Join me and let\'s practice together!';
+
+  @override
   String get weekday_monday => 'MON';
 
   @override

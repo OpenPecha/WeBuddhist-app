@@ -86,6 +86,14 @@ class DeepLinkUrlBuilder {
     );
   }
 
+  static Uri groupAccumulatorLink({required String accumulatorId}) {
+    return Uri(
+      scheme: 'https',
+      host: _host,
+      pathSegments: ['open', 'group-accumulator', accumulatorId],
+    );
+  }
+
   static Uri malaLink({required String presetId}) {
     return Uri(
       scheme: 'https',

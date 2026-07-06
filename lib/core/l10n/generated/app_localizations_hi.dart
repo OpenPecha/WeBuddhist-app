@@ -1767,6 +1767,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'मैं चाहता हूँ कि आप हमारे समूह में शामिल हों। WeBuddhist पर एक साथ अभ्यास करते हैं।';
 
   @override
+  String get share_group_accumulator_message =>
+      'मैं WeBuddhist पर एक समूह संचय अभ्यास कर रहा हूँ और यह आपके साथ साझा करना चाहता था। मेरे साथ जुड़ें और हम साथ मिलकर अभ्यास करते हैं!';
+
+  @override
   String get weekday_monday => 'सोम';
 
   @override

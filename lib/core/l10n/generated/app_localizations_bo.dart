@@ -1774,6 +1774,10 @@ class AppLocalizationsBo extends AppLocalizations {
       'ངའི་སྡེ་ཚན་དུ་ཁྱོད་ཞུགས་ན་སྙིང་གི་དགའ་བ། WeBuddhist ཐོག་མཉམ་དུ་ཉམས་ལེན་བྱོས།';
 
   @override
+  String get share_group_accumulator_message =>
+      'ངས་ WeBuddhist ཐོག་ཚོགས་པའི་གྲངས་འཇོག་ཉམས་ལེན་བྱེད་བཞིན་ཡོད་ལ་ཁྱེད་དང་མཉམ་དུ་བགོ་བཤའ་བྱེད་འདོད། ངར་ཞུགས་ནས་མཉམ་དུ་ཉམས་ལེན་བྱོས།';
+
+  @override
   String get weekday_monday => 'ཟླ།';
 
   @override

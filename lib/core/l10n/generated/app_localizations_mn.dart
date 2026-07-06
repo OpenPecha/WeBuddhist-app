@@ -1771,6 +1771,10 @@ class AppLocalizationsMn extends AppLocalizations {
       'Таны манай бүлэгт нэгдсэнийг хүсч байна. WeBuddhist дээр хамтдаа дадлагажъя.';
 
   @override
+  String get share_group_accumulator_message =>
+      'Би WeBuddhist дээр бүлгийн хуримтлалын дадлага хийж байгаа бөгөөд энийг тантай хуваалцахыг хүссэн. Надтай нэгдэж, хамтдаа дадлагажъя!';
+
+  @override
   String get weekday_monday => 'Дав';
 
   @override

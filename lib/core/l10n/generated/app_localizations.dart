@@ -3196,6 +3196,12 @@ abstract class AppLocalizations {
   /// **'I\'d love for you to join our group. Let\'s practice together on WeBuddhist.'**
   String get share_group_invite_message;
 
+  /// No description provided for @share_group_accumulator_message.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m doing a group accumulation practice on WeBuddhist and wanted to share it with you. Join me and let\'s practice together!'**
+  String get share_group_accumulator_message;
+
   /// No description provided for @weekday_monday.
   ///
   /// In en, this message translates to:

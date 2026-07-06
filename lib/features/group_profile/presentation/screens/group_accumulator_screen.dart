@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/deep_linking/deep_link_url_builder.dart';
 import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
@@ -12,9 +13,11 @@ import 'package:flutter_pecha/features/group_profile/domain/entities/group_accum
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_accumulator_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 class GroupAccumulatorScreen extends ConsumerStatefulWidget {
   final String accumulatorId;
@@ -144,6 +147,20 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
     );
   }
 
+  Future<void> _onSharePressed(BuildContext context) async {
+    final shareUrl = DeepLinkUrlBuilder.groupAccumulatorLink(
+      accumulatorId: widget.accumulatorId,
+    ).toString();
+    final shareMessage = context.l10n.share_group_accumulator_message;
+    final sharePositionOrigin = getSharePositionOrigin(context: context);
+    await SharePlus.instance.share(
+      ShareParams(
+        text: '$shareMessage\n\n$shareUrl',
+        sharePositionOrigin: sharePositionOrigin,
+      ),
+    );
+  }
+
   Widget _buildAppBar(BuildContext context) {
     final title = widget.groupTitle?.trim();
     return Padding(
@@ -163,7 +180,10 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 48, height: 48),
+          IconButton(
+            icon: const Icon(AppAssets.readerShare),
+            onPressed: () => _onSharePressed(context),
+          ),
         ],
       ),
     );

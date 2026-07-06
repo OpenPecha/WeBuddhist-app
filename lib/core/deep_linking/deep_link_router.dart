@@ -180,6 +180,16 @@ class DeepLinkRouter {
 
     if (segments.length >= 3 &&
         segments[0] == 'open' &&
+        segments[1] == 'group-accumulator') {
+      final accumulatorId = segments[2];
+      return _DeepLinkDestination(
+        '/home/group-accumulator/$accumulatorId',
+        opensOnTop: true,
+      );
+    }
+
+    if (segments.length >= 3 &&
+        segments[0] == 'open' &&
         segments[1] == 'group') {
       final groupId = segments[2];
       return _DeepLinkDestination(

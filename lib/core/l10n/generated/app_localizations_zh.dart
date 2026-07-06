@@ -1669,6 +1669,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get share_group_invite_message => '我希望你能加入我们的群组。让我们在WeBuddhist上一起修行吧。';
 
   @override
+  String get share_group_accumulator_message =>
+      '我正在WeBuddhist上进行群组累积修行，想与你分享。加入我，让我们一起修行吧！';
+
+  @override
   String get weekday_monday => '週一';
 
   @override
