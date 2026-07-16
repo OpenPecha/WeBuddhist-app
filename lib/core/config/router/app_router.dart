@@ -380,7 +380,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: "mala",
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return MalaScreen(initialPresetId: extra?['presetId'] as String?);
+          return MalaScreen(
+            initialPresetId: extra?['presetId'] as String?,
+            initialGroupAccumulatorId:
+                extra?['groupAccumulatorId'] as String?,
+          );
         },
       ),
 
