@@ -12,13 +12,35 @@ class MalaAccumulationSelectionNotifier
   }
 
   final String _presetId;
+  String? _navigationGroupAccumulatorId;
+  bool _loadedFromStorage = false;
+
+  /// Applies a one-shot group selection from navigation (e.g. group accumulator
+  /// "Recite now"). Takes precedence over persisted selection when [_load] has
+  /// not finished yet; otherwise selects immediately.
+  Future<void> applyNavigationIntent(String groupAccumulatorId) async {
+    if (groupAccumulatorId.isEmpty) return;
+    if (!_loadedFromStorage) {
+      _navigationGroupAccumulatorId = groupAccumulatorId;
+      return;
+    }
+    await selectGroup(groupAccumulatorId);
+  }
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(
       '${StorageKeys.malaAccumulationSelectionPrefix}$_presetId',
     );
-    state = MalaAccumulationSelection.fromStorage(raw);
+    final navigationGroupId = _navigationGroupAccumulatorId;
+    if (navigationGroupId != null && navigationGroupId.isNotEmpty) {
+      state = MalaAccumulationSelection.group(navigationGroupId);
+      _navigationGroupAccumulatorId = null;
+      await _persist();
+    } else {
+      state = MalaAccumulationSelection.fromStorage(raw);
+    }
+    _loadedFromStorage = true;
   }
 
   Future<void> selectPersonal() async {

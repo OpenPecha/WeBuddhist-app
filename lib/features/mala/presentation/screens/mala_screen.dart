@@ -23,10 +23,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class MalaScreen extends ConsumerStatefulWidget {
-  const MalaScreen({super.key, this.initialPresetId});
+  const MalaScreen({
+    super.key,
+    this.initialPresetId,
+    this.initialGroupAccumulatorId,
+  });
 
   /// Optionally open directly on a specific mantra.
   final String? initialPresetId;
+
+  /// When set (e.g. from a group accumulator screen), pre-select that group
+  /// accumulation instead of the last-used personal/group choice.
+  final String? initialGroupAccumulatorId;
 
   @override
   ConsumerState<MalaScreen> createState() => _MalaScreenState();
@@ -35,6 +43,7 @@ class MalaScreen extends ConsumerStatefulWidget {
 class _MalaScreenState extends ConsumerState<MalaScreen> {
   int _index = 0;
   bool _initialisedIndex = false;
+  bool _appliedInitialGroupSelection = false;
   String? _trackedOpenedId;
 
   void _trackOpened(Mantra mantra) {
@@ -147,6 +156,8 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
     final groupCountsNotifier = ref.read(
       groupAccumulationCountsProvider(mantra.presetId).notifier,
     );
+
+    _applyInitialGroupSelectionIfNeeded(mantra.presetId);
 
     ref.listen(joinedAccumulatorGroupsProvider(mantra.presetId), (_, next) {
       next.whenData((loadedGroups) {
@@ -280,6 +291,17 @@ class _MalaScreenState extends ConsumerState<MalaScreen> {
         ),
       ],
     );
+  }
+
+  void _applyInitialGroupSelectionIfNeeded(String presetId) {
+    final groupId = widget.initialGroupAccumulatorId;
+    if (groupId == null || groupId.isEmpty || _appliedInitialGroupSelection) {
+      return;
+    }
+    _appliedInitialGroupSelection = true;
+    ref
+        .read(malaAccumulationSelectionProvider(presetId).notifier)
+        .applyNavigationIntent(groupId);
   }
 
   int _displayTotal({

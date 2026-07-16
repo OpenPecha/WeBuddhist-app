@@ -91,11 +91,14 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
           if (next case GroupFollowSuccess(isFollowing: false)) {
             ref
                 .read(
-                  groupAccumulatorJoinCacheProvider(resolvedDetail.groupId)
-                      .notifier,
+                  groupAccumulatorJoinCacheProvider(
+                    resolvedDetail.groupId,
+                  ).notifier,
                 )
                 .clear();
-            ref.invalidate(groupAccumulatorDetailProvider(widget.accumulatorId));
+            ref.invalidate(
+              groupAccumulatorDetailProvider(widget.accumulatorId),
+            );
             ref.invalidate(groupAccumulatorsProvider(resolvedDetail.groupId));
           }
         },
@@ -271,16 +274,20 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
 
   Future<void> _onShareTap(GroupAccumulatorDetail detail) async {
     final groupName = _resolveGroupName(detail.groupId);
-    final shareMessage = groupName == null
-        ? context.l10n.group_accumulator_share_message_no_group(detail.title)
-        : context.l10n.group_accumulator_share_message(
-            detail.title,
-            groupName,
-          );
-    final shareUrl = DeepLinkUrlBuilder.groupAccumulatorLink(
-      accumulatorId: detail.id,
-      groupId: detail.groupId,
-    ).toString();
+    final shareMessage =
+        groupName == null
+            ? context.l10n.group_accumulator_share_message_no_group(
+              detail.title,
+            )
+            : context.l10n.group_accumulator_share_message(
+              detail.title,
+              groupName,
+            );
+    final shareUrl =
+        DeepLinkUrlBuilder.groupAccumulatorLink(
+          accumulatorId: detail.id,
+          groupId: detail.groupId,
+        ).toString();
     final sharePositionOrigin = getSharePositionOrigin(context: context);
 
     await SharePlus.instance.share(
@@ -300,7 +307,8 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
     return ref
         .read(groupProfileProvider(groupId))
         .whenOrNull(
-          data: (either) => either.fold((_) => null, (profile) => profile.title),
+          data:
+              (either) => either.fold((_) => null, (profile) => profile.title),
         );
   }
 }
@@ -309,8 +317,10 @@ GroupType _resolveGroupType(WidgetRef ref, String groupId) {
   final profileAsync = ref.read(groupProfileProvider(groupId));
   return profileAsync.maybeWhen(
     data:
-        (either) =>
-            either.fold((_) => GroupType.community, (profile) => profile.groupType),
+        (either) => either.fold(
+          (_) => GroupType.community,
+          (profile) => profile.groupType,
+        ),
     orElse: () => GroupType.community,
   );
 }
@@ -333,7 +343,9 @@ class _MyContributionsTabState extends State<_MyContributionsTab> {
     final user = widget.detail.user;
     final secondaryColor =
         widget.isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
-    final numberFormat = NumberFormat.decimalPattern(intlFormatLocaleOf(context));
+    final numberFormat = NumberFormat.decimalPattern(
+      intlFormatLocaleOf(context),
+    );
 
     if (user == null) {
       return Center(
@@ -435,7 +447,10 @@ class _AccumulatorHeroCard extends StatelessWidget {
     void navigateToMala() {
       final presetId = detail.presetAccumulatorId;
       if (presetId.isEmpty) return;
-      context.push('/mala', extra: {'presetId': presetId});
+      context.push(
+        '/mala',
+        extra: {'presetId': presetId, 'groupAccumulatorId': detail.id},
+      );
     }
 
     return GroupAccumulatorHeroCard(
@@ -453,10 +468,7 @@ class _LeaderboardTab extends ConsumerStatefulWidget {
   final String accumulatorId;
   final bool isDark;
 
-  const _LeaderboardTab({
-    required this.accumulatorId,
-    required this.isDark,
-  });
+  const _LeaderboardTab({required this.accumulatorId, required this.isDark});
 
   @override
   ConsumerState<_LeaderboardTab> createState() => _LeaderboardTabState();
@@ -467,9 +479,8 @@ class _LeaderboardTabState extends ConsumerState<_LeaderboardTab> {
   bool _hasRequestedInitialLoad = false;
   GroupAccumulatorMemberSort _sort = GroupAccumulatorMemberSort.total;
 
-  GroupAccumulatorMembersKey get _membersKey => GroupAccumulatorMembersKey(
-    accumulatorId: widget.accumulatorId,
-  );
+  GroupAccumulatorMembersKey get _membersKey =>
+      GroupAccumulatorMembersKey(accumulatorId: widget.accumulatorId);
 
   @override
   void initState() {
@@ -513,7 +524,9 @@ class _LeaderboardTabState extends ConsumerState<_LeaderboardTab> {
     );
     final secondaryColor =
         widget.isDark ? AppColors.textTertiaryDark : AppColors.textSecondary;
-    final numberFormat = NumberFormat.decimalPattern(intlFormatLocaleOf(context));
+    final numberFormat = NumberFormat.decimalPattern(
+      intlFormatLocaleOf(context),
+    );
 
     if (membersState.isLoading && membersState.members.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -534,18 +547,13 @@ class _LeaderboardTabState extends ConsumerState<_LeaderboardTab> {
       );
     }
 
-    final sortedMembers = sortAccumulatorMembers(
-      membersState.members,
-      _sort,
-    );
+    final sortedMembers = sortAccumulatorMembers(membersState.members, _sort);
 
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       itemCount:
-          1 +
-          sortedMembers.length +
-          (membersState.isLoadingMore ? 1 : 0),
+          1 + sortedMembers.length + (membersState.isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == 0) {
           return Padding(
