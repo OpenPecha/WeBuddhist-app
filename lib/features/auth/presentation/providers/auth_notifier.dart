@@ -116,6 +116,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (state.isLoggedIn && !state.isGuest) {
         _logger.info('Connectivity restored — reconciling user profile');
         await ref.read(userProvider.notifier).refreshUser();
+        // If onboarding status was unknown during offline launch, fetch it now.
+        if (state.hasCompletedOnboarding == null) {
+          final status = await _fetchOnboardingStatusSafe();
+          if (status != null) {
+            state = state.copyWith(hasCompletedOnboarding: status);
+          }
+        }
       } else {
         _logger.info('Connectivity restored — re-running login restore');
         await _restoreLoginState();
@@ -217,10 +224,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         await _identifyAuthenticatedUser(userId: userId, isGuest: false);
       }
 
+      // Prefetch onboarding status while the token is fresh. Emitting auth
+      // state once with the complete picture means the route guard's redirect
+      // fires synchronously — no second navigation or per-nav network call.
+      final onboardingStatus = await _fetchOnboardingStatusSafe();
+
       state = state.copyWith(
         isLoggedIn: true,
         isLoading: false,
         isGuest: false,
+        hasCompletedOnboarding: onboardingStatus,
         errorMessage: null,
       );
       _logger.info('Login state restored');
@@ -300,7 +313,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   void _setLoggedOutState() {
-    state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
+    state = state.copyWith(
+      isLoggedIn: false,
+      isLoading: false,
+      isGuest: false,
+      hasCompletedOnboarding: null,
+    );
     _logger.info('No valid credentials or guest mode found, showing login');
   }
 
@@ -315,7 +333,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> handleSessionExpired() async {
     _logger.info('Session permanently expired — routing to login');
     await _localLogoutUseCase(const NoParams());
-    state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
+    state = state.copyWith(
+      isLoggedIn: false,
+      isLoading: false,
+      isGuest: false,
+      hasCompletedOnboarding: null,
+    );
   }
 
   Future<void> _handleAuthFailure() async {
@@ -331,7 +354,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
 
-    state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
+    state = state.copyWith(
+      isLoggedIn: false,
+      isLoading: false,
+      isGuest: false,
+      hasCompletedOnboarding: null,
+    );
   }
 
   Future<void> login({String? connection}) async {
@@ -380,11 +408,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     await _trackAuthLoginSucceeded(connection: connection);
 
-    // 3. Update auth state — triggers the router refresh.
+    // 3. Prefetch onboarding status so the route guard can decide instantly.
+    final onboardingStatus = await _fetchOnboardingStatusSafe();
+
+    // 4. Update auth state — triggers the router refresh.
     state = state.copyWith(
       isLoggedIn: true,
       isLoading: false,
       isGuest: false,
+      hasCompletedOnboarding: onboardingStatus,
       errorMessage: null,
     );
     _logger.info('User authenticated');
@@ -498,7 +530,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     await _analytics.reset();
 
-    state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
+    state = state.copyWith(
+      isLoggedIn: false,
+      isLoading: false,
+      isGuest: false,
+      hasCompletedOnboarding: null,
+    );
     _logger.info('User logged out, auth and user state cleared');
   }
 
@@ -552,13 +589,46 @@ class AuthNotifier extends StateNotifier<AuthState> {
         (failure) => _logger.warning(
           'Failed to reset onboarding status: ${failure.message}',
         ),
-        (_) => _logger.info(
-          'Onboarding reset — user will see onboarding on next login',
-        ),
+        (_) {
+          _logger.info(
+            'Onboarding reset — user will see onboarding on next login',
+          );
+          // Reflect the reset immediately so the route guard re-enforces onboarding.
+          state = state.copyWith(hasCompletedOnboarding: false);
+        },
       );
     } catch (e) {
       _logger.warning('Failed to reset onboarding: $e');
     }
+  }
+
+  /// Fetches the onboarding completion flag once, returning null on any error
+  /// so the caller can decide how to handle the missing value (e.g. skip
+  /// enforcement rather than block the user).
+  Future<bool?> _fetchOnboardingStatusSafe() async {
+    try {
+      final repo = ref.read(onboardingRepositoryProvider);
+      final result = await repo.isOnboardingCompleted();
+      return result.fold(
+        (failure) {
+          _logger.warning(
+            'Could not prefetch onboarding status: ${failure.message}',
+          );
+          return null;
+        },
+        (hasCompleted) => hasCompleted,
+      );
+    } catch (e) {
+      _logger.warning('Could not prefetch onboarding status: $e');
+      return null;
+    }
+  }
+
+  /// Called by the onboarding flow when the user successfully completes
+  /// onboarding. Updates the in-state flag so the route guard reflects the
+  /// change without a network round-trip.
+  void markOnboardingCompleted() {
+    state = state.copyWith(hasCompletedOnboarding: true);
   }
 
   AnalyticsService get _analytics => ref.read(analyticsServiceProvider);
