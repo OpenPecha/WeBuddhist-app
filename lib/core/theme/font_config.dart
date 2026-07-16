@@ -2,7 +2,7 @@
 // Defines system fonts (for UI) and content fonts (for backend texts)
 // for each supported language.
 
-// - Tibetan (bo): Noto Serif Tibetan for system UI and SambhotaUnicode for content/source
+// - Tibetan (bo): Noto Serif Tibetan for system UI and BabelStoneTibetan for content/source
 // - English (en): Inter for system UI and Source Serif 4 for content/source
 // - Chinese (zh): Noto Sans Traditional Chinese for system UI and Noto Serif Traditional Chinese for content
 import 'package:google_fonts/google_fonts.dart';
@@ -154,7 +154,7 @@ class AppFontConfig {
   }
 
   static const Map<String, LanguageFontConfig> _languageFonts = {
-    // Tibetan - Noto Serif Tibetan for UI, SambhotaUnicode for content/source
+    // Tibetan - Noto Serif Tibetan for UI, BabelStoneTibetan for content/source
     AppConfig.tibetanLanguageCode: LanguageFontConfig(
       systemFont: AppConfig.tibetanSystemFont,
       contentFont: AppConfig.tibetanContentFont,

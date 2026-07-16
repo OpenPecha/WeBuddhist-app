@@ -194,9 +194,9 @@ flutter:
 
   fonts:
     # Tibetan fonts
-    - family: SambhotaUnicode
+    - family: BabelStoneTibetan
       fonts:
-        - asset: assets/fonts/sambhotaunicodeweb.ttf
+        - asset: assets/fonts/BabelStoneTibetan.ttf
           style: normal
 # To add assets to your application, add an assets section, like this:
 # assets:
