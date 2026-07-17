@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_recitations_paginated_provider.dart';
@@ -40,9 +41,9 @@ class _AllRecitationsScreenState extends ConsumerState<AllRecitationsScreen> {
   }
 
   void _openSearch(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const RecitationsSearchScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const RecitationsSearchScreen()));
   }
 
   @override
@@ -52,6 +53,10 @@ class _AllRecitationsScreenState extends ConsumerState<AllRecitationsScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(AppAssets.arrowLeft),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
           l10n.home_chants,
           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -81,7 +86,8 @@ class _AllRecitationsScreenState extends ConsumerState<AllRecitationsScreen> {
       return ErrorStateWidget(
         error: state.error!,
         onRetry:
-            () => ref.read(practiceRecitationsPaginatedProvider.notifier).retry(),
+            () =>
+                ref.read(practiceRecitationsPaginatedProvider.notifier).retry(),
       );
     }
 

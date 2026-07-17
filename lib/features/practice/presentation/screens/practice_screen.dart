@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
@@ -40,12 +41,17 @@ class PracticeScreen extends ConsumerWidget {
   }
 
   PreferredSizeWidget? _appBar(
+    BuildContext context,
     AppLocalizations localizations, {
     bool isDark = false,
     VoidCallback? onEdit,
   }) {
     if (!showAppBar) return null;
     return AppBar(
+      leading: IconButton(
+        icon: const Icon(AppAssets.arrowLeft),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
       title: Text(
         localizations.routine_title,
         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -83,7 +89,7 @@ class PracticeScreen extends ConsumerWidget {
 
     if (authState.isLoading) {
       return Scaffold(
-        appBar: _appBar(localizations),
+        appBar: _appBar(context, localizations),
         body: const SafeArea(child: Center(child: CircularProgressIndicator())),
       );
     }
@@ -93,14 +99,14 @@ class PracticeScreen extends ConsumerWidget {
     return routineAsync.when(
       loading:
           () => Scaffold(
-            appBar: _appBar(localizations),
+            appBar: _appBar(context, localizations),
             body: const SafeArea(
               child: Center(child: CircularProgressIndicator()),
             ),
           ),
       error:
           (error, _) => Scaffold(
-            appBar: _appBar(localizations),
+            appBar: _appBar(context, localizations),
             body: SafeArea(
               child: RefreshIndicator(
                 onRefresh: () => _refreshRoutine(ref),
@@ -160,6 +166,7 @@ class PracticeScreen extends ConsumerWidget {
 
           return Scaffold(
             appBar: _appBar(
+              context,
               localizations,
               isDark: isDark,
               onEdit: showAppBar ? handleEdit : null,
@@ -186,7 +193,7 @@ class PracticeScreen extends ConsumerWidget {
     AppLocalizations localizations,
   ) {
     return Scaffold(
-      appBar: _appBar(localizations),
+      appBar: _appBar(context, localizations),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
