@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/features/practice/data/models/routine_model.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
@@ -31,6 +32,10 @@ class PracticeChantListTile extends StatelessWidget {
   final bool includeOuterPadding;
   final Widget? trailing;
 
+  static const double _titleFontSize = 16;
+  static const double _tibetanSegmentFontSize = 15;
+  static const double _segmentFontSize = 13;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -39,15 +44,37 @@ class PracticeChantListTile extends StatelessWidget {
     final firstSegmentContent =
         normalizeSegmentText(recitation.firstSegment?.content).trim();
     final hasFirstSegment = firstSegmentContent.isNotEmpty;
+    final hasTibetanTitle = _containsTibetan(recitation.title);
     final hasTibetanSegment = _containsTibetan(firstSegmentContent);
+    final hasTibetanText = hasTibetanTitle || hasTibetanSegment;
     final firstSegmentLanguage =
         hasTibetanSegment ? AppConfig.tibetanLanguageCode : recitation.language;
+    final segmentFontSize =
+        hasTibetanSegment ? _tibetanSegmentFontSize : _segmentFontSize;
+    final titleStyle =
+        hasTibetanTitle
+            ? getContentTextStyle(
+              AppConfig.tibetanLanguageCode,
+              TextStyle(
+                fontSize: _titleFontSize,
+                fontWeight: FontWeight.bold,
+                height: AppFontConfig.tibetanContentLineHeight,
+                leadingDistribution: AppFontConfig.tibetanLeadingDistribution,
+              ),
+            )
+            : const TextStyle(
+              fontSize: _titleFontSize,
+              fontWeight: FontWeight.bold,
+            );
     final firstSegmentStyle = getContentTextStyle(
       firstSegmentLanguage,
       theme.textTheme.bodySmall?.copyWith(
         color: isDark ? AppColors.textSubtleDark : AppColors.grey900,
-        fontSize: hasTibetanSegment ? 15 : 13,
-        height: hasTibetanSegment ? 1.55 : 1.35,
+        fontSize: segmentFontSize,
+        height:
+            hasTibetanSegment ? AppFontConfig.tibetanContentLineHeight : 1.35,
+        leadingDistribution:
+            hasTibetanSegment ? AppFontConfig.tibetanLeadingDistribution : null,
       ),
     );
 
@@ -58,7 +85,9 @@ class PracticeChantListTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          // Extra vertical room so stacked Tibetan glyphs aren't clipped by
+          // Material's antiAlias clip (same issue fixed on home/series cards).
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -78,18 +107,29 @@ class PracticeChantListTile extends StatelessWidget {
                     children: [
                       Text(
                         recitation.title,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: titleStyle,
+                        strutStyle:
+                            hasTibetanTitle
+                                ? AppFontConfig.tibetanStrutStyle(
+                                  AppConfig.tibetanLanguageCode,
+                                  _titleFontSize,
+                                )
+                                : null,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (hasFirstSegment) ...[
-                        const SizedBox(height: 4),
+                        SizedBox(height: hasTibetanSegment ? 6 : 4),
                         Text(
                           firstSegmentContent,
                           style: firstSegmentStyle,
+                          strutStyle:
+                              hasTibetanSegment
+                                  ? AppFontConfig.tibetanStrutStyle(
+                                    AppConfig.tibetanLanguageCode,
+                                    segmentFontSize,
+                                  )
+                                  : null,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
