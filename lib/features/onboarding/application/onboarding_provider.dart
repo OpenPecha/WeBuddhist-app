@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_notifier.dart';
 import 'package:flutter_pecha/features/onboarding/application/onboarding_state.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/providers/use_case_providers.dart';
@@ -17,5 +18,6 @@ final onboardingProvider =
         clearOnboardingPreferencesUseCase:
             ref.read(clearOnboardingPreferencesUseCaseProvider),
         analyticsService: ref.read(analyticsServiceProvider),
+        onCompleted: () => ref.read(authProvider.notifier).markOnboardingCompleted(),
       );
     });
