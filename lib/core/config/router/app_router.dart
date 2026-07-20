@@ -95,17 +95,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
     // Route guard for authentication and authorization.
     // Always reads the latest auth state — do NOT capture it in the closure.
-    // RouteGuard.redirect is synchronous: the onboarding status lives on
-    // AuthState and is prefetched during login/auth-restore, so no network
-    // call happens here on each navigation.
-    redirect: (context, state) => RouteGuard.redirect(
-      context,
-      state,
-      ref.read(authProvider),
-      getPendingRoute: () => ref.read(pendingRouteProvider),
-      setPendingRoute:
-          (route) => ref.read(pendingRouteProvider.notifier).state = route,
-    ),
+    // RouteGuard.redirect is synchronous: onboarding status lives on AuthState
+    // and is prefetched during login/auth-restore. When still unknown, a
+    // debounced background retry is kicked off here (never awaited).
+    redirect: (context, state) {
+      ref.read(authProvider.notifier).refreshOnboardingStatusIfNeeded();
+      return RouteGuard.redirect(
+        context,
+        state,
+        ref.read(authProvider),
+        getPendingRoute: () => ref.read(pendingRouteProvider),
+        setPendingRoute:
+            (route) => ref.read(pendingRouteProvider.notifier).state = route,
+      );
+    },
 
     routes: [
       GoRoute(

@@ -9,8 +9,9 @@ import 'package:go_router/go_router.dart';
 /// Handles redirects based on auth state, onboarding status, and route permissions.
 ///
 /// The onboarding completion flag is read directly from [AuthState.hasCompletedOnboarding],
-/// which is prefetched once during login/auth-restore in [AuthNotifier]. This makes
-/// every redirect synchronous — no network call on each navigation.
+/// which is prefetched during login/auth-restore in [AuthNotifier]. When the
+/// status is still unknown, [AuthNotifier.refreshOnboardingStatusIfNeeded] retries
+/// in the background on later navigations — the redirect itself stays synchronous.
 class RouteGuard {
   RouteGuard._();
 
@@ -62,8 +63,9 @@ class RouteGuard {
     void Function(String?) setPendingRoute,
   ) {
     // Force onboarding only when status was fetched and is not completed.
-    // null means the fetch is still pending (e.g. offline launch) — skip
-    // enforcement rather than blocking the user.
+    // null = unknown (offline, or fetch failed and retry pending) — fail-open
+    // for now; AuthNotifier retries in the background and the router will
+    // re-evaluate once a definitive true/false arrives.
     if (hasOnboarded == false &&
         path != AppRoutes.onboarding &&
         path != AppRoutes.login) {

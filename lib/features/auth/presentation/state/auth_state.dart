@@ -20,11 +20,12 @@ class AuthState {
   final bool isGuest;
   final String? errorMessage;
 
-  /// null  = not yet fetched (e.g. app just launched or user just logged out).
+  /// null  = not yet known (offline, fetch failed, or retry pending).
   /// true  = onboarding completed.
   /// false = onboarding not completed.
   ///
-  /// The route guard reads this synchronously — no network call in redirect.
+  /// The route guard reads this synchronously. Unknown status fail-opens to
+  /// home; [AuthNotifier] retries the fetch in the background.
   final bool? hasCompletedOnboarding;
 
   const AuthState({
