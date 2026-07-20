@@ -1,3 +1,4 @@
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/di/core_providers.dart';
 import 'package:flutter_pecha/core/localization/app_language.dart';
 import 'package:flutter_pecha/core/localization/data/languages_remote_datasource.dart';
@@ -21,7 +22,16 @@ final availableContentLanguagesProvider = FutureProvider<List<AppLanguage>>((
   try {
     final languages =
         await ref.watch(languagesRemoteDatasourceProvider).fetchLanguages();
-    return languages.isNotEmpty ? languages : AppLanguage.bundledFallback;
+    if (languages.isEmpty) return AppLanguage.bundledFallback;
+
+    // Authoritative response: enforce the server-side kill switch so a
+    // previously-stored language the backend has disabled stops being sent.
+    // Only runs on this success path — never against the offline fallback.
+    await ref
+        .read(contentLanguageProvider.notifier)
+        .reconcileToAvailable(languages.map((l) => l.code).toList());
+
+    return languages;
   } catch (_) {
     return AppLanguage.bundledFallback;
   }

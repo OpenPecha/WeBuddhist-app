@@ -127,11 +127,12 @@ class ContentLanguageNotifier extends StateNotifier<String> {
   // An explicit user selection always wins over an in-flight startup read, so
   // the async initializer can never clobber a language the user just chose.
   bool _userSelected = false;
+  Future<void>? _initFuture;
 
   ContentLanguageNotifier({required LocalStorageService localStorageService})
     : _localStorageService = localStorageService,
       super(AppConfig.defaultLanguage) {
-    _initialize();
+    _initFuture = _initialize();
   }
 
   Future<void> _initialize() async {
@@ -161,7 +162,7 @@ class ContentLanguageNotifier extends StateNotifier<String> {
     }
   }
 
-  Future<void> ensureInitialized() async => _initialize();
+  Future<void> ensureInitialized() async => _initFuture ??= _initialize();
 
   /// Persists the raw [code] sent to content APIs. Accepts any non-empty code.
   Future<void> setContentLanguage(String code) async {
@@ -169,6 +170,25 @@ class ContentLanguageNotifier extends StateNotifier<String> {
     _userSelected = true;
     state = code;
     await _localStorageService.set(StorageKeys.contentLanguage, code);
+  }
+
+  /// Enforces the server-side kill switch. If the stored content language is no
+  /// longer among [enabledCodes] (an authoritative, backend-returned list of
+  /// enabled languages), switches to a language that is — preferring the app
+  /// default, otherwise the first enabled code.
+  ///
+  /// A no-op when [enabledCodes] is empty (treated as non-authoritative, e.g.
+  /// the offline fallback) or already contains the current code, so it never
+  /// clobbers a valid selection when the backend is unreachable.
+  Future<void> reconcileToAvailable(List<String> enabledCodes) async {
+    if (enabledCodes.isEmpty) return;
+    await ensureInitialized();
+    if (enabledCodes.contains(state)) return;
+    final fallback =
+        enabledCodes.contains(AppConfig.defaultLanguage)
+            ? AppConfig.defaultLanguage
+            : enabledCodes.first;
+    await setContentLanguage(fallback);
   }
 }
 

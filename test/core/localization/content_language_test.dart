@@ -142,6 +142,55 @@ void main() {
       notifier.dispose();
     });
 
+    group('reconcileToAvailable (kill switch)', () {
+      test('switches off a disabled code to the default', () async {
+        final storage = _FakeStorage({StorageKeys.contentLanguage: 'bo'});
+        final notifier = await _createNotifier(storage);
+
+        // Backend no longer lists 'bo'.
+        await notifier.reconcileToAvailable(['en', 'zh']);
+
+        expect(notifier.state, AppConfig.defaultLanguage);
+        expect(
+          await storage.get<String>(StorageKeys.contentLanguage),
+          AppConfig.defaultLanguage,
+        );
+        notifier.dispose();
+      });
+
+      test('keeps a still-enabled code untouched', () async {
+        final storage = _FakeStorage({StorageKeys.contentLanguage: 'zh'});
+        final notifier = await _createNotifier(storage);
+
+        await notifier.reconcileToAvailable(['en', 'zh']);
+
+        expect(notifier.state, 'zh');
+        notifier.dispose();
+      });
+
+      test('no-op on an empty (non-authoritative/offline) list', () async {
+        final storage = _FakeStorage({StorageKeys.contentLanguage: 'bo'});
+        final notifier = await _createNotifier(storage);
+
+        await notifier.reconcileToAvailable([]);
+
+        // The offline fallback must never clobber the stored selection.
+        expect(notifier.state, 'bo');
+        notifier.dispose();
+      });
+
+      test('falls back to the first enabled code when default is gone',
+          () async {
+        final storage = _FakeStorage({StorageKeys.contentLanguage: 'bo'});
+        final notifier = await _createNotifier(storage);
+
+        await notifier.reconcileToAvailable(['zh', 'hi']);
+
+        expect(notifier.state, 'zh');
+        notifier.dispose();
+      });
+    });
+
     test(
       'a selection during initialization is not clobbered by the legacy read',
       () async {
