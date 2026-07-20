@@ -5,6 +5,13 @@ import 'package:flutter_pecha/core/utils/local_storage_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
 
+/// Owns the app's **UI locale** — the language its own strings render in.
+///
+/// This is a bounded axis: the UI can only display a language the app ships an
+/// ARB translation for (see [L10n.all]). It is deliberately separate from the
+/// content language sent to the backend, which is open-ended and owned by
+/// [ContentLanguageNotifier]. Selecting a content language the app cannot
+/// localize into keeps the UI in English while content stays in that language.
 class LocaleNotifier extends StateNotifier<Locale> {
   final LocalStorageService _localStorageService;
   bool _isInitialized = false;
@@ -50,7 +57,25 @@ class LocaleNotifier extends StateNotifier<Locale> {
     }
 
     state = locale;
-    await _localStorageService.set(StorageKeys.preferredLanguage, locale.languageCode);
+    await _localStorageService.set(
+      StorageKeys.preferredLanguage,
+      locale.languageCode,
+    );
+  }
+
+  /// Applies the UI locale for a chosen content-language [code].
+  ///
+  /// The UI localizes into [code] when the app bundles an ARB translation for
+  /// it; otherwise it falls back to English. This is the "system localization"
+  /// half of the system-vs-content split — it never throws for unknown codes.
+  Future<void> applyUiLocaleForContent(String code) async {
+    final uiCode = AppConfig.resolveContentLanguage(code);
+    final locale = Locale(uiCode);
+    state = locale;
+    await _localStorageService.set(
+      StorageKeys.preferredLanguage,
+      locale.languageCode,
+    );
   }
 
   /// Maps onboarding language preference to app locale
@@ -85,7 +110,58 @@ class LocaleNotifier extends StateNotifier<Locale> {
   }
 }
 
-/// Provider for managing the app's current locale
+/// Owns the **content language** sent to backend APIs.
+///
+/// Unlike the UI locale this is open-ended: it may be any code the backend
+/// serves (see `availableContentLanguagesProvider`), including languages the
+/// app has no UI translation for. The raw code is stored and sent verbatim as
+/// the `language` query parameter across content endpoints.
+class ContentLanguageNotifier extends StateNotifier<String> {
+  final LocalStorageService _localStorageService;
+  bool _isInitialized = false;
+
+  ContentLanguageNotifier({required LocalStorageService localStorageService})
+    : _localStorageService = localStorageService,
+      super(AppConfig.defaultLanguage) {
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
+
+    try {
+      final stored = await _localStorageService.get<String>(
+        StorageKeys.contentLanguage,
+      );
+      if (stored != null && stored.isNotEmpty) {
+        state = stored;
+        return;
+      }
+      // Migration: existing users only have the UI locale persisted. Seed the
+      // content language from it so behaviour is unchanged on upgrade.
+      final legacyLocale = await _localStorageService.get<String>(
+        StorageKeys.preferredLanguage,
+      );
+      if (legacyLocale != null && legacyLocale.isNotEmpty) {
+        state = legacyLocale;
+      }
+    } catch (_) {
+      // Keep the default on failure to avoid crashing at startup.
+    }
+  }
+
+  Future<void> ensureInitialized() async => _initialize();
+
+  /// Persists the raw [code] sent to content APIs. Accepts any non-empty code.
+  Future<void> setContentLanguage(String code) async {
+    if (code.isEmpty) return;
+    state = code;
+    await _localStorageService.set(StorageKeys.contentLanguage, code);
+  }
+}
+
+/// Provider for managing the app's current UI locale.
 /// The locale is loaded asynchronously from storage on first access
 final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
   final notifier = LocaleNotifier(
@@ -99,10 +175,23 @@ final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
 
 /// Language code sent to backend APIs for translatable content.
 ///
-/// Mirrors the user's selected app locale when supported; unknown codes fall
-/// back to English via [AppConfig.resolveContentLanguage].
-final contentLanguageProvider = Provider<String>((ref) {
-  return AppConfig.resolveContentLanguage(
-    ref.watch(localeProvider).languageCode,
-  );
-});
+/// Stored independently of the UI locale so a user can read content in a
+/// language the app has not been translated into. Falls back to English only
+/// when nothing has been selected/persisted.
+final contentLanguageProvider =
+    StateNotifierProvider<ContentLanguageNotifier, String>((ref) {
+      final notifier = ContentLanguageNotifier(
+        localStorageService: ref.read(localStorageServiceProvider),
+      );
+      notifier.ensureInitialized();
+      return notifier;
+    });
+
+/// Applies a single language choice across both axes: the content code sent to
+/// the backend (verbatim) and the UI locale (English when no translation
+/// exists). This is the "one choice, split under the hood" entry point used by
+/// the language picker and onboarding.
+Future<void> selectAppLanguage(WidgetRef ref, String code) async {
+  await ref.read(contentLanguageProvider.notifier).setContentLanguage(code);
+  await ref.read(localeProvider.notifier).applyUiLocaleForContent(code);
+}

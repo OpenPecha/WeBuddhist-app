@@ -1,0 +1,120 @@
+import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
+import 'package:flutter_pecha/core/localization/app_language.dart';
+import 'package:flutter_pecha/core/storage/storage_keys.dart';
+import 'package:flutter_pecha/core/utils/local_storage_service.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// In-memory [LocalStorageService] so notifier tests need no generated mocks.
+class _FakeStorage implements LocalStorageService {
+  _FakeStorage([Map<String, Object?>? initial])
+    : _store = {...?initial};
+
+  final Map<String, Object?> _store;
+
+  @override
+  Future<T?> get<T>(String key) async => _store[key] as T?;
+
+  @override
+  Future<bool> set<T>(String key, T value) async {
+    _store[key] = value;
+    return true;
+  }
+
+  @override
+  Future<bool> remove(String key) async {
+    _store.remove(key);
+    return true;
+  }
+
+  @override
+  Future<bool> clear() async {
+    _store.clear();
+    return true;
+  }
+
+  @override
+  Future<bool> containsKey(String key) async => _store.containsKey(key);
+
+  @override
+  Future<void> setUserData(Map<String, dynamic> userData) async {}
+
+  @override
+  Future<Map<String, dynamic>?> getUserData() async => null;
+
+  @override
+  Future<void> clearUserData() async {}
+}
+
+Future<ContentLanguageNotifier> _createNotifier(_FakeStorage storage) async {
+  final notifier = ContentLanguageNotifier(localStorageService: storage);
+  await notifier.ensureInitialized();
+  // Let the async initializer settle.
+  for (var i = 0; i < 5; i++) {
+    await Future<void>.delayed(Duration.zero);
+  }
+  return notifier;
+}
+
+void main() {
+  group('AppLanguage.fromJson', () {
+    test('parses a full payload', () {
+      final lang = AppLanguage.fromJson({
+        'code': 'bo',
+        'name': 'Tibetan',
+        'native_name': 'བོད་ཡིག',
+        'enabled': true,
+      });
+      expect(lang.code, 'bo');
+      expect(lang.name, 'Tibetan');
+      expect(lang.nativeName, 'བོད་ཡིག');
+      expect(lang.enabled, isTrue);
+    });
+
+    test('defaults enabled to true and falls back for missing names', () {
+      final lang = AppLanguage.fromJson({'code': 'th'});
+      expect(lang.enabled, isTrue);
+      // No name/native_name -> both fall back to the raw code.
+      expect(lang.name, 'th');
+      expect(lang.nativeName, 'th');
+    });
+
+    test('native name falls back to English name when absent', () {
+      final lang = AppLanguage.fromJson({'code': 'th', 'name': 'Thai'});
+      expect(lang.nativeName, 'Thai');
+    });
+  });
+
+  group('ContentLanguageNotifier', () {
+    test('loads the stored content language', () async {
+      final storage = _FakeStorage({StorageKeys.contentLanguage: 'zh'});
+      final notifier = await _createNotifier(storage);
+      expect(notifier.state, 'zh');
+      notifier.dispose();
+    });
+
+    test('migrates from the legacy UI locale when unset', () async {
+      final storage = _FakeStorage({StorageKeys.preferredLanguage: 'bo'});
+      final notifier = await _createNotifier(storage);
+      expect(notifier.state, 'bo');
+      notifier.dispose();
+    });
+
+    test('defaults to English when nothing is stored', () async {
+      final notifier = await _createNotifier(_FakeStorage());
+      expect(notifier.state, AppConfig.defaultLanguage);
+      notifier.dispose();
+    });
+
+    test('persists a raw code the app has no UI translation for', () async {
+      final storage = _FakeStorage();
+      final notifier = await _createNotifier(storage);
+
+      await notifier.setContentLanguage('th');
+
+      expect(notifier.state, 'th');
+      expect(await storage.get<String>(StorageKeys.contentLanguage), 'th');
+      notifier.dispose();
+    });
+  });
+}
