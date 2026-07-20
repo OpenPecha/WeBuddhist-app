@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
 import 'package:flutter_pecha/features/reader/presentation/providers/reader_notifier.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_app_bar/reader_search_button.dart';
@@ -47,7 +48,7 @@ class ReaderAppBarOverlay extends ConsumerWidget {
           scrolledUnderElevation: ReaderConstants.appBarElevation,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
+            icon: const Icon(AppAssets.arrowLeft),
             onPressed: () {
               // Clear selection states before navigating back
               notifier.selectSegment(null);

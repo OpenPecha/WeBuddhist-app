@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/plans_search_screen.dart';
@@ -15,9 +16,9 @@ class AllPlansScreen extends StatelessWidget {
   final ValueChanged<Series> onTap;
 
   void _openSearch(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => PlansSearchScreen(onTap: onTap)),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => PlansSearchScreen(onTap: onTap)));
   }
 
   @override
@@ -28,6 +29,10 @@ class AllPlansScreen extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(AppAssets.arrowLeft),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
           l10n.home_shortcut_plans,
           style: const TextStyle(fontWeight: FontWeight.bold),
