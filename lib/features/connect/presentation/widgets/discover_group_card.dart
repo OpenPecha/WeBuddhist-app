@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/intl_format_locale.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/utils/tibetan_numerals.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +25,9 @@ class DiscoverGroupCard extends ConsumerWidget {
 
   final GroupProfile group;
   final bool showJoinButton;
+
+  static const double _titleFontSize = 15;
+  static const double _subtitleFontSize = 13;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,6 +47,36 @@ class DiscoverGroupCard extends ConsumerWidget {
       GroupFollowSuccess(countDelta: final delta) => delta,
       _ => 0,
     };
+    final subtitleText = _subtitle(context, countDelta);
+    final hasTibetanTitle = _containsTibetan(group.title);
+    final hasTibetanSubtitle =
+        context.isTibetanLocale || _containsTibetan(subtitleText);
+    final hasTibetanText = hasTibetanTitle || hasTibetanSubtitle;
+    final titleStyle =
+        hasTibetanTitle
+            ? getContentTextStyle(
+              AppConfig.tibetanLanguageCode,
+              theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: _titleFontSize,
+                height: AppFontConfig.tibetanContentLineHeight,
+                leadingDistribution: AppFontConfig.tibetanLeadingDistribution,
+              ),
+            )
+            : theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: _titleFontSize,
+              height: 1.3,
+            );
+    final subtitleStyle = theme.textTheme.bodySmall?.copyWith(
+      color: subtitleColor,
+      fontSize: hasTibetanSubtitle ? 14 : _subtitleFontSize,
+      height: hasTibetanSubtitle ? AppFontConfig.tibetanUiLineHeight : null,
+      leadingDistribution:
+          hasTibetanSubtitle ? AppFontConfig.tibetanLeadingDistribution : null,
+    );
+    final subtitleFontSize =
+        hasTibetanSubtitle ? 14.0 : _subtitleFontSize;
 
     return Material(
       color: Colors.transparent,
@@ -48,37 +84,50 @@ class DiscoverGroupCard extends ConsumerWidget {
         onTap: () => context.push('/home/group/${group.id}'),
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(hasTibetanText ? 14 : 12),
           decoration: BoxDecoration(
             color: cardColor,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _GroupAvatar(group: group, isDark: isDark),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       group.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                        height: 1.3,
-                      ),
+                      style: titleStyle,
+                      strutStyle:
+                          hasTibetanTitle
+                              ? AppFontConfig.tibetanStrutStyle(
+                                AppConfig.tibetanLanguageCode,
+                                _titleFontSize,
+                              )
+                              : null,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: hasTibetanText ? 6 : 4),
                     Text(
-                      _subtitle(context, countDelta),
+                      subtitleText,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: subtitleColor,
-                        fontSize: 13,
+                      style: subtitleStyle,
+                      strutStyle:
+                          hasTibetanSubtitle
+                              ? AppFontConfig.tibetanStrutStyle(
+                                AppConfig.tibetanLanguageCode,
+                                subtitleFontSize,
+                              )
+                              : null,
+                      textHeightBehavior: const TextHeightBehavior(
+                        applyHeightToFirstAscent: true,
+                        applyHeightToLastDescent: true,
                       ),
                     ),
                   ],
@@ -88,11 +137,7 @@ class DiscoverGroupCard extends ConsumerWidget {
               if (showJoinButton)
                 _JoinButton(group: group, isDark: isDark, followKey: followKey)
               else
-                Icon(
-                  AppAssets.caretRight,
-                  size: 16,
-                  color: subtitleColor,
-                ),
+                Icon(AppAssets.caretRight, size: 16, color: subtitleColor),
             ],
           ),
         ),
@@ -138,6 +183,10 @@ class DiscoverGroupCard extends ConsumerWidget {
 
   String _trimTrailingZero(String value) {
     return value.endsWith('.0') ? value.substring(0, value.length - 2) : value;
+  }
+
+  bool _containsTibetan(String value) {
+    return RegExp(r'[\u0F00-\u0FFF]').hasMatch(value);
   }
 }
 
