@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_pecha/core/config/locale/locale_notifier.dart';
 import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/localization/app_language.dart';
@@ -44,6 +46,29 @@ class _FakeStorage implements LocalStorageService {
 
   @override
   Future<void> clearUserData() async {}
+}
+
+/// Storage whose reads resolve only when [releaseReads] is called, so a test
+/// can inject a selection while initialization is mid-flight.
+class _BlockingStorage extends _FakeStorage {
+  _BlockingStorage([super.initial]);
+
+  final List<void Function()> _pendingReads = [];
+
+  @override
+  Future<T?> get<T>(String key) async {
+    final completer = Completer<void>();
+    _pendingReads.add(completer.complete);
+    await completer.future;
+    return _store[key] as T?;
+  }
+
+  void releaseReads() {
+    for (final release in _pendingReads) {
+      release();
+    }
+    _pendingReads.clear();
+  }
 }
 
 Future<ContentLanguageNotifier> _createNotifier(_FakeStorage storage) async {
@@ -116,5 +141,32 @@ void main() {
       expect(await storage.get<String>(StorageKeys.contentLanguage), 'th');
       notifier.dispose();
     });
+
+    test(
+      'a selection during initialization is not clobbered by the legacy read',
+      () async {
+        // Existing user upgrading: no content_language yet, but a legacy UI
+        // locale is present. Reads are blocked so the selection lands while
+        // initialization is still mid-flight.
+        final storage = _BlockingStorage({
+          StorageKeys.preferredLanguage: 'en',
+        });
+        final notifier = ContentLanguageNotifier(localStorageService: storage);
+
+        // User picks a language before the startup reads resolve.
+        await notifier.setContentLanguage('bo');
+        expect(notifier.state, 'bo');
+
+        // Now let the pending initialization reads complete.
+        storage.releaseReads();
+        for (var i = 0; i < 5; i++) {
+          await Future<void>.delayed(Duration.zero);
+        }
+
+        // The user's choice must survive.
+        expect(notifier.state, 'bo');
+        notifier.dispose();
+      },
+    );
   });
 }

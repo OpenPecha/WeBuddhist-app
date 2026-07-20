@@ -15,6 +15,8 @@ import 'package:flutter_pecha/core/constants/app_config.dart';
 class LocaleNotifier extends StateNotifier<Locale> {
   final LocalStorageService _localStorageService;
   bool _isInitialized = false;
+  // An explicit selection always wins over an in-flight startup read.
+  bool _userSelected = false;
 
   LocaleNotifier({required LocalStorageService localStorageService})
     : _localStorageService = localStorageService,
@@ -33,6 +35,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
       final locale = await _localStorageService.get<String>(
         StorageKeys.preferredLanguage,
       );
+      if (_userSelected) return;
       if (locale != null) {
         state = Locale(locale);
       }
@@ -56,6 +59,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
       throw Exception("Locale ${locale.languageCode} is not supported");
     }
 
+    _userSelected = true;
     state = locale;
     await _localStorageService.set(
       StorageKeys.preferredLanguage,
@@ -71,6 +75,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
   Future<void> applyUiLocaleForContent(String code) async {
     final uiCode = AppConfig.resolveContentLanguage(code);
     final locale = Locale(uiCode);
+    _userSelected = true;
     state = locale;
     await _localStorageService.set(
       StorageKeys.preferredLanguage,
@@ -119,6 +124,9 @@ class LocaleNotifier extends StateNotifier<Locale> {
 class ContentLanguageNotifier extends StateNotifier<String> {
   final LocalStorageService _localStorageService;
   bool _isInitialized = false;
+  // An explicit user selection always wins over an in-flight startup read, so
+  // the async initializer can never clobber a language the user just chose.
+  bool _userSelected = false;
 
   ContentLanguageNotifier({required LocalStorageService localStorageService})
     : _localStorageService = localStorageService,
@@ -134,6 +142,7 @@ class ContentLanguageNotifier extends StateNotifier<String> {
       final stored = await _localStorageService.get<String>(
         StorageKeys.contentLanguage,
       );
+      if (_userSelected) return;
       if (stored != null && stored.isNotEmpty) {
         state = stored;
         return;
@@ -143,6 +152,7 @@ class ContentLanguageNotifier extends StateNotifier<String> {
       final legacyLocale = await _localStorageService.get<String>(
         StorageKeys.preferredLanguage,
       );
+      if (_userSelected) return;
       if (legacyLocale != null && legacyLocale.isNotEmpty) {
         state = legacyLocale;
       }
@@ -156,6 +166,7 @@ class ContentLanguageNotifier extends StateNotifier<String> {
   /// Persists the raw [code] sent to content APIs. Accepts any non-empty code.
   Future<void> setContentLanguage(String code) async {
     if (code.isEmpty) return;
+    _userSelected = true;
     state = code;
     await _localStorageService.set(StorageKeys.contentLanguage, code);
   }
