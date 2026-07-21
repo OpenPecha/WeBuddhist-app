@@ -172,23 +172,33 @@ class ContentLanguageNotifier extends StateNotifier<String> {
     await _localStorageService.set(StorageKeys.contentLanguage, code);
   }
 
-  /// Enforces the server-side kill switch. If the stored content language is no
-  /// longer among [enabledCodes] (an authoritative, backend-returned list of
-  /// enabled languages), switches to a language that is — preferring the app
-  /// default, otherwise the first enabled code.
+  /// Enforces the server-side kill switch against [enabledCodes] — an
+  /// authoritative, backend-returned list of enabled language codes.
   ///
-  /// A no-op when [enabledCodes] is empty (treated as non-authoritative, e.g.
-  /// the offline fallback) or already contains the current code, so it never
-  /// clobbers a valid selection when the backend is unreachable.
-  Future<void> reconcileToAvailable(List<String> enabledCodes) async {
-    if (enabledCodes.isEmpty) return;
+  /// Returns the code it switched to, or `null` if the current selection was
+  /// left unchanged (so the caller can keep the UI locale paired). If the
+  /// stored code is not among [enabledCodes], switches to the app default when
+  /// enabled, else the first enabled code. An **empty** list is a valid
+  /// authoritative answer meaning "nothing enabled" and resolves to the app
+  /// default.
+  ///
+  /// Must only be called for a *successful* backend response. Offline / error
+  /// handling belongs at the call site (do not call this on the fallback path),
+  /// so a valid selection is never clobbered when the backend is unreachable.
+  Future<String?> reconcileToAvailable(List<String> enabledCodes) async {
     await ensureInitialized();
-    if (enabledCodes.contains(state)) return;
-    final fallback =
-        enabledCodes.contains(AppConfig.defaultLanguage)
-            ? AppConfig.defaultLanguage
-            : enabledCodes.first;
+    if (enabledCodes.contains(state)) return null;
+    final String fallback;
+    if (enabledCodes.contains(AppConfig.defaultLanguage)) {
+      fallback = AppConfig.defaultLanguage;
+    } else if (enabledCodes.isNotEmpty) {
+      fallback = enabledCodes.first;
+    } else {
+      // Degenerate: the backend enabled nothing. Fall back to the app default.
+      fallback = AppConfig.defaultLanguage;
+    }
     await setContentLanguage(fallback);
+    return fallback;
   }
 }
 

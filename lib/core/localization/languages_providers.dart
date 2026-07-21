@@ -22,17 +22,25 @@ final availableContentLanguagesProvider = FutureProvider<List<AppLanguage>>((
   try {
     final languages =
         await ref.watch(languagesRemoteDatasourceProvider).fetchLanguages();
-    if (languages.isEmpty) return AppLanguage.bundledFallback;
 
-    // Authoritative response: enforce the server-side kill switch so a
-    // previously-stored language the backend has disabled stops being sent.
-    // Only runs on this success path — never against the offline fallback.
-    await ref
+    // Reaching here means the fetch succeeded, so this is an authoritative
+    // answer (an empty list included) — offline/parse errors throw into the
+    // catch below. Enforce the server-side kill switch here, before the empty
+    // list is ever swapped for the bundled fallback, and keep the UI locale
+    // paired with the content language exactly like a normal selection.
+    final switched = await ref
         .read(contentLanguageProvider.notifier)
         .reconcileToAvailable(languages.map((l) => l.code).toList());
+    if (switched != null) {
+      await ref.read(localeProvider.notifier).applyUiLocaleForContent(switched);
+    }
 
-    return languages;
+    // Show the bundled list only so the picker is never blank; reconciliation
+    // above already ran authoritatively regardless of what we display.
+    return languages.isNotEmpty ? languages : AppLanguage.bundledFallback;
   } catch (_) {
+    // Offline / parse error: keep the stored selection untouched and show the
+    // bundled list. Reconciliation deliberately does not run on this path.
     return AppLanguage.bundledFallback;
   }
 });

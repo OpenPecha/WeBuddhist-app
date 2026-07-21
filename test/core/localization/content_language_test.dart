@@ -168,14 +168,25 @@ void main() {
         notifier.dispose();
       });
 
-      test('no-op on an empty (non-authoritative/offline) list', () async {
+      test('an authoritative empty response falls back to the default',
+          () async {
         final storage = _FakeStorage({StorageKeys.contentLanguage: 'bo'});
         final notifier = await _createNotifier(storage);
 
-        await notifier.reconcileToAvailable([]);
+        // An empty list is a successful "nothing enabled" answer, not offline —
+        // offline is guarded at the provider (it never calls this on error).
+        final switched = await notifier.reconcileToAvailable([]);
 
-        // The offline fallback must never clobber the stored selection.
-        expect(notifier.state, 'bo');
+        expect(switched, AppConfig.defaultLanguage);
+        expect(notifier.state, AppConfig.defaultLanguage);
+        notifier.dispose();
+      });
+
+      test('returns null (no change) when the code is still enabled', () async {
+        final storage = _FakeStorage({StorageKeys.contentLanguage: 'zh'});
+        final notifier = await _createNotifier(storage);
+
+        expect(await notifier.reconcileToAvailable(['en', 'zh']), isNull);
         notifier.dispose();
       });
 
