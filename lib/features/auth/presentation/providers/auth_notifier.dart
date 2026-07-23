@@ -54,6 +54,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// fire concurrent profile refetches.
   bool _reconciling = false;
 
+  /// Monotonic counter bumped whenever the session is invalidated (logout,
+  /// expiry, new login). Async continuations capture the value before an
+  /// await and discard their result if the epoch changed — prevents a stale
+  /// onboarding prefetch from re-applying `isLoggedIn: true` after logout.
+  int _authEpoch = 0;
+
+  /// Prevents overlapping background onboarding refetches.
+  bool _onboardingFetchInFlight = false;
+
+  /// Debounces navigation-triggered onboarding retries so redirects stay cheap.
+  DateTime? _lastOnboardingRetryAt;
+
+  static const _onboardingRetryDebounce = Duration(seconds: 5);
+
   AuthNotifier({
     required LoginUseCase loginUseCase,
     required InitializeAuthUseCase initializeAuthUseCase,
@@ -116,6 +130,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (state.isLoggedIn && !state.isGuest) {
         _logger.info('Connectivity restored — reconciling user profile');
         await ref.read(userProvider.notifier).refreshUser();
+        await _refreshOnboardingStatus(skipDebounce: true);
       } else {
         _logger.info('Connectivity restored — re-running login restore');
         await _restoreLoginState();
@@ -206,6 +221,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     // Happy path: we have a fresh token.
     if (credentials != null && credentials!.idToken.isNotEmpty) {
+      final epoch = _authEpoch;
+
       // Store currentUserId before updating auth state so feature code can
       // resolve the active account when the router refreshes.
       final userId = _extractUserIdFromToken(credentials!.idToken);
@@ -213,17 +230,26 @@ class AuthNotifier extends StateNotifier<AuthState> {
         await ref
             .read(localStorageServiceProvider)
             .set(StorageKeys.currentUserId, userId);
+        if (!_isAuthEpochCurrent(epoch)) return;
         _logger.debug('Restored currentUserId');
         await _identifyAuthenticatedUser(userId: userId, isGuest: false);
+        if (!_isAuthEpochCurrent(epoch)) return;
       }
 
-      state = state.copyWith(
-        isLoggedIn: true,
-        isLoading: false,
-        isGuest: false,
-        errorMessage: null,
+      // Prefetch onboarding status while the token is fresh. Emitting auth
+      // state once with the complete picture means the route guard's redirect
+      // fires synchronously — no second navigation or per-nav network call.
+      final onboardingStatus = await _fetchOnboardingStatusSafe();
+      _applyAuthenticatedLoginState(
+        epoch: epoch,
+        onboardingStatus: onboardingStatus,
+        logMessage: 'Login state restored',
       );
-      _logger.info('Login state restored');
+      if (onboardingStatus == null) {
+        unawaited(_refreshOnboardingStatus(skipDebounce: true));
+      }
+
+      if (!_isAuthEpochCurrent(epoch)) return;
 
       try {
         ref.read(userProvider.notifier).initializeUser();
@@ -250,15 +276,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
       'Could not refresh credentials at launch (transient/offline). '
       'Keeping the existing session; it will renew on the next request.',
     );
+    final epoch = _authEpoch;
     final storedUserId = await ref
         .read(localStorageServiceProvider)
         .get<String>(StorageKeys.currentUserId);
-    state = state.copyWith(
-      isLoggedIn: true,
-      isLoading: false,
-      isGuest: false,
-      errorMessage: null,
+    if (!_isAuthEpochCurrent(epoch)) return;
+
+    _applyAuthenticatedLoginState(
+      epoch: epoch,
+      onboardingStatus: null,
+      logMessage: 'Offline session kept — onboarding status pending',
     );
+    unawaited(_refreshOnboardingStatus(skipDebounce: true));
+
     if (storedUserId != null && storedUserId.isNotEmpty) {
       unawaited(
         _identifyAuthenticatedUser(userId: storedUserId, isGuest: false),
@@ -300,7 +330,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   void _setLoggedOutState() {
-    state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
+    _invalidateAuthSession();
     _logger.info('No valid credentials or guest mode found, showing login');
   }
 
@@ -314,11 +344,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// where they were. No additional navigation here.
   Future<void> handleSessionExpired() async {
     _logger.info('Session permanently expired — routing to login');
+    _invalidateAuthSession();
     await _localLogoutUseCase(const NoParams());
-    state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
   }
 
   Future<void> _handleAuthFailure() async {
+    _invalidateAuthSession();
     final logoutResult = await _localLogoutUseCase(const NoParams());
     logoutResult.fold(
       (failure) {
@@ -330,11 +361,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         _logger.debug('Credentials cleared during failure handling');
       },
     );
-
-    state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
   }
 
   Future<void> login({String? connection}) async {
+    _bumpAuthEpoch();
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     final loginResult = await _loginUseCase(
@@ -364,8 +394,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     AuthCredentials credentials, {
     String? connection,
   }) async {
+    final epoch = _authEpoch;
+
     // 1. Clear the guest mode flag from storage before the router fires.
     await _clearGuestMode();
+    if (!_isAuthEpochCurrent(epoch)) return;
 
     // 2. Persist the user's ID before updating auth state.
     //    The router refreshes the moment auth state changes.
@@ -374,22 +407,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await ref
           .read(localStorageServiceProvider)
           .set(StorageKeys.currentUserId, userId);
+      if (!_isAuthEpochCurrent(epoch)) return;
       _logger.debug('Stored currentUserId');
       await _identifyAuthenticatedUser(userId: userId, isGuest: false);
+      if (!_isAuthEpochCurrent(epoch)) return;
     }
 
     await _trackAuthLoginSucceeded(connection: connection);
+    if (!_isAuthEpochCurrent(epoch)) return;
 
-    // 3. Update auth state — triggers the router refresh.
-    state = state.copyWith(
-      isLoggedIn: true,
-      isLoading: false,
-      isGuest: false,
-      errorMessage: null,
+    // 3. Prefetch onboarding status so the route guard can decide instantly.
+    final onboardingStatus = await _fetchOnboardingStatusSafe();
+
+    // 4. Update auth state — triggers the router refresh.
+    _applyAuthenticatedLoginState(
+      epoch: epoch,
+      onboardingStatus: onboardingStatus,
+      logMessage: 'User authenticated',
     );
-    _logger.info('User authenticated');
+    if (onboardingStatus == null) {
+      unawaited(_refreshOnboardingStatus(skipDebounce: true));
+    }
+    if (!_isAuthEpochCurrent(epoch)) return;
 
-    // 4. Fetch full user profile. Non-critical — routing is already correct.
+    // 5. Fetch full user profile. Non-critical — routing is already correct.
     ref.read(cacheInterceptorProvider).clearUserScoped();
     try {
       await ref.read(userProvider.notifier).initializeUser();
@@ -453,6 +494,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    _invalidateAuthSession();
     ref.read(cacheInterceptorProvider).clearUserScoped();
 
     // Best-effort flush of any unsynced mala counts while the token is still
@@ -498,7 +540,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     await _analytics.reset();
 
-    state = state.copyWith(isLoggedIn: false, isLoading: false, isGuest: false);
     _logger.info('User logged out, auth and user state cleared');
   }
 
@@ -552,13 +593,118 @@ class AuthNotifier extends StateNotifier<AuthState> {
         (failure) => _logger.warning(
           'Failed to reset onboarding status: ${failure.message}',
         ),
-        (_) => _logger.info(
-          'Onboarding reset — user will see onboarding on next login',
-        ),
+        (_) {
+          _logger.info(
+            'Onboarding reset — user will see onboarding on next login',
+          );
+          // Reflect the reset immediately so the route guard re-enforces onboarding.
+          state = state.copyWith(hasCompletedOnboarding: false);
+        },
       );
     } catch (e) {
       _logger.warning('Failed to reset onboarding: $e');
     }
+  }
+
+  /// Schedules a background onboarding fetch when status is still unknown.
+  ///
+  /// Called synchronously from the router redirect (fire-and-forget) so
+  /// endpoint failures retry on later navigations without blocking transitions.
+  void refreshOnboardingStatusIfNeeded() {
+    if (!state.isLoggedIn || state.isGuest) return;
+    if (state.hasCompletedOnboarding != null) return;
+    unawaited(_refreshOnboardingStatus());
+  }
+
+  int _bumpAuthEpoch() => ++_authEpoch;
+
+  bool _isAuthEpochCurrent(int epoch) => epoch == _authEpoch;
+
+  void _invalidateAuthSession() {
+    _bumpAuthEpoch();
+    state = state.copyWith(
+      isLoggedIn: false,
+      isLoading: false,
+      isGuest: false,
+      hasCompletedOnboarding: null,
+    );
+  }
+
+  /// Applies logged-in auth state only when [epoch] still matches — drops stale
+  /// continuations from login/restore paths that raced with logout/expiry.
+  void _applyAuthenticatedLoginState({
+    required int epoch,
+    required bool? onboardingStatus,
+    required String logMessage,
+  }) {
+    if (!_isAuthEpochCurrent(epoch)) {
+      _logger.debug('Discarding stale authenticated state ($logMessage)');
+      return;
+    }
+    state = state.copyWith(
+      isLoggedIn: true,
+      isLoading: false,
+      isGuest: false,
+      hasCompletedOnboarding: onboardingStatus,
+      errorMessage: null,
+    );
+    _logger.info(logMessage);
+  }
+
+  Future<void> _refreshOnboardingStatus({bool skipDebounce = false}) async {
+    if (!state.isLoggedIn || state.isGuest) return;
+    if (state.hasCompletedOnboarding != null) return;
+    if (_onboardingFetchInFlight) return;
+
+    if (!skipDebounce &&
+        _lastOnboardingRetryAt != null &&
+        DateTime.now().difference(_lastOnboardingRetryAt!) <
+            _onboardingRetryDebounce) {
+      return;
+    }
+
+    _onboardingFetchInFlight = true;
+    _lastOnboardingRetryAt = DateTime.now();
+    final epoch = _authEpoch;
+
+    try {
+      final status = await _fetchOnboardingStatusSafe();
+      if (!_isAuthEpochCurrent(epoch)) return;
+      if (!state.isLoggedIn || state.isGuest) return;
+      if (status != null) {
+        state = state.copyWith(hasCompletedOnboarding: status);
+      }
+    } finally {
+      _onboardingFetchInFlight = false;
+    }
+  }
+
+  /// Fetches the onboarding completion flag once, returning null on any error
+  /// so callers can retry rather than treating failure as "completed".
+  Future<bool?> _fetchOnboardingStatusSafe() async {
+    try {
+      final repo = ref.read(onboardingRepositoryProvider);
+      final result = await repo.isOnboardingCompleted();
+      return result.fold(
+        (failure) {
+          _logger.warning(
+            'Could not prefetch onboarding status: ${failure.message}',
+          );
+          return null;
+        },
+        (hasCompleted) => hasCompleted,
+      );
+    } catch (e) {
+      _logger.warning('Could not prefetch onboarding status: $e');
+      return null;
+    }
+  }
+
+  /// Called by the onboarding flow when the user successfully completes
+  /// onboarding. Updates the in-state flag so the route guard reflects the
+  /// change without a network round-trip.
+  void markOnboardingCompleted() {
+    state = state.copyWith(hasCompletedOnboarding: true);
   }
 
   AnalyticsService get _analytics => ref.read(analyticsServiceProvider);

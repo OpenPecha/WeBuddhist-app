@@ -21,11 +21,13 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     required CompleteOnboardingUseCase completeOnboardingUseCase,
     required ClearOnboardingPreferencesUseCase clearOnboardingPreferencesUseCase,
     required AnalyticsService analyticsService,
+    void Function()? onCompleted,
   })  : _loadSavedPreferencesUseCase = loadSavedPreferencesUseCase,
         _saveOnboardingPreferencesUseCase = saveOnboardingPreferencesUseCase,
         _completeOnboardingUseCase = completeOnboardingUseCase,
         _clearOnboardingPreferencesUseCase = clearOnboardingPreferencesUseCase,
         _analytics = analyticsService,
+        _onCompleted = onCompleted,
         super(OnboardingState.initial()) {
     loadSavedPreferences();
   }
@@ -35,6 +37,9 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final CompleteOnboardingUseCase _completeOnboardingUseCase;
   final ClearOnboardingPreferencesUseCase _clearOnboardingPreferencesUseCase;
   final AnalyticsService _analytics;
+  /// Called when onboarding is successfully completed so the auth layer can
+  /// update its in-state flag without a network round-trip.
+  final void Function()? _onCompleted;
 
   /// Load saved preferences from local storage on initialization.
   Future<void> loadSavedPreferences() async {
@@ -133,6 +138,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 
       if (completed) {
         unawaited(_analytics.track(AnalyticsEvents.onboardingCompleted));
+        _onCompleted?.call();
       }
 
       state = state.copyWithLoading(false);

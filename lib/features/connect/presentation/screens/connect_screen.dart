@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/connect/domain/entities/discover_groups_page.dart';
 import 'package:flutter_pecha/features/connect/presentation/providers/connect_providers.dart';
@@ -163,9 +164,18 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
         sliver: SliverToBoxAdapter(
           child: Text(
             context.l10n.my_groups,
+            strutStyle: context.tibetanStrutStyle(18, compact: true),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
               fontSize: 18,
+              height:
+                  context.isTibetanLocale
+                      ? AppFontConfig.tibetanCompactLineHeight
+                      : null,
+              leadingDistribution:
+                  context.isTibetanLocale
+                      ? AppFontConfig.tibetanLeadingDistribution
+                      : null,
             ),
           ),
         ),

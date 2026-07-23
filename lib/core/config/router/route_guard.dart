@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/config/router/app_routes.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/presentation/state/auth_state.dart';
-import 'package:flutter_pecha/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:go_router/go_router.dart';
 
 /// Route guard for authentication and authorization
 ///
 /// Handles redirects based on auth state, onboarding status, and route permissions.
+///
+/// The onboarding completion flag is read directly from [AuthState.hasCompletedOnboarding],
+/// which is prefetched during login/auth-restore in [AuthNotifier]. When the
+/// status is still unknown, [AuthNotifier.refreshOnboardingStatusIfNeeded] retries
+/// in the background on later navigations — the redirect itself stays synchronous.
 class RouteGuard {
   RouteGuard._();
 
@@ -17,14 +21,13 @@ class RouteGuard {
   ///
   /// [getPendingRoute] — returns the currently saved pending route.
   /// [setPendingRoute] — saves or clears the pending route (pass null to clear).
-  static Future<String?> redirect(
+  static String? redirect(
     BuildContext context,
     GoRouterState state,
-    AuthState authState,
-    OnboardingRepository onboardingRepo, {
+    AuthState authState, {
     required String? Function() getPendingRoute,
     required void Function(String?) setPendingRoute,
-  }) async {
+  }) {
     final currentPath = state.fullPath ?? AppRoutes.home;
 
     _logger.debug(
@@ -41,7 +44,7 @@ class RouteGuard {
     if (authState.isLoggedIn && !authState.isGuest) {
       return _handleAuthenticated(
         currentPath,
-        onboardingRepo,
+        authState.hasCompletedOnboarding,
         getPendingRoute,
         setPendingRoute,
       );
@@ -53,29 +56,23 @@ class RouteGuard {
   }
 
   /// Authenticated user redirect logic
-  static Future<String?> _handleAuthenticated(
+  static String? _handleAuthenticated(
     String path,
-    OnboardingRepository onboardingRepo,
+    bool? hasOnboarded,
     String? Function() getPendingRoute,
     void Function(String?) setPendingRoute,
-  ) async {
-    final onboardingResult = await onboardingRepo.isOnboardingCompleted();
-    final bool? hasOnboarded = onboardingResult.fold((failure) {
-      _logger.warning(
-        'Onboarding status unavailable (${failure.message}); '
-        'skipping onboarding enforcement',
-      );
-      return null;
-    }, (hasCompleted) => hasCompleted);
-
+  ) {
     // Force onboarding only when status was fetched and is not completed.
+    // null = unknown (offline, or fetch failed and retry pending) — fail-open
+    // for now; AuthNotifier retries in the background and the router will
+    // re-evaluate once a definitive true/false arrives.
     if (hasOnboarded == false &&
         path != AppRoutes.onboarding &&
         path != AppRoutes.login) {
       return AppRoutes.onboarding;
     }
 
-    // Completed users, and offline/unreachable checks, go to home — not onboarding.
+    // Completed users, and cases where status is unknown, go to home — not onboarding.
     if (hasOnboarded != false && path == AppRoutes.onboarding) {
       return AppRoutes.home;
     }

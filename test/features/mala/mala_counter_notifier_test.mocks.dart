@@ -67,6 +67,18 @@ class MockMalaSyncManager extends _i1.Mock implements _i8.MalaSyncManager {
   }
 
   @override
+  set onGroupCountSynced(void Function(String)? value) => super.noSuchMethod(
+    Invocation.setter(#onGroupCountSynced, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set onPersonalCountSynced(void Function(String)? value) => super.noSuchMethod(
+    Invocation.setter(#onPersonalCountSynced, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   void start() => super.noSuchMethod(
     Invocation.method(#start, []),
     returnValueForMissingStub: null,

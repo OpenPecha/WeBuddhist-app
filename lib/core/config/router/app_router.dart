@@ -26,7 +26,6 @@ import 'package:flutter_pecha/features/more/presentation/legal.dart';
 import 'package:flutter_pecha/features/more/presentation/privacy_policy_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/delete_account_screen.dart';
 import 'package:flutter_pecha/features/more/presentation/terms_of_service_screen.dart';
-import 'package:flutter_pecha/features/onboarding/presentation/providers/onboarding_datasource_providers.dart';
 import 'package:flutter_pecha/features/onboarding/presentation/screens/onboarding_wrapper.dart';
 import 'package:flutter_pecha/features/plans/domain/entities/plan.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_plans_model.dart';
@@ -79,10 +78,6 @@ final shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 /// - Preserves deep links for post-login redirection
 /// - Automatically refreshes when auth state changes
 final appRouterProvider = Provider<GoRouter>((ref) {
-  // Use ref.read so the router is created once and never recreated on auth
-  // state changes.
-  final onboardingRepo = ref.read(onboardingRepositoryProvider);
-
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: AppRoutes.home,
@@ -100,12 +95,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
     // Route guard for authentication and authorization.
     // Always reads the latest auth state — do NOT capture it in the closure.
-    redirect: (context, state) async {
-      return await RouteGuard.redirect(
+    // RouteGuard.redirect is synchronous: onboarding status lives on AuthState
+    // and is prefetched during login/auth-restore. When still unknown, a
+    // debounced background retry is kicked off here (never awaited).
+    redirect: (context, state) {
+      ref.read(authProvider.notifier).refreshOnboardingStatusIfNeeded();
+      return RouteGuard.redirect(
         context,
         state,
         ref.read(authProvider),
-        onboardingRepo,
         getPendingRoute: () => ref.read(pendingRouteProvider),
         setPendingRoute:
             (route) => ref.read(pendingRouteProvider.notifier).state = route,
@@ -164,7 +162,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/open', name: 'open', redirect: (_, __) => AppRoutes.home),
       GoRoute(
         path: "/login",
-        name: "login",
+        name: "login", 
         builder: (context, state) => const LoginPage(),
       ),
       // onboarding route
@@ -380,7 +378,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: "mala",
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return MalaScreen(initialPresetId: extra?['presetId'] as String?);
+          return MalaScreen(
+            initialPresetId: extra?['presetId'] as String?,
+            initialGroupAccumulatorId:
+                extra?['groupAccumulatorId'] as String?,
+          );
         },
       ),
 

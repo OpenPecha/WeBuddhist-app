@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/constants/app_config.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
+import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/features/connect/presentation/screens/discover_groups_screen.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_profile.dart';
+import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:go_router/go_router.dart';
 
 class DiscoverGroupsSection extends StatelessWidget {
@@ -36,9 +39,18 @@ class DiscoverGroupsSection extends StatelessWidget {
               Expanded(
                 child: Text(
                   context.l10n.discover_groups,
+                  strutStyle: context.tibetanStrutStyle(18, compact: true),
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                     fontSize: 18,
+                    height:
+                        context.isTibetanLocale
+                            ? AppFontConfig.tibetanCompactLineHeight
+                            : null,
+                    leadingDistribution:
+                        context.isTibetanLocale
+                            ? AppFontConfig.tibetanLeadingDistribution
+                            : null,
                   ),
                 ),
               ),
@@ -92,11 +104,22 @@ class _DiscoverGroupTile extends StatelessWidget {
   final GroupProfile group;
   final bool isDark;
 
+  static const double _titleFontSize = 14;
+
   @override
   Widget build(BuildContext context) {
     final tileColor = isDark ? AppColors.surfaceDark : AppColors.surfaceWhite;
     final subtitleColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final hasTibetanTitle = _containsTibetan(group.title);
+    final titleStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+      fontSize: _titleFontSize,
+      color: subtitleColor,
+      fontWeight: FontWeight.w500,
+      height: hasTibetanTitle ? AppFontConfig.tibetanCompactLineHeight : null,
+      leadingDistribution:
+          hasTibetanTitle ? AppFontConfig.tibetanLeadingDistribution : null,
+    );
 
     return SizedBox(
       width: 80,
@@ -120,16 +143,29 @@ class _DiscoverGroupTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontSize: 12,
-                color: subtitleColor,
-                fontWeight: FontWeight.w500,
-              ),
+              style:
+                  hasTibetanTitle
+                      ? getContentTextStyle(
+                        AppConfig.tibetanLanguageCode,
+                        titleStyle,
+                      )
+                      : titleStyle,
+              strutStyle:
+                  hasTibetanTitle
+                      ? context.tibetanStrutStyle(
+                        _titleFontSize,
+                        compact: true,
+                      )
+                      : null,
             ),
           ],
         ),
       ),
     );
+  }
+
+  bool _containsTibetan(String value) {
+    return RegExp(r'[\u0F00-\u0FFF]').hasMatch(value);
   }
 }
 

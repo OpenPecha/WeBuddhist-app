@@ -20,7 +20,7 @@ class AppConfig {
   static const String chineseSystemFont = 'Noto Sans Traditional Chinese';
   static const String chineseContentFont = 'Noto Serif Traditional Chinese';
   static const String tibetanSystemFont = 'Noto Serif Tibetan';
-  static const String tibetanContentFont = 'SambhotaUnicode';
+  static const String tibetanContentFont = 'BabelStoneTibetan';
 
   // Language configuration
   static const String tibetanLanguageCode = 'bo';
