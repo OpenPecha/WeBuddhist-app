@@ -1,4 +1,5 @@
 import 'package:flutter_pecha/features/group_chat/presentation/utils/chat_report_reason.dart';
+import 'package:flutter/widgets.dart' show StringCharacters;
 import 'package:flutter_test/flutter_test.dart';
 
 const _offTopic = 'Off-topic or disruptive';
@@ -102,7 +103,7 @@ void main() {
 
     test('a note longer than the cap is cut to it', () {
       // The field limits typing, but nothing may send more than the counter
-      // claimed — paste and autofill both go around the formatter.
+      // claimed — an open IME composition can run past the formatter.
       final long = 'a' * (kChatReportNoteLimit + 50);
 
       expect(
@@ -112,6 +113,45 @@ void main() {
           offTopicLabel: _offTopic,
         ),
         hasLength(kChatReportNoteLimit),
+      );
+    });
+
+    test('the cap counts characters as the member and the counter do, not '
+        'code units', () {
+      // A stacked Tibetan syllable is four grapheme clusters but seven code
+      // units. Forty of them read 160 on the counter and must go out whole.
+      const syllable = 'བསྒྲུབས';
+      final under = syllable * 40;
+      expect(under.characters.length, 160);
+      expect(under.length, greaterThan(kChatReportNoteLimit));
+      expect(
+        chatReportDescription(
+          ChatReportReason.somethingElse,
+          note: under,
+          offTopicLabel: _offTopic,
+        ),
+        under,
+      );
+
+      // Sixty read 240: cut to 200 characters, on a syllable boundary, never
+      // inside a cluster.
+      final over = chatReportDescription(
+        ChatReportReason.somethingElse,
+        note: syllable * 60,
+        offTopicLabel: _offTopic,
+      )!;
+      expect(over.characters.length, kChatReportNoteLimit);
+      expect(over, syllable * 50);
+
+      // Emoji are two code units each; 200 of them are exactly the cap.
+      final emoji = '😀' * kChatReportNoteLimit;
+      expect(
+        chatReportDescription(
+          ChatReportReason.somethingElse,
+          note: emoji,
+          offTopicLabel: _offTopic,
+        ),
+        emoji,
       );
     });
   });

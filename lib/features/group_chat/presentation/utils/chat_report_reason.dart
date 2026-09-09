@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart' show StringCharacters;
+
 /// A reason the member can pick when reporting a message.
 ///
 /// The design offers six and `ChatMessageReportReason` on the wire has six,
@@ -46,8 +48,10 @@ String chatReportReasonWireValue(ChatReportReason reason) {
 bool chatReportNeedsNote(ChatReportReason reason) =>
     reason == ChatReportReason.somethingElse;
 
-/// The longest note the sheet accepts. The wire has no limit; this is the
-/// design's, so the counter and what is sent can never disagree.
+/// The longest note the sheet accepts, in characters as the member sees them
+/// — grapheme clusters, the unit the field's formatter and counter use too.
+/// The wire has no limit; this is the design's, so the counter and what is
+/// sent can never disagree.
 const int kChatReportNoteLimit = 200;
 
 /// The `description` sent alongside the reason.
@@ -65,9 +69,10 @@ String? chatReportDescription(
 
   final trimmed = note?.trim() ?? '';
   if (trimmed.isEmpty) return null;
-  return trimmed.length <= kChatReportNoteLimit
-      ? trimmed
-      : trimmed.substring(0, kChatReportNoteLimit);
+  // Cut on grapheme clusters, not code units: a stacked Tibetan syllable or
+  // an emoji is one character to the member and the counter but several to
+  // `String.length`, and a code-unit cut lands inside one.
+  return trimmed.characters.take(kChatReportNoteLimit).toString();
 }
 
 /// Whether the sheet can submit yet.

@@ -6,11 +6,13 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/network/connectivity_service.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/auth/domain/entities/user.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/group_chat/data/models/chat_message_dto.dart';
+import 'package:flutter_pecha/features/group_chat/domain/repositories/group_chat_repository.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/providers/group_chat_providers.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/providers/group_chat_thread_providers.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/utils/chat_reactions.dart';
@@ -319,89 +321,32 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
     );
   }
 
-  /// Asks why, then posts it. A failure is reported to the caller so the
-  /// snack bar can offer a retry that repeats the same choice.
+  /// Asks why, then posts it.
   Future<void> _reportMessage(ChatMessageDTO message) async {
     final submission = await showChatReportSheet(context);
     if (!mounted || submission == null) return;
 
-    final offTopicLabel = context.l10n.group_chat_report_reason_off_topic;
-    await _submitReport(
-      message,
-      reason: submission.reason,
-      note: submission.note,
-      offTopicLabel: offTopicLabel,
-    );
-  }
-
-  Future<void> _submitReport(
-    ChatMessageDTO message, {
-    required ChatReportReason reason,
-    required String? note,
-    required String offTopicLabel,
-  }) async {
-    final roomId = widget.roomId;
-    // Resolved before the await: leaving this screen mid-request deactivates
-    // the element, and an ancestor lookup then throws.
-    final messenger = ScaffoldMessenger.of(context);
+    // Everything the request and its Retry will need, resolved once, here,
+    // while the element is live. The snackbar goes on the app's root
+    // messenger and outlives this thread — the member can back out of the
+    // chat and still tap Retry — so nothing past this point may reach back
+    // through `context` or `ref`.
     final l10n = context.l10n;
-    final connectivity = ref.read(connectivityServiceProvider);
-
-    final failure = await ref
-        .read(groupChatRepositoryProvider)
-        .reportMessage(
-          roomId,
-          messageId: message.id,
-          reason: chatReportReasonWireValue(reason),
-          description: chatReportDescription(
-            reason,
-            note: note,
-            offTopicLabel: offTopicLabel,
-          ),
-        )
-        .then((result) => result.fold<Failure?>((f) => f, (_) => null));
-
-    // "Offline" is more honest than "something went wrong" when the request
-    // never left. The failure type alone cannot tell us that, and the cached
-    // flag may be stale (it is only refreshed on connectivity events), so
-    // probe live. The probe only runs when the failure makes it relevant.
-    final feedback = await chatReportFeedbackFor(
-      failure,
-      isOnline: connectivity.checkConnectivity,
-    );
-
-    if (!mounted) return;
-
-    if (feedback == ChatReportFeedback.sent) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.group_chat_report_thanks)),
-      );
-      return;
-    }
-
-    // Retry is offered either way. The probe is a DNS lookup that can fail
-    // on a network where the API is still reachable (a filtered resolver, a
-    // slow one), so "offline" only changes the wording; it must never cost
-    // the member the one action that gets the report through.
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(
-          feedback == ChatReportFeedback.offline
-              ? l10n.group_chat_report_offline
-              : l10n.group_chat_report_failed,
-        ),
-        action: SnackBarAction(
-          label: l10n.group_chat_report_retry,
-          onPressed:
-              () => _submitReport(
-                message,
-                reason: reason,
-                note: note,
-                offTopicLabel: offTopicLabel,
-              ),
-        ),
+    final report = _ChatReport(
+      repository: ref.read(groupChatRepositoryProvider),
+      connectivity: ref.read(connectivityServiceProvider),
+      messenger: ScaffoldMessenger.of(context),
+      l10n: l10n,
+      roomId: widget.roomId,
+      messageId: message.id,
+      reason: chatReportReasonWireValue(submission.reason),
+      description: chatReportDescription(
+        submission.reason,
+        note: submission.note,
+        offTopicLabel: l10n.group_chat_report_reason_off_topic,
       ),
     );
+    await report.send();
   }
 
   bool _canDelete(ChatMessageDTO message) {
@@ -681,5 +626,81 @@ class _ThreadError extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// One report, with everything needed to send it and to say how it went.
+///
+/// Self-contained on purpose: the Retry on its snackbar sends this same
+/// object again, and by then the thread that built it may be gone.
+class _ChatReport {
+  const _ChatReport({
+    required this.repository,
+    required this.connectivity,
+    required this.messenger,
+    required this.l10n,
+    required this.roomId,
+    required this.messageId,
+    required this.reason,
+    required this.description,
+  });
+
+  final GroupChatRepository repository;
+  final ConnectivityService connectivity;
+  final ScaffoldMessengerState messenger;
+  final AppLocalizations l10n;
+  final String roomId;
+  final String messageId;
+  final String reason;
+  final String? description;
+
+  Future<void> send() async {
+    final result = await repository.reportMessage(
+      roomId,
+      messageId: messageId,
+      reason: reason,
+      description: description,
+    );
+    final failure = result.fold<Failure?>((f) => f, (_) => null);
+
+    // "Offline" is more honest than "something went wrong" when the request
+    // never left. The failure type alone cannot tell us that, and the cached
+    // flag may be stale (it is only refreshed on connectivity events), so
+    // probe live. The probe only runs when the failure makes it relevant.
+    final feedback = await chatReportFeedbackFor(
+      failure,
+      isOnline: connectivity.checkConnectivity,
+    );
+
+    switch (feedback) {
+      case ChatReportFeedback.sent:
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.group_chat_report_thanks)),
+        );
+      case ChatReportFeedback.rejected:
+        // The server would answer the same way again, so no Retry.
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.group_chat_report_failed)),
+        );
+      case ChatReportFeedback.offline:
+      case ChatReportFeedback.failed:
+        // Retry is offered for both. The probe is a DNS lookup that can fail
+        // on a network where the API is still reachable (a filtered resolver,
+        // a slow one), so "offline" only changes the wording; it must never
+        // cost the member the one action that gets the report through.
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              feedback == ChatReportFeedback.offline
+                  ? l10n.group_chat_report_offline
+                  : l10n.group_chat_report_failed,
+            ),
+            action: SnackBarAction(
+              label: l10n.group_chat_report_retry,
+              onPressed: send,
+            ),
+          ),
+        );
+    }
   }
 }

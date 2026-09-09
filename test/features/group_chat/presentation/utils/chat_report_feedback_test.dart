@@ -78,10 +78,11 @@ void main() {
       );
     });
 
-    test('any other failure keeps the retry path without probing', () async {
+    test('a failure the server may not repeat keeps the retry path without '
+        'probing', () async {
       for (final failure in const <Failure>[
         ServerFailure('reportMessage: 500'),
-        NotFoundFailure('reportMessage: 404'),
+        RateLimitFailure('reportMessage: 429'),
         UnknownFailure('reportMessage: boom'),
       ]) {
         for (final online in const [true, false]) {
@@ -89,9 +90,30 @@ void main() {
           expect(
             await chatReportFeedbackFor(failure, isOnline: probe.call),
             ChatReportFeedback.failed,
+            reason: failure.toString(),
           );
           expect(probe.calls, 0);
         }
+      }
+    });
+
+    test('a refusal the server would repeat is rejected, not retried',
+        () async {
+      // Own message, message gone, not a member, signed out: each is the
+      // answer to this exact request, and sending it again gets the same one.
+      for (final failure in const <Failure>[
+        ValidationFailure('reportMessage: CANNOT_REPORT_OWN_MESSAGE'),
+        NotFoundFailure('reportMessage: message not found'),
+        AuthorizationFailure('reportMessage: Forbidden'),
+        AuthenticationFailure('reportMessage: Unauthorized'),
+      ]) {
+        final probe = _Probe(false);
+        expect(
+          await chatReportFeedbackFor(failure, isOnline: probe.call),
+          ChatReportFeedback.rejected,
+          reason: failure.toString(),
+        );
+        expect(probe.calls, 0);
       }
     });
   });
