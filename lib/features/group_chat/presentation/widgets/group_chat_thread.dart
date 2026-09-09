@@ -291,11 +291,14 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
       anchor: anchor,
       message: row,
       myEmoji: currentChatReactionEmoji(message.reactions),
+      // Reporting your own message is meaningless, and the server refuses it
+      // with a generic 400 — so the gate is here. It waits for the viewer's
+      // identity: until the profile has loaded, `_isSelf` cannot say "mine"
+      // about anything, and "not mine" is then no grounds for offering it.
+      canReport:
+          _isViewerKnown && !_isSelf(message) && message.deletedAt == null,
       // Sender-only, and never twice. The backend enforces this too; the gate
       // is here because the API answers a non-sender attempt generically.
-      // Reporting your own message is meaningless, and the API documents no
-      // 403 for it — so the gate is here.
-      canReport: !_isSelf(message) && message.deletedAt == null,
       canDelete: _canDelete(message),
     );
     if (!mounted || result == null) return;
@@ -311,6 +314,11 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
         await _onAction(action, message);
     }
   }
+
+  bool get _isViewerKnown => isChatViewerKnown(
+    currentUserId: _viewerId,
+    currentUserEmail: _viewerEmail,
+  );
 
   bool _isSelf(ChatMessageDTO message) {
     return isSelfChatMessage(
@@ -350,13 +358,7 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
   }
 
   bool _canDelete(ChatMessageDTO message) {
-    if (message.deletedAt != null) return false;
-    return isSelfChatMessage(
-      senderId: message.senderId,
-      senderEmail: message.senderEmail,
-      currentUserId: _viewerId,
-      currentUserEmail: _viewerEmail,
-    );
+    return message.deletedAt == null && _isSelf(message);
   }
 
   Future<void> _deleteMessage(ChatMessageDTO message) async {
