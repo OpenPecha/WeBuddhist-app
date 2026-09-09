@@ -9,6 +9,7 @@ enum BookmarkType {
   accumulator,
   series,
   groupRecitationCollection,
+  recitationCollection,
 }
 
 extension BookmarkTypeExt on BookmarkType {
@@ -26,6 +27,8 @@ extension BookmarkTypeExt on BookmarkType {
         return 'SERIES';
       case BookmarkType.groupRecitationCollection:
         return 'GROUP_RECITATION_COLLECTION';
+      case BookmarkType.recitationCollection:
+        return 'RECITATION_COLLECTION';
     }
   }
 }

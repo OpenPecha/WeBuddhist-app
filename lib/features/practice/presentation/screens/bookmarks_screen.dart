@@ -86,9 +86,9 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
       final type = bookmarkTypeFromItem(bookmark.type);
       if (type != null) {
         ref.read(bookmarkExistsCacheProvider.notifier).set(
-          BookmarkTarget(type: type, sourceId: bookmark.sourceId),
-          const BookmarkExistsResult(exists: false),
-        );
+              BookmarkTarget(type: type, sourceId: bookmark.sourceId),
+              const BookmarkExistsResult(exists: false),
+            );
       }
     }
     messenger.showSnackBar(
@@ -136,6 +136,12 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
         if (groupId == null || groupId.isEmpty) return;
         context.push(
           '/home/group/$groupId/recitation-collections/${bookmark.sourceId}',
+          extra: {'title': bookmark.displayTitle},
+        );
+      case BookmarkItemType.recitationCollection:
+        context.pushNamed(
+          'my-recitation-collection',
+          pathParameters: {'collectionId': bookmark.sourceId},
           extra: {'title': bookmark.displayTitle},
         );
       case BookmarkItemType.plan:
