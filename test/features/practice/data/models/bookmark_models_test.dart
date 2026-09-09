@@ -29,7 +29,7 @@ void main() {
       expect(bookmark.isOpenable, isTrue);
     });
 
-    test('falls back to bookmark name for RECITATION_COLLECTION rows', () {
+    test('marks RECITATION_COLLECTION rows without enrichment as orphaned', () {
       final bookmark = BookmarkDTO.tryFromJson({
         'id': 'bookmark-1',
         'type': 'RECITATION_COLLECTION',
@@ -40,7 +40,8 @@ void main() {
 
       expect(bookmark, isNotNull);
       expect(bookmark!.displayTitle, 'Daily chants');
-      expect(bookmark.isOpenable, isTrue);
+      expect(bookmark.isOrphaned, isTrue);
+      expect(bookmark.isOpenable, isFalse);
     });
   });
 

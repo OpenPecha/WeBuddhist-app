@@ -180,8 +180,10 @@ class BookmarkDTO {
       groupId: groupCollection?['group_id'] as String?,
       itemCount: (collection?['item_count'] as num?)?.toInt(),
       isOrphaned:
-          type == BookmarkItemType.groupRecitationCollection &&
-          groupCollection == null,
+          (type == BookmarkItemType.groupRecitationCollection &&
+              groupCollection == null) ||
+          (type == BookmarkItemType.recitationCollection &&
+              recitationCollection == null),
     );
   }
 
@@ -212,7 +214,7 @@ class BookmarkDTO {
     BookmarkItemType.plan => false,
     BookmarkItemType.groupRecitationCollection =>
       !isOrphaned && (groupId?.isNotEmpty ?? false),
-    BookmarkItemType.recitationCollection => true,
+    BookmarkItemType.recitationCollection => !isOrphaned,
     _ => true,
   };
 
