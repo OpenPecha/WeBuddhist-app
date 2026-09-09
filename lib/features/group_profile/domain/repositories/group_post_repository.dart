@@ -29,6 +29,7 @@ abstract class GroupPostRepositoryInterface {
 
   /// Sends only the parts given: caption via PATCH, media and links via PUT.
   /// Resolves with the post when the API echoes it, otherwise null.
+  /// A failure after a persisted step is a [PartialPostUpdateFailure].
   Future<Either<Failure, ConnectPost?>> updatePost(
     String groupId,
     String postId, {

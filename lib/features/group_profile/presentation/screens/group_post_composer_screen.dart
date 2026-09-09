@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_pecha/core/constants/app_assets.dart';
+import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
@@ -56,6 +57,9 @@ class _GroupPostComposerScreenState
   bool _isPickingPhotos = false;
   bool _isSubmitting = false;
 
+  /// What the server holds; advances when an edit partially persists.
+  ConnectPost? _basePost;
+
   bool get _isEditing => widget.post != null;
 
   bool get _hasContent =>
@@ -64,19 +68,28 @@ class _GroupPostComposerScreenState
       _link != null;
 
   bool get _captionChanged =>
-      _captionController.text.trim() != (widget.post?.caption ?? '').trim();
+      _captionController.text.trim() != (_basePost?.caption ?? '').trim();
 
   bool get _mediaChanged {
-    final original = widget.post?.media ?? const <ConnectPostMedia>[];
+    final original = _basePost?.media ?? const <ConnectPostMedia>[];
     if (_photos.length != original.length) return true;
     for (final (index, photo) in _photos.indexed) {
-      if (photo.source?.id != original[index].id) return true;
+      final base = original[index];
+      final source = photo.source;
+      // A partially saved local photo is known only by its uploaded key.
+      final unchanged =
+          source != null
+              ? source.id == base.id
+              : base.id.isEmpty &&
+                  base.mediaKey != null &&
+                  base.mediaKey == photo.uploadedKey;
+      if (!unchanged) return true;
     }
     return false;
   }
 
   bool get _linkChanged {
-    final links = widget.post?.links ?? const <ConnectPostLink>[];
+    final links = _basePost?.links ?? const <ConnectPostLink>[];
     final original = links.isNotEmpty ? links.first : null;
     final link = _link;
     if (original == null || link == null) {
@@ -102,6 +115,7 @@ class _GroupPostComposerScreenState
     super.initState();
     _captionController.addListener(() => setState(() {}));
     final post = widget.post;
+    _basePost = post;
     if (post == null) return;
     _captionController.value = TextEditingValue(
       text: post.caption,
@@ -127,11 +141,15 @@ class _GroupPostComposerScreenState
   Future<void> _onCancel() async {
     if (_isSubmitting) return;
     if (!_shouldConfirmDiscard) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(_partialResult);
       return;
     }
     await _confirmDiscard();
   }
+
+  /// Parts that persisted before a failed save; the list must still see them.
+  ConnectPost? get _partialResult =>
+      identical(_basePost, widget.post) ? null : _basePost;
 
   Future<void> _confirmDiscard() async {
     final l10n = context.l10n;
@@ -143,7 +161,7 @@ class _GroupPostComposerScreenState
       cancelLabel: l10n.group_post_keep_editing,
     );
     if (discard == true && mounted) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(_partialResult);
     }
   }
 
@@ -227,7 +245,7 @@ class _GroupPostComposerScreenState
     setState(() => _isSubmitting = true);
 
     final l10n = context.l10n;
-    final post = widget.post;
+    final post = _basePost;
 
     List<GroupPostMediaRequest>? media;
     if (post == null || _mediaChanged) {
@@ -287,6 +305,7 @@ class _GroupPostComposerScreenState
       _photos.map((photo) async {
         final source = photo.source;
         if (source != null) return source.mediaKey;
+        if (photo.uploadedKey != null) return photo.uploadedKey;
         final upload = await repository.uploadMedia(photo.file!);
         return upload.fold((_) => null, (key) => key);
       }),
@@ -295,7 +314,12 @@ class _GroupPostComposerScreenState
     final media = <GroupPostMediaRequest>[];
     for (final (index, key) in keys.indexed) {
       if (key == null || key.isEmpty) return null;
-      final photo = _photos[index];
+      var photo = _photos[index];
+      // Remember the key so a retry after a failed save doesn't re-upload.
+      if (photo.source == null && photo.uploadedKey == null) {
+        photo = photo.withUploadedKey(key);
+        _photos[index] = photo;
+      }
       final mediaType = photo.source?.mediaType ?? '';
       media.add(
         GroupPostMediaRequest(
@@ -344,37 +368,68 @@ class _GroupPostComposerScreenState
           links: _linkChanged ? links : null,
         );
     return result.fold(
-      (_) => null,
-      (updated) => updated ?? _applyEdits(post, caption),
+      (failure) {
+        if (failure is PartialPostUpdateFailure) {
+          _recordPartialSave(post, failure, caption);
+        }
+        return null;
+      },
+      (updated) => updated ?? _applyEdits(post, caption: caption),
     );
   }
 
-  ConnectPost _applyEdits(ConnectPost post, String caption) {
+  /// Advances the base to what persisted so a retry only resends the rest.
+  void _recordPartialSave(
+    ConnectPost post,
+    PartialPostUpdateFailure failure,
+    String caption,
+  ) {
+    _basePost = _applyEdits(
+      post,
+      caption: failure.captionSaved ? caption : null,
+      media: failure.mediaSaved,
+      links: failure.linksSaved,
+    );
+  }
+
+  ConnectPost _applyEdits(
+    ConnectPost post, {
+    String? caption,
+    bool media = true,
+    bool links = true,
+  }) {
     final link = _link;
     return post.copyWith(
       caption: caption,
-      media: [
-        for (final (index, photo) in _photos.indexed)
-          photo.source ??
-              ConnectPostMedia(
-                id: '',
-                mediaType: 'IMAGE',
-                url: '',
-                width: photo.width,
-                height: photo.height,
-                displayOrder: index + 1,
-              ),
-      ],
-      links: [
-        if (link != null)
-          ConnectPostLink(
-            id: post.links.isNotEmpty ? post.links.first.id : '',
-            type: link.type,
-            url: link.url,
-            label: _truncateLabel(link.title),
-            displayOrder: 1,
-          ),
-      ],
+      media:
+          !media
+              ? null
+              : [
+                for (final (index, photo) in _photos.indexed)
+                  photo.source ??
+                      ConnectPostMedia(
+                        id: '',
+                        mediaType: 'IMAGE',
+                        url: '',
+                        width: photo.width,
+                        height: photo.height,
+                        displayOrder: index + 1,
+                        mediaKey: photo.uploadedKey,
+                      ),
+              ],
+      links:
+          !links
+              ? null
+              : [
+                if (link != null)
+                  ConnectPostLink(
+                    id: post.links.isNotEmpty ? post.links.first.id : '',
+                    type: link.type,
+                    url: link.url,
+                    label: _truncateLabel(link.title),
+                    displayOrder: 1,
+                  ),
+              ],
       updatedAt: DateTime.now(),
     );
   }
@@ -403,9 +458,14 @@ class _GroupPostComposerScreenState
     final dividerColor = isDark ? AppColors.cardBorderDark : AppColors.grey300;
 
     return PopScope(
-      canPop: !_shouldConfirmDiscard && !_isSubmitting,
+      canPop:
+          !_shouldConfirmDiscard && !_isSubmitting && _partialResult == null,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop || _isSubmitting) return;
+        if (!_shouldConfirmDiscard) {
+          Navigator.of(context).pop(_partialResult);
+          return;
+        }
         _confirmDiscard();
       },
       child: Scaffold(
@@ -826,10 +886,27 @@ class _ComposerPhoto {
   final int? width;
   final int? height;
 
-  const _ComposerPhoto({this.file, this.source, this.width, this.height});
+  /// Storage key from a finished upload, reused if the save must be retried.
+  final String? uploadedKey;
+
+  const _ComposerPhoto({
+    this.file,
+    this.source,
+    this.width,
+    this.height,
+    this.uploadedKey,
+  });
 
   factory _ComposerPhoto.remote(ConnectPostMedia media) =>
       _ComposerPhoto(source: media, width: media.width, height: media.height);
+
+  _ComposerPhoto withUploadedKey(String key) => _ComposerPhoto(
+    file: file,
+    source: source,
+    width: width,
+    height: height,
+    uploadedKey: key,
+  );
 
   /// Bakes the EXIF orientation into the pixels (some iOS builds keep it only
   /// as a tag) and reads the final size for the API.

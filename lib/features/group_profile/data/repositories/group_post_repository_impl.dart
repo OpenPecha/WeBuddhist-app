@@ -77,8 +77,11 @@ class GroupPostRepositoryImpl implements GroupPostRepositoryInterface {
     String status = 'PUBLISHED',
     List<GroupPostMediaRequest>? media,
     List<GroupPostLinkRequest>? links,
-  }) {
-    return _guard(() async {
+  }) async {
+    var captionSaved = false;
+    var mediaSaved = false;
+    var linksSaved = false;
+    final result = await _guard(() async {
       ConnectPostModel? latest;
       if (caption != null) {
         latest =
@@ -89,15 +92,28 @@ class GroupPostRepositoryImpl implements GroupPostRepositoryInterface {
               status: status,
             ) ??
             latest;
+        captionSaved = true;
       }
       if (media != null) {
         latest = await remote.updatePostMedia(groupId, postId, media) ?? latest;
+        mediaSaved = true;
       }
       if (links != null) {
         latest = await remote.updatePostLinks(groupId, postId, links) ?? latest;
+        linksSaved = true;
       }
       return latest?.toEntity();
     }, 'Failed to update post');
+    if (!captionSaved && !mediaSaved && !linksSaved) return result;
+    // A later request failed after earlier ones persisted; tell the caller.
+    return result.mapLeft(
+      (failure) => PartialPostUpdateFailure(
+        failure.message,
+        captionSaved: captionSaved,
+        mediaSaved: mediaSaved,
+        linksSaved: linksSaved,
+      ),
+    );
   }
 
   Future<Either<Failure, T>> _guard<T>(
