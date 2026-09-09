@@ -13,6 +13,11 @@ enum RoutineItemType {
   timer,
   accumulator,
   groupRecitationCollection,
+  myRecitationCollection,
+
+  /// A session type this build doesn't recognise. Carried through the UI so
+  /// re-syncing a block never silently deletes it.
+  unknown,
 }
 
 class RoutineItem {
@@ -32,9 +37,11 @@ class RoutineItem {
   /// Preview text for [RoutineItemType.recitation] items (from API or selection).
   final RecitationFirstSegmentModel? firstSegment;
 
-  /// Number of chants — only present for
-  /// [RoutineItemType.groupRecitationCollection] items.
+  /// Number of chants — only present for recitation collection items.
   final int? itemCount;
+
+  /// Original API `session_type` for [RoutineItemType.unknown] items.
+  final String? rawSessionType;
 
   const RoutineItem({
     required this.id,
@@ -49,6 +56,7 @@ class RoutineItem {
     this.durationMs,
     this.firstSegment,
     this.itemCount,
+    this.rawSessionType,
   });
 
   /// Smallest cover URL — legacy persistence and notifications.
@@ -77,6 +85,7 @@ class RoutineItem {
     if (durationMs != null) 'durationMs': durationMs,
     if (firstSegment != null) 'firstSegment': firstSegment!.toJson(),
     if (itemCount != null) 'itemCount': itemCount,
+    if (rawSessionType != null) 'rawSessionType': rawSessionType,
   };
 
   /// Safely parses a [RoutineItem] from JSON with null checks and fallbacks.
@@ -104,6 +113,7 @@ class RoutineItem {
       durationMs: (json['durationMs'] as num?)?.toInt(),
       firstSegment: _parseFirstSegment(json),
       itemCount: (json['itemCount'] as num?)?.toInt(),
+      rawSessionType: json['rawSessionType'] as String?,
     );
   }
 
@@ -145,6 +155,8 @@ class RoutineItem {
       'timer' => RoutineItemType.timer,
       'accumulator' => RoutineItemType.accumulator,
       'groupRecitationCollection' => RoutineItemType.groupRecitationCollection,
+      'myRecitationCollection' => RoutineItemType.myRecitationCollection,
+      'unknown' => RoutineItemType.unknown,
       _ => RoutineItemType.series,
     };
   }

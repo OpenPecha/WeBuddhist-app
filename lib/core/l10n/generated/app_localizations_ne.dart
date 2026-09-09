@@ -2588,4 +2588,8 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get group_chat_reply_parent_gone =>
       'त्यो सन्देश अब उपलब्ध छैन, त्यसैले उद्धरण हटाइयो। आफ्नो सन्देश पठाउन फेरि पठाउनुहोस्।';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

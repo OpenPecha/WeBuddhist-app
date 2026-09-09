@@ -2587,4 +2587,8 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get group_chat_reply_parent_gone =>
       'འཕྲིན་ཐུང་དེ་མི་འདུག་པས་ལུང་འདྲེན་ཕྱིར་བསུབས། ཡང་བསྐྱར་གཏོང་རོགས།';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

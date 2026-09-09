@@ -126,6 +126,13 @@ class RoutineItemCard extends StatelessWidget {
                 size: imageSize,
                 isDark: isDark,
               )
+            else if (type == RoutineItemType.myRecitationCollection)
+              _CollectionCoverImage(
+                coverImage: coverImage,
+                imageUrl: imageUrl,
+                size: imageSize,
+                isDark: isDark,
+              )
             else
               ResponsiveCoverImage(
                 image:
