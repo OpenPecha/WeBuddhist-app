@@ -1255,5 +1255,6 @@
   },
   "group_chat_you": "You",
   "group_chat_tap_to_remove": "Tap to remove",
-  "group_chat_reply_parent_gone": "That message is no longer available, so the quote was removed. Send again to post your message."
+  "group_chat_reply_parent_gone": "That message is no longer available, so the quote was removed. Send again to post your message.",
+  "practice_collection_already_added": "This collection is already in your practices"
 }

@@ -2537,4 +2537,8 @@ class AppLocalizationsMn extends AppLocalizations {
   @override
   String get group_chat_reply_parent_gone =>
       'Тэр мессеж байхгүй тул иш татсаныг хаслаа. Мессежээ илгээхийн тулд дахин илгээнэ үү.';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

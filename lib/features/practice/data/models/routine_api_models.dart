@@ -9,7 +9,12 @@ enum SessionType {
   timer,
   accumulator,
   groupRecitationCollection,
-  recitationCollection;
+  recitationCollection,
+
+  /// A session type this build doesn't know. Kept so a routine written by a
+  /// newer app version still parses here; the original wire value rides along
+  /// on [SessionDTO.rawSessionType] so re-syncing echoes it back untouched.
+  unknown;
 
   String toJson() => switch (this) {
     SessionType.plan => 'PLAN',
@@ -19,6 +24,7 @@ enum SessionType {
     SessionType.accumulator => 'ACCUMULATOR',
     SessionType.groupRecitationCollection => 'GROUP_RECITATION_COLLECTION',
     SessionType.recitationCollection => 'RECITATION_COLLECTION',
+    SessionType.unknown => 'UNKNOWN',
   };
 
   static SessionType fromJson(String value) => switch (value.toUpperCase()) {
@@ -29,7 +35,9 @@ enum SessionType {
     'ACCUMULATOR' => SessionType.accumulator,
     'GROUP_RECITATION_COLLECTION' => SessionType.groupRecitationCollection,
     'RECITATION_COLLECTION' => SessionType.recitationCollection,
-    _ => throw FormatException('Unknown SessionType: $value'),
+    // Never throws: one unrecognised session would otherwise fail the whole
+    // routine response, blanking every block the user has.
+    _ => SessionType.unknown,
   };
 }
 
@@ -40,6 +48,12 @@ class SessionRequest {
   final String sourceId;
   final int displayOrder;
 
+  /// Wire value to send instead of [sessionType]'s own. Set only for sessions
+  /// that arrived with a type this build doesn't know, so a PUT — which
+  /// replaces every session in the block — gives them back verbatim rather
+  /// than dropping them.
+  final String? rawSessionType;
+
   /// Required by the API when [sessionType] is [SessionType.timer].
   final int? durationMs;
 
@@ -48,10 +62,11 @@ class SessionRequest {
     required this.sourceId,
     required this.displayOrder,
     this.durationMs,
+    this.rawSessionType,
   });
 
   Map<String, dynamic> toJson() => {
-    'session_type': sessionType.toJson(),
+    'session_type': rawSessionType ?? sessionType.toJson(),
     if (sessionType == SessionType.accumulator)
       'accumulator_id': sourceId
     else if (sessionType != SessionType.timer)
@@ -104,6 +119,10 @@ class SessionDTO {
   /// Number of chants in a chant-collection session.
   final int? itemCount;
 
+  /// The `session_type` exactly as the API sent it. Only needed when
+  /// [sessionType] is [SessionType.unknown], to echo it back on re-sync.
+  final String? rawSessionType;
+
   const SessionDTO({
     required this.id,
     required this.sessionType,
@@ -119,6 +138,7 @@ class SessionDTO {
     this.currentPlanTitle,
     this.firstSegment,
     this.itemCount,
+    this.rawSessionType,
   });
 
   String? get imageUrl => image?.displayUrl;
@@ -126,7 +146,8 @@ class SessionDTO {
   ResponsiveImage? get coverImage => image?.toResponsiveImage();
 
   factory SessionDTO.fromJson(Map<String, dynamic> json) {
-    final sessionType = SessionType.fromJson(json['session_type'] as String);
+    final rawSessionType = json['session_type'] as String;
+    final sessionType = SessionType.fromJson(rawSessionType);
     final durationMs =
         (json['duration_ms'] as num?)?.toInt() ??
         (json['duration'] as num?)?.toInt();
@@ -157,6 +178,8 @@ class SessionDTO {
               )
               : null,
       itemCount: (json['item_count'] as num?)?.toInt(),
+      rawSessionType:
+          sessionType == SessionType.unknown ? rawSessionType : null,
     );
   }
 

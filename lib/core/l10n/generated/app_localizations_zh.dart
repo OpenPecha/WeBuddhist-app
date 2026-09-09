@@ -2389,4 +2389,8 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get group_chat_reply_parent_gone => '該訊息已不存在，引用已移除。請再次傳送你的訊息。';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

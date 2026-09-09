@@ -2509,4 +2509,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get group_chat_reply_parent_gone =>
       'That message is no longer available, so the quote was removed. Send again to post your message.';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

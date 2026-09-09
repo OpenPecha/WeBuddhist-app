@@ -362,6 +362,18 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     return resolved.target;
   }
 
+  /// Tells the user the collection they arrived with is already scheduled,
+  /// so nothing was added. Shared by both collection kinds.
+  void _showCollectionAlreadyAddedSnackBar() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.practice_collection_already_added),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   /// Syncs the block that contains [plan] after deep-link injection.
   void _syncInjectedPlan(Plan plan) {
     for (final block in _blocks) {
@@ -369,10 +381,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         (i) => i.representsStandalonePlan(plan.id),
       )) {
         _syncBlock(block).then((_) {
-              if (mounted) _refreshPracticeEnrollments();
+          if (mounted) _refreshPracticeEnrollments();
         }).catchError((e) {
-              if (mounted) _showErrorSnackBar(_mapError(e));
-            });
+          if (mounted) _showErrorSnackBar(_mapError(e));
+        });
         break;
       }
     }
@@ -400,10 +412,10 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         final injectedBlock = _injectSeries(series);
         if (injectedBlock != null) {
           _syncBlock(injectedBlock).then((_) {
-                if (mounted) _refreshPracticeEnrollments();
+            if (mounted) _refreshPracticeEnrollments();
           }).catchError((e) {
-                if (mounted) _showErrorSnackBar(_mapError(e));
-              });
+            if (mounted) _showErrorSnackBar(_mapError(e));
+          });
         }
       },
     );
@@ -1505,29 +1517,15 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               _syncBlock(injectedCollectionBlock!).catchError((e) {
                 if (mounted) _showErrorSnackBar(_mapError(e));
               });
-            } else if (collectionAlreadyInRoutine && mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text(
-                    'This collection is already in your practices',
-                  ),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
+            } else if (collectionAlreadyInRoutine) {
+              _showCollectionAlreadyAddedSnackBar();
             }
             if (injectedMyCollectionBlock != null) {
               _syncBlock(injectedMyCollectionBlock!).catchError((e) {
                 if (mounted) _showErrorSnackBar(_mapError(e));
               });
-            } else if (myCollectionAlreadyInRoutine && mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text(
-                    'This collection is already in your practices',
-                  ),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
+            } else if (myCollectionAlreadyInRoutine) {
+              _showCollectionAlreadyAddedSnackBar();
             }
             if (widget.enrollSeriesId != null && !_seriesEnrollmentHydrated) {
               _seriesEnrollmentHydrated = true;

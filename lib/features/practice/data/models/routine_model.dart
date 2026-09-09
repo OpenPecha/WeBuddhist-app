@@ -14,6 +14,10 @@ enum RoutineItemType {
   accumulator,
   groupRecitationCollection,
   myRecitationCollection,
+
+  /// A session type this build doesn't recognise. Carried through the UI so
+  /// re-syncing a block never silently deletes it.
+  unknown,
 }
 
 class RoutineItem {
@@ -36,6 +40,9 @@ class RoutineItem {
   /// Number of chants — only present for recitation collection items.
   final int? itemCount;
 
+  /// Original API `session_type` for [RoutineItemType.unknown] items.
+  final String? rawSessionType;
+
   const RoutineItem({
     required this.id,
     required this.title,
@@ -49,6 +56,7 @@ class RoutineItem {
     this.durationMs,
     this.firstSegment,
     this.itemCount,
+    this.rawSessionType,
   });
 
   /// Smallest cover URL — legacy persistence and notifications.
@@ -77,6 +85,7 @@ class RoutineItem {
     if (durationMs != null) 'durationMs': durationMs,
     if (firstSegment != null) 'firstSegment': firstSegment!.toJson(),
     if (itemCount != null) 'itemCount': itemCount,
+    if (rawSessionType != null) 'rawSessionType': rawSessionType,
   };
 
   /// Safely parses a [RoutineItem] from JSON with null checks and fallbacks.
@@ -104,6 +113,7 @@ class RoutineItem {
       durationMs: (json['durationMs'] as num?)?.toInt(),
       firstSegment: _parseFirstSegment(json),
       itemCount: (json['itemCount'] as num?)?.toInt(),
+      rawSessionType: json['rawSessionType'] as String?,
     );
   }
 
@@ -146,6 +156,7 @@ class RoutineItem {
       'accumulator' => RoutineItemType.accumulator,
       'groupRecitationCollection' => RoutineItemType.groupRecitationCollection,
       'myRecitationCollection' => RoutineItemType.myRecitationCollection,
+      'unknown' => RoutineItemType.unknown,
       _ => RoutineItemType.series,
     };
   }
@@ -178,7 +189,7 @@ class RoutineBlock {
     int? notificationId,
     this.apiTimeBlockId,
   })  : id = id ?? _uuid.v4(),
-       _persistedNotificationId = notificationId;
+        _persistedNotificationId = notificationId;
 
   RoutineBlock copyWith({
     String? id,

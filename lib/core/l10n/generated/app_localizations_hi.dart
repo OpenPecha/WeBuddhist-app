@@ -2533,4 +2533,8 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get group_chat_reply_parent_gone =>
       'वह संदेश अब उपलब्ध नहीं है, इसलिए उद्धरण हटा दिया गया। अपना संदेश भेजने के लिए फिर से भेजें।';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

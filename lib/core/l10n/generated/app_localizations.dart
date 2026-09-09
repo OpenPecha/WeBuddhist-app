@@ -4483,6 +4483,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That message is no longer available, so the quote was removed. Send again to post your message.'**
   String get group_chat_reply_parent_gone;
+
+  /// No description provided for @practice_collection_already_added.
+  ///
+  /// In en, this message translates to:
+  /// **'This collection is already in your practices'**
+  String get practice_collection_already_added;
 }
 
 class _AppLocalizationsDelegate

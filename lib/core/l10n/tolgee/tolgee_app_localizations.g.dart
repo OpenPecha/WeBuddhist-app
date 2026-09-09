@@ -4927,4 +4927,11 @@ class TolgeeAppLocalizations extends AppLocalizations {
     'group_chat_reply_parent_gone',
     () => _fallback.group_chat_reply_parent_gone,
   );
+
+  @override
+  String get practice_collection_already_added => TolgeeBridge.get(
+    localeName,
+    'practice_collection_already_added',
+    () => _fallback.practice_collection_already_added,
+  );
 }

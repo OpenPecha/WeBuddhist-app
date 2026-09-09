@@ -145,6 +145,70 @@ void main() {
     });
   });
 
+  group('unknown session types', () {
+    test('parses instead of throwing, so one bad row cannot blank a routine', () {
+      final session = SessionDTO.fromJson({
+        'id': 'session-future',
+        'session_type': 'SOMETHING_THE_FUTURE_ADDED',
+        'source_id': 'source-1',
+        'title': 'From a newer app version',
+        'language': 'en',
+        'display_order': 0,
+      });
+
+      expect(session.sessionType, SessionType.unknown);
+      expect(session.rawSessionType, 'SOMETHING_THE_FUTURE_ADDED');
+      expect(
+        routineItemFromSessionDto(session).type,
+        RoutineItemType.unknown,
+      );
+    });
+
+    test('round-trips its wire value, so re-syncing never deletes it', () {
+      // A time-block PUT replaces every session in the block, so an unknown
+      // session has to be echoed back exactly as it arrived.
+      final session = SessionDTO.fromJson({
+        'id': 'session-future',
+        'session_type': 'SOMETHING_THE_FUTURE_ADDED',
+        'source_id': 'source-1',
+        'title': 'From a newer app version',
+        'language': 'en',
+        'display_order': 0,
+      });
+
+      final block = RoutineBlock(
+        time: const TimeOfDay(hour: 6, minute: 0),
+        items: [routineItemFromSessionDto(session)],
+      );
+
+      final sessions = routineBlockToRequest(block).toJson()['sessions'] as List;
+
+      expect(sessions.single, {
+        'session_type': 'SOMETHING_THE_FUTURE_ADDED',
+        'source_id': 'source-1',
+        'display_order': 0,
+      });
+    });
+
+    test('survives a local persistence round trip', () {
+      final item = routineItemFromSessionDto(
+        SessionDTO.fromJson({
+          'id': 'session-future',
+          'session_type': 'SOMETHING_THE_FUTURE_ADDED',
+          'source_id': 'source-1',
+          'title': 'From a newer app version',
+          'language': 'en',
+          'display_order': 0,
+        }),
+      );
+
+      final restored = RoutineItem.fromJson(item.toJson());
+
+      expect(restored.type, RoutineItemType.unknown);
+      expect(restored.rawSessionType, 'SOMETHING_THE_FUTURE_ADDED');
+    });
+  });
+
   group('routineItemFromSessionDto existing types', () {
     test('maps SERIES, RECITATION, TIMER, and ACCUMULATOR independently of PLAN', () {
         expect(
