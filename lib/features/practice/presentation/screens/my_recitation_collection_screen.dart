@@ -449,13 +449,6 @@ class _CollectionActionBar extends ConsumerWidget {
                 ),
           ),
           const SizedBox(width: 8),
-          _ActionChip(
-            icon: AppAssets.readerShare,
-            label: context.l10n.share,
-            isDark: isDark,
-            onTap: () {},
-          ),
-          const SizedBox(width: 8),
         ],
       ),
     );
