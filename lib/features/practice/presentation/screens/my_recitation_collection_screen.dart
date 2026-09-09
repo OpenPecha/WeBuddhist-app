@@ -4,7 +4,7 @@ import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
-import 'package:flutter_pecha/features/group_profile/presentation/widgets/collection_completion_sheet.dart';
+import 'package:flutter_pecha/core/widgets/collection_completion_sheet.dart';
 import 'package:flutter_pecha/features/practice/data/models/my_recitation_collection_models.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/my_recitation_collections_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/my_recitation_collection_options_sheet.dart';
@@ -47,16 +47,6 @@ class _MyRecitationCollectionScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final detail = detailAsync.valueOrNull?.fold((_) => null, (value) => value);
 
-    ref.listen(myRecitationCollectionCompletionProvider(widget.collectionId), (
-      _,
-      next,
-    ) {
-      final currentDetail = ref
-          .read(myRecitationCollectionDetailProvider(widget.collectionId))
-          .valueOrNull
-          ?.fold((_) => null, (value) => value);
-      _maybeShowCompletionSheet(currentDetail, next);
-    });
     _maybeShowCompletionSheet(detail, completionState);
 
     return Scaffold(
@@ -295,7 +285,7 @@ class _CollectionContent extends StatelessWidget {
                       item: item,
                       isDark: isDark,
                       isCompleted: _isItemCompleted(completionState, item),
-                      isSubmitting: completionState.isSubmitting(item.id),
+                      isSubmitting: _isItemSubmitting(completionState, item),
                       onTap: () => onOpenItem(item),
                     ),
                   )
@@ -359,12 +349,29 @@ class _CollectionContent extends StatelessWidget {
   }
 }
 
+/// Completion is keyed by the chant ID we POST (`item.id`), but the
+/// `complete/today` payload has been seen carrying text IDs, so both are
+/// matched. [_isItemSubmitting] mirrors this so a row's spinner and its check
+/// can never disagree about which key identifies the item.
 bool _isItemCompleted(
   MyRecitationCollectionCompletionState completionState,
   MyRecitationCollectionItemModel item,
 ) {
-  return completionState.isCompleted(item.id) ||
-      completionState.isCompleted(item.textId);
+  return _matchesItem(completionState.isCompleted, item);
+}
+
+bool _isItemSubmitting(
+  MyRecitationCollectionCompletionState completionState,
+  MyRecitationCollectionItemModel item,
+) {
+  return _matchesItem(completionState.isSubmitting, item);
+}
+
+bool _matchesItem(
+  bool Function(String) predicate,
+  MyRecitationCollectionItemModel item,
+) {
+  return predicate(item.id) || predicate(item.textId);
 }
 
 class _CollectionHero extends StatelessWidget {
