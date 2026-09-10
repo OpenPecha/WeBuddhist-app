@@ -35,7 +35,7 @@ class SecondaryReaderKey {
 
   @override
   String toString() =>
-      'SecondaryReaderKey(textId: $textId, versionId: $versionId, initialSegmentId: $initialSegmentId)';
+      'SecondaryReaderKey(textId: $textId, versionId: $versionId, initialSegmentId: $initialSegmentId, initialSize: $initialSize)';
 }
 
 /// State for the secondary (translation/companion) text shown beneath the
