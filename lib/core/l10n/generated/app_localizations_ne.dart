@@ -924,6 +924,31 @@ class AppLocalizationsNe extends AppLocalizations {
   String get connect_event_date_tba => 'Date to be announced';
 
   @override
+  String get connect_event_when => 'When';
+
+  @override
+  String get connect_event_where => 'Where';
+
+  @override
+  String get connect_event_practices => 'Event practices';
+
+  @override
+  String get connect_event_every_day => 'Every day';
+
+  @override
+  String connect_event_every_weekday(String weekday) {
+    return 'Every $weekday';
+  }
+
+  @override
+  String get connect_event_every_month => 'Every month';
+
+  @override
+  String connect_event_every_date(String date) {
+    return 'Every $date';
+  }
+
+  @override
   String get connect_event_about_empty => 'No event details yet';
 
   @override
@@ -2406,6 +2431,16 @@ class AppLocalizationsNe extends AppLocalizations {
   String get group_chat_title => 'च्याट';
 
   @override
+  String get chats_title => 'च्याट';
+
+  @override
+  String get chats_empty_title => 'अहिलेसम्म कुनै च्याट छैन';
+
+  @override
+  String get chats_empty_body =>
+      'कुराकानी सुरु गर्न कुनै समुदायमा सामेल हुनुहोस्।';
+
+  @override
   String get group_chat_inappropriate =>
       'अनुचित भाषा भएकाले यो सन्देश पठाउन सकिएन।';
 
@@ -2461,6 +2496,53 @@ class AppLocalizationsNe extends AppLocalizations {
   String get group_chat_report => 'रिपोर्ट गर्नुहोस्';
 
   @override
+  String get group_chat_report_title =>
+      'तपाईं किन यसको रिपोर्ट गर्दै हुनुहुन्छ?';
+
+  @override
+  String get group_chat_report_privacy => 'तपाईंको नाम गोप्य रहन्छ।';
+
+  @override
+  String get group_chat_report_reason_harassment => 'उत्पीडन वा धम्की';
+
+  @override
+  String get group_chat_report_reason_hate => 'घृणित वा हानिकारक बोली';
+
+  @override
+  String get group_chat_report_reason_sexual => 'यौनजन्य वा अश्लील सामग्री';
+
+  @override
+  String get group_chat_report_reason_spam => 'स्प्याम वा ठगी';
+
+  @override
+  String get group_chat_report_reason_off_topic => 'विषयबाहिर वा बाधक';
+
+  @override
+  String get group_chat_report_reason_other => 'अरू केही';
+
+  @override
+  String get group_chat_report_note_title => 'टिप्पणी थप्नुहोस्';
+
+  @override
+  String get group_chat_report_note_hint => 'अरू केही...';
+
+  @override
+  String get group_chat_report_submit => 'रिपोर्ट पठाउनुहोस्';
+
+  @override
+  String get group_chat_report_thanks => 'प्रतिक्रियाका लागि धन्यवाद';
+
+  @override
+  String get group_chat_report_offline =>
+      'तपाईं अफलाइन हुनुहुन्छ — पछि प्रयास गर्नुहोस्';
+
+  @override
+  String get group_chat_report_failed => 'रिपोर्ट पठाउन सकिएन';
+
+  @override
+  String get group_chat_report_retry => 'पुनः प्रयास गर्नुहोस्';
+
+  @override
   String get group_chat_delete => 'मेटाउनुहोस्';
 
   @override
@@ -2506,4 +2588,8 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get group_chat_reply_parent_gone =>
       'त्यो सन्देश अब उपलब्ध छैन, त्यसैले उद्धरण हटाइयो। आफ्नो सन्देश पठाउन फेरि पठाउनुहोस्।';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

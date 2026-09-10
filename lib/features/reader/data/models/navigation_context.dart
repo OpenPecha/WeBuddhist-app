@@ -401,7 +401,7 @@ class NavigationContext {
       currentTextIndex! < planTextItems!.length;
 
   /// Whether this context can navigate between recitation collection items.
-  bool get hasGroupRecitationItems =>
+  bool get hasRecitationCollectionItems =>
       (source == NavigationSource.groupRecitationCollection ||
           source == NavigationSource.myRecitationCollection) &&
       planTextItems != null &&
@@ -413,20 +413,20 @@ class NavigationContext {
   /// Check if this navigation context supports swipe navigation
   /// (more than one item to move between).
   bool get canSwipe =>
-      (hasPlanItems || hasGroupRecitationItems) && planTextItems!.length > 1;
+      (hasPlanItems || hasRecitationCollectionItems) && planTextItems!.length > 1;
 
   /// Check if there is a next text in the plan
   bool get hasNextText =>
-      (hasPlanItems || hasGroupRecitationItems) &&
+      (hasPlanItems || hasRecitationCollectionItems) &&
       currentTextIndex! < planTextItems!.length - 1;
 
   /// Check if there is a previous text in the plan
   bool get hasPreviousText =>
-      (hasPlanItems || hasGroupRecitationItems) && currentTextIndex! > 0;
+      (hasPlanItems || hasRecitationCollectionItems) && currentTextIndex! > 0;
 
   /// Get the currently selected plan item, if any.
   PlanTextItem? get currentItem =>
-      (hasPlanItems || hasGroupRecitationItems)
+      (hasPlanItems || hasRecitationCollectionItems)
           ? planTextItems![currentTextIndex!]
           : null;
 

@@ -1807,6 +1807,57 @@ class TolgeeAppLocalizations extends AppLocalizations {
   );
 
   @override
+  String get connect_event_when => TolgeeBridge.get(
+    localeName,
+    'connect_event_when',
+    () => _fallback.connect_event_when,
+  );
+
+  @override
+  String get connect_event_where => TolgeeBridge.get(
+    localeName,
+    'connect_event_where',
+    () => _fallback.connect_event_where,
+  );
+
+  @override
+  String get connect_event_practices => TolgeeBridge.get(
+    localeName,
+    'connect_event_practices',
+    () => _fallback.connect_event_practices,
+  );
+
+  @override
+  String get connect_event_every_day => TolgeeBridge.get(
+    localeName,
+    'connect_event_every_day',
+    () => _fallback.connect_event_every_day,
+  );
+
+  @override
+  String connect_event_every_weekday(String weekday) => TolgeeBridge.format(
+    localeName,
+    'connect_event_every_weekday',
+    <String, Object>{'weekday': weekday},
+    () => _fallback.connect_event_every_weekday(weekday),
+  );
+
+  @override
+  String get connect_event_every_month => TolgeeBridge.get(
+    localeName,
+    'connect_event_every_month',
+    () => _fallback.connect_event_every_month,
+  );
+
+  @override
+  String connect_event_every_date(String date) => TolgeeBridge.format(
+    localeName,
+    'connect_event_every_date',
+    <String, Object>{'date': date},
+    () => _fallback.connect_event_every_date(date),
+  );
+
+  @override
   String get connect_event_about_empty => TolgeeBridge.get(
     localeName,
     'connect_event_about_empty',
@@ -4649,6 +4700,24 @@ class TolgeeAppLocalizations extends AppLocalizations {
   );
 
   @override
+  String get chats_title =>
+      TolgeeBridge.get(localeName, 'chats_title', () => _fallback.chats_title);
+
+  @override
+  String get chats_empty_title => TolgeeBridge.get(
+    localeName,
+    'chats_empty_title',
+    () => _fallback.chats_empty_title,
+  );
+
+  @override
+  String get chats_empty_body => TolgeeBridge.get(
+    localeName,
+    'chats_empty_body',
+    () => _fallback.chats_empty_body,
+  );
+
+  @override
   String get group_chat_inappropriate => TolgeeBridge.get(
     localeName,
     'group_chat_inappropriate',
@@ -4775,6 +4844,111 @@ class TolgeeAppLocalizations extends AppLocalizations {
   );
 
   @override
+  String get group_chat_report_title => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_title',
+    () => _fallback.group_chat_report_title,
+  );
+
+  @override
+  String get group_chat_report_privacy => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_privacy',
+    () => _fallback.group_chat_report_privacy,
+  );
+
+  @override
+  String get group_chat_report_reason_harassment => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_reason_harassment',
+    () => _fallback.group_chat_report_reason_harassment,
+  );
+
+  @override
+  String get group_chat_report_reason_hate => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_reason_hate',
+    () => _fallback.group_chat_report_reason_hate,
+  );
+
+  @override
+  String get group_chat_report_reason_sexual => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_reason_sexual',
+    () => _fallback.group_chat_report_reason_sexual,
+  );
+
+  @override
+  String get group_chat_report_reason_spam => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_reason_spam',
+    () => _fallback.group_chat_report_reason_spam,
+  );
+
+  @override
+  String get group_chat_report_reason_off_topic => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_reason_off_topic',
+    () => _fallback.group_chat_report_reason_off_topic,
+  );
+
+  @override
+  String get group_chat_report_reason_other => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_reason_other',
+    () => _fallback.group_chat_report_reason_other,
+  );
+
+  @override
+  String get group_chat_report_note_title => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_note_title',
+    () => _fallback.group_chat_report_note_title,
+  );
+
+  @override
+  String get group_chat_report_note_hint => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_note_hint',
+    () => _fallback.group_chat_report_note_hint,
+  );
+
+  @override
+  String get group_chat_report_submit => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_submit',
+    () => _fallback.group_chat_report_submit,
+  );
+
+  @override
+  String get group_chat_report_thanks => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_thanks',
+    () => _fallback.group_chat_report_thanks,
+  );
+
+  @override
+  String get group_chat_report_offline => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_offline',
+    () => _fallback.group_chat_report_offline,
+  );
+
+  @override
+  String get group_chat_report_failed => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_failed',
+    () => _fallback.group_chat_report_failed,
+  );
+
+  @override
+  String get group_chat_report_retry => TolgeeBridge.get(
+    localeName,
+    'group_chat_report_retry',
+    () => _fallback.group_chat_report_retry,
+  );
+
+  @override
   String get group_chat_delete => TolgeeBridge.get(
     localeName,
     'group_chat_delete',
@@ -4857,5 +5031,12 @@ class TolgeeAppLocalizations extends AppLocalizations {
     localeName,
     'group_chat_reply_parent_gone',
     () => _fallback.group_chat_reply_parent_gone,
+  );
+
+  @override
+  String get practice_collection_already_added => TolgeeBridge.get(
+    localeName,
+    'practice_collection_already_added',
+    () => _fallback.practice_collection_already_added,
   );
 }

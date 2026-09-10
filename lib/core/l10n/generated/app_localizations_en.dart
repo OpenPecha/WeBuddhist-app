@@ -909,6 +909,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connect_event_date_tba => 'Date to be announced';
 
   @override
+  String get connect_event_when => 'When';
+
+  @override
+  String get connect_event_where => 'Where';
+
+  @override
+  String get connect_event_practices => 'Event practices';
+
+  @override
+  String get connect_event_every_day => 'Every day';
+
+  @override
+  String connect_event_every_weekday(String weekday) {
+    return 'Every $weekday';
+  }
+
+  @override
+  String get connect_event_every_month => 'Every month';
+
+  @override
+  String connect_event_every_date(String date) {
+    return 'Every $date';
+  }
+
+  @override
   String get connect_event_about_empty => 'No event details yet';
 
   @override
@@ -2376,6 +2401,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get group_chat_title => 'Chat';
 
   @override
+  String get chats_title => 'Chats';
+
+  @override
+  String get chats_empty_title => 'No chats yet';
+
+  @override
+  String get chats_empty_body => 'Join a community to start chatting.';
+
+  @override
   String get group_chat_inappropriate =>
       'This message couldn\'t be sent because it contains language that isn\'t allowed.';
 
@@ -2431,6 +2465,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get group_chat_report => 'Report';
 
   @override
+  String get group_chat_report_title => 'Why are you reporting this?';
+
+  @override
+  String get group_chat_report_privacy => 'Your name stays private.';
+
+  @override
+  String get group_chat_report_reason_harassment => 'Harassment or bullying';
+
+  @override
+  String get group_chat_report_reason_hate => 'Hateful or harmful speech';
+
+  @override
+  String get group_chat_report_reason_sexual => 'Sexual or explicit content';
+
+  @override
+  String get group_chat_report_reason_spam => 'Spam or scams';
+
+  @override
+  String get group_chat_report_reason_off_topic => 'Off-topic or disruptive';
+
+  @override
+  String get group_chat_report_reason_other => 'Something else';
+
+  @override
+  String get group_chat_report_note_title => 'Add a note';
+
+  @override
+  String get group_chat_report_note_hint => 'Something else...';
+
+  @override
+  String get group_chat_report_submit => 'Submit report';
+
+  @override
+  String get group_chat_report_thanks => 'Thank you for the feedback';
+
+  @override
+  String get group_chat_report_offline => 'You\'re offline — try again later';
+
+  @override
+  String get group_chat_report_failed => 'Couldn\'t send report';
+
+  @override
+  String get group_chat_report_retry => 'Retry';
+
+  @override
   String get group_chat_delete => 'Delete';
 
   @override
@@ -2475,4 +2554,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get group_chat_reply_parent_gone =>
       'That message is no longer available, so the quote was removed. Send again to post your message.';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

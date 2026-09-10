@@ -108,8 +108,8 @@ class RoutineItemCard extends StatelessWidget {
                   PhosphorIconsRegular.timer,
                   size: imageSize * 0.45,
                   color: isDark
-                          ? AppColors.textTertiaryDark
-                          : AppColors.textSecondary,
+                      ? AppColors.textTertiaryDark
+                      : AppColors.textSecondary,
                 ),
               )
             else if (type == RoutineItemType.accumulator)

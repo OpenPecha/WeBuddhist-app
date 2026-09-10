@@ -921,6 +921,31 @@ class AppLocalizationsBo extends AppLocalizations {
   String get connect_event_date_tba => 'Date to be announced';
 
   @override
+  String get connect_event_when => 'When';
+
+  @override
+  String get connect_event_where => 'Where';
+
+  @override
+  String get connect_event_practices => 'Event practices';
+
+  @override
+  String get connect_event_every_day => 'Every day';
+
+  @override
+  String connect_event_every_weekday(String weekday) {
+    return 'Every $weekday';
+  }
+
+  @override
+  String get connect_event_every_month => 'Every month';
+
+  @override
+  String connect_event_every_date(String date) {
+    return 'Every $date';
+  }
+
+  @override
   String get connect_event_about_empty => 'No event details yet';
 
   @override
@@ -2402,6 +2427,15 @@ class AppLocalizationsBo extends AppLocalizations {
   String get group_chat_title => 'གླེང་མོལ།';
 
   @override
+  String get chats_title => 'ཁ་བརྡ།';
+
+  @override
+  String get chats_empty_title => 'ད་དུང་ཁ་བརྡ་མེད།';
+
+  @override
+  String get chats_empty_body => 'ཁ་བརྡ་འགོ་འཛུགས་པར་སྤྱི་ཚོགས་ཤིག་ལ་ཞུགས།';
+
+  @override
   String get group_chat_inappropriate =>
       'སྐད་ཆ་འདི་འབྱོར་མི་ཆོག་པས་འཕྲིན་ཐུང་འདི་གཏོང་མ་ཐུབ།';
 
@@ -2458,6 +2492,56 @@ class AppLocalizationsBo extends AppLocalizations {
   String get group_chat_report => 'སྙན་ཞུ།';
 
   @override
+  String get group_chat_report_title =>
+      'ཁྱེད་ཀྱིས་འདི་ཅིའི་ཕྱིར་སྙན་ཞུ་བྱེད་པ་ཡིན།';
+
+  @override
+  String get group_chat_report_privacy => 'ཁྱེད་ཀྱི་མིང་གསང་བར་གནས།';
+
+  @override
+  String get group_chat_report_reason_harassment =>
+      'གཞན་ལ་གནོད་འཚེ་དང་མནར་གཅོད།';
+
+  @override
+  String get group_chat_report_reason_hate => 'ཞེ་སྡང་ངམ་གནོད་པའི་སྐད་ཆ།';
+
+  @override
+  String get group_chat_report_reason_sexual =>
+      'འཁྲིག་སྤྱོད་དང་མི་འོས་པའི་ནང་དོན།';
+
+  @override
+  String get group_chat_report_reason_spam => 'སྤམ་མམ་གཡོ་སྒྱུ།';
+
+  @override
+  String get group_chat_report_reason_off_topic =>
+      'བརྗོད་གཞི་དང་མི་མཐུན་པའམ་བར་ཆད།';
+
+  @override
+  String get group_chat_report_reason_other => 'གཞན་ཞིག';
+
+  @override
+  String get group_chat_report_note_title => 'མཆན་འགོད།';
+
+  @override
+  String get group_chat_report_note_hint => 'གཞན་ཞིག...';
+
+  @override
+  String get group_chat_report_submit => 'སྙན་ཞུ་སྐུར།';
+
+  @override
+  String get group_chat_report_thanks => 'བསམ་ཚུལ་གནང་བར་ཐུགས་རྗེ་ཆེ།';
+
+  @override
+  String get group_chat_report_offline =>
+      'ཁྱེད་དྲ་ཐོག་མིན། རྗེས་སུ་ཡང་བསྐྱར་འབད་རོགས།';
+
+  @override
+  String get group_chat_report_failed => 'སྙན་ཞུ་སྐུར་མ་ཐུབ།';
+
+  @override
+  String get group_chat_report_retry => 'ཡང་བསྐྱར་འབད།';
+
+  @override
   String get group_chat_delete => 'སུབ།';
 
   @override
@@ -2503,4 +2587,8 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get group_chat_reply_parent_gone =>
       'འཕྲིན་ཐུང་དེ་མི་འདུག་པས་ལུང་འདྲེན་ཕྱིར་བསུབས། ཡང་བསྐྱར་གཏོང་རོགས།';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

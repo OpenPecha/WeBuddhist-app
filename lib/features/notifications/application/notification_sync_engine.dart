@@ -135,8 +135,8 @@ class NotificationSyncEngine {
     required NotificationService notificationService,
     required Ref ref,
   })  : _service = service,
-       _notificationService = notificationService,
-       _ref = ref;
+        _notificationService = notificationService,
+        _ref = ref;
 
   FlutterLocalNotificationsPlugin get _plugin =>
       _notificationService.notificationsPlugin;
@@ -191,12 +191,12 @@ class NotificationSyncEngine {
         perCase.update(c, (v) => v + 1, ifAbsent: () => 1);
 
     NotificationSyncReport empty() => NotificationSyncReport(
-      scheduled: 0,
-      cancelled: 0,
-      skipped: 0,
-      durationMs: stopwatch.elapsedMilliseconds,
-      perCase: perCase,
-    );
+          scheduled: 0,
+          cancelled: 0,
+          skipped: 0,
+          durationMs: stopwatch.elapsedMilliseconds,
+          perCase: perCase,
+        );
 
     if (!_notificationService.isInitialized) {
       _logger.warning(
@@ -541,7 +541,7 @@ class NotificationSyncEngine {
     final timers = block.items
         .where((i) =>
             i.type == RoutineItemType.timer && (i.durationMs ?? 0) > 0)
-            .toList();
+        .toList();
     if (timers.isEmpty) return const [];
     final timer = timers.first;
     final durationMs = timer.durationMs!;
@@ -606,8 +606,8 @@ class NotificationSyncEngine {
     if (block.items.isEmpty || !block.notificationEnabled) return const [];
 
     final collections = block.items
-            .where((i) => i.type == RoutineItemType.groupRecitationCollection)
-            .toList();
+        .where((i) => i.type == RoutineItemType.groupRecitationCollection)
+        .toList();
     if (collections.isEmpty) return const [];
 
     final firstItem = collections.first;
@@ -634,7 +634,7 @@ class NotificationSyncEngine {
         id: NotificationIdScheme.groupCollectionId(block.notificationId),
         fireAt: scheduledDate,
         title: firstItem.title,
-        body: _groupCollectionBody(firstItem),
+        body: _collectionBody(firstItem),
         payload: payload,
         sourceItem: firstItem,
         isDailyRepeat: true,
@@ -710,17 +710,17 @@ class NotificationSyncEngine {
       // wasted image download/disk hit per notification.
       final isApple = Platform.isIOS || Platform.isMacOS;
       final androidStyle = isApple
-              ? null
-              : await _service.buildBigPictureStyle(
-                d.sourceItem,
-                overrideTitle: d.title,
-                overrideBody: d.body,
-              );
+          ? null
+          : await _service.buildBigPictureStyle(
+              d.sourceItem,
+              overrideTitle: d.title,
+              overrideBody: d.body,
+            );
       final largeIcon =
           isApple ? null : await _service.getLargeIcon(d.sourceItem);
       final iosDetails = isApple
-              ? await _service.buildIOSNotificationDetails(d.sourceItem)
-              : null;
+          ? await _service.buildIOSNotificationDetails(d.sourceItem)
+          : null;
 
       final details = NotificationChannels.routineBlockDetails(
         styleInformation: androidStyle,
@@ -729,16 +729,16 @@ class NotificationSyncEngine {
       );
 
       Future<void> schedule(AndroidScheduleMode mode) => _plugin.zonedSchedule(
-        d.id,
-        d.title,
-        d.body,
-        fireAt,
-        details,
-        androidScheduleMode: mode,
-        matchDateTimeComponents:
-            d.isDailyRepeat ? DateTimeComponents.time : null,
-        payload: d.payload,
-      );
+            d.id,
+            d.title,
+            d.body,
+            fireAt,
+            details,
+            androidScheduleMode: mode,
+            matchDateTimeComponents:
+                d.isDailyRepeat ? DateTimeComponents.time : null,
+            payload: d.payload,
+          );
 
       try {
         await schedule(scheduleMode);
@@ -790,10 +790,6 @@ class NotificationSyncEngine {
   /// Body for a recitation collection (chants list) reminder. Reports
   /// the chant count when known (`"12 chants"`); falls back to a generic line
   /// when [RoutineItem.itemCount] wasn't populated (e.g. stale local data).
-  String _groupCollectionBody(RoutineItem item) {
-    return _collectionBody(item);
-  }
-
   String _collectionBody(RoutineItem item) {
     final count = item.itemCount;
     if (count != null && count > 0) {
