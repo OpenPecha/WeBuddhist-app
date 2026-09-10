@@ -7,7 +7,10 @@ import 'package:flutter_pecha/core/widgets/collection_completion_sheet.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
 import 'package:flutter_pecha/features/practice/data/models/my_recitation_collection_models.dart';
+import 'package:flutter_pecha/features/practice/presentation/controllers/bookmark_controller.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/my_recitation_collections_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/my_recitation_collection_options_sheet.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
@@ -419,6 +422,12 @@ class _CollectionActionBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bookmarkTarget = BookmarkTarget(
+      type: BookmarkType.recitationCollection,
+      sourceId: collection.id,
+    );
+    final isBookmarked = ref.watch(isBookmarkedProvider(bookmarkTarget));
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -431,17 +440,20 @@ class _CollectionActionBar extends ConsumerWidget {
           ),
           const SizedBox(width: 8),
           _ActionChip(
-            icon: AppAssets.bookmarkSimple,
+            icon:
+                isBookmarked
+                    ? AppAssets.bookmarkSimpleFill
+                    : AppAssets.bookmarkSimple,
             label: context.l10n.bookmark,
             isDark: isDark,
-            onTap: () {},
-          ),
-          const SizedBox(width: 8),
-          _ActionChip(
-            icon: AppAssets.readerShare,
-            label: context.l10n.share,
-            isDark: isDark,
-            onTap: () {},
+            onTap:
+                () => BookmarkController(
+                  ref: ref,
+                  context: context,
+                ).toggleRecitationCollection(
+                  collection.id,
+                  name: collection.name,
+                ),
           ),
           const SizedBox(width: 8),
         ],

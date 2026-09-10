@@ -66,6 +66,10 @@ class _EditableBlock {
   String id;
   String? apiTimeBlockId;
   TimeOfDay time;
+  String? title;
+
+  /// Title last sent to or received from the server; drives change detection.
+  String? syncedTitle;
   bool notificationEnabled;
   List<RoutineItem> items;
 
@@ -73,9 +77,11 @@ class _EditableBlock {
     String? id,
     this.apiTimeBlockId,
     required this.time,
+    this.title,
     required this.notificationEnabled,
     List<RoutineItem>? items,
   }) : id = id ?? _uuid.v4(),
+       syncedTitle = title,
        items = items ?? [];
 }
 
@@ -164,6 +170,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                   id: b.id,
                   apiTimeBlockId: b.apiTimeBlockId,
                   time: b.time,
+                  title: b.title,
                   notificationEnabled: b.notificationEnabled,
                   items: List.from(b.items),
                 ),
@@ -424,14 +431,14 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   /// Syncs the block that contains [plan] after deep-link injection.
   void _syncInjectedPlan(Plan plan) {
     for (final block in _blocks) {
-      if (block.items.any(
-        (i) => i.representsStandalonePlan(plan.id),
-      )) {
-        _syncBlock(block).then((_) {
-          if (mounted) _refreshPracticeEnrollments();
-        }).catchError((e) {
-          if (mounted) _showErrorSnackBar(_mapError(e));
-        });
+      if (block.items.any((i) => i.representsStandalonePlan(plan.id))) {
+        _syncBlock(block)
+            .then((_) {
+              if (mounted) _refreshPracticeEnrollments();
+            })
+            .catchError((e) {
+              if (mounted) _showErrorSnackBar(_mapError(e));
+            });
         break;
       }
     }
@@ -458,11 +465,13 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       (series) {
         final injectedBlock = _injectSeries(series);
         if (injectedBlock != null) {
-          _syncBlock(injectedBlock).then((_) {
-            if (mounted) _refreshPracticeEnrollments();
-          }).catchError((e) {
-            if (mounted) _showErrorSnackBar(_mapError(e));
-          });
+          _syncBlock(injectedBlock)
+              .then((_) {
+                if (mounted) _refreshPracticeEnrollments();
+              })
+              .catchError((e) {
+                if (mounted) _showErrorSnackBar(_mapError(e));
+              });
         }
       },
     );
@@ -516,6 +525,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     return RoutineBlock(
       id: b.id,
       time: b.time,
+      title: b.title,
       notificationEnabled: b.notificationEnabled,
       apiTimeBlockId: b.apiTimeBlockId,
       items: b.items,
@@ -550,60 +560,88 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
   /// Empty block with a server ID → DELETE (block becomes local-only).
   /// Block with items but no server ID → CREATE (routine or time block).
   /// Block with items and a server ID → UPDATE (full replacement).
-  Future<void> _syncBlock(_EditableBlock block) => _enqueue(() async {
-    if (block.items.isEmpty) {
-      if (block.apiTimeBlockId != null && _apiRoutineId != null) {
-        final result = await ref.read(deleteTimeBlockUseCaseProvider)(
+  Future<void> _syncBlock(_EditableBlock block) {
+    // Read use cases now: the queued closure can run after this widget is
+    // disposed (e.g. a title sync queued from Done), when `ref` is gone.
+    final deleteTimeBlock = ref.read(deleteTimeBlockUseCaseProvider);
+    final createRoutineWithTimeBlock = ref.read(
+      createRoutineWithTimeBlockUseCaseProvider,
+    );
+    final createTimeBlock = ref.read(createTimeBlockUseCaseProvider);
+    final updateTimeBlock = ref.read(updateTimeBlockUseCaseProvider);
+
+    return _enqueue(() async {
+      if (block.items.isEmpty) {
+        if (block.apiTimeBlockId != null && _apiRoutineId != null) {
+          final result = await deleteTimeBlock(
+            _apiRoutineId!,
+            block.apiTimeBlockId!,
+          );
+          result.fold((f) => throw f, (_) {
+            if (mounted) setState(() => block.apiTimeBlockId = null);
+          });
+        }
+        return;
+      }
+
+      final request = routineBlockToRequest(_toRoutineBlock(block));
+
+      if (_apiRoutineId == null) {
+        // First block ever: creates the routine + block together.
+        final result = await createRoutineWithTimeBlock(request);
+        result.fold((f) => throw f, (created) {
+          block.syncedTitle = request.title;
+          if (mounted) {
+            setState(() {
+              _apiRoutineId = created.routineId;
+              block.apiTimeBlockId = created.timeBlockId;
+              block.id = created.timeBlockId;
+            });
+          }
+        });
+      } else if (block.apiTimeBlockId == null) {
+        // Routine exists but this block is new.
+        final result = await createTimeBlock(_apiRoutineId!, request);
+        result.fold((f) => throw f, (timeBlockId) {
+          block.syncedTitle = request.title;
+          if (mounted) {
+            setState(() {
+              block.apiTimeBlockId = timeBlockId;
+              block.id = timeBlockId;
+            });
+          }
+        });
+      } else {
+        // Both exist — full replacement update.
+        final result = await updateTimeBlock(
           _apiRoutineId!,
           block.apiTimeBlockId!,
+          request,
         );
-        result.fold((f) => throw f, (_) {
-          if (mounted) setState(() => block.apiTimeBlockId = null);
-        });
+        result.fold((f) => throw f, (_) => block.syncedTitle = request.title);
       }
+    });
+  }
+
+  void _onTitleChanged(_EditableBlock block, String raw) {
+    block.title = RoutineBlock.normalizeTitle(raw);
+  }
+
+  /// Pushes a title edit to the server once the field loses focus. Local-only
+  /// blocks skip this; their title rides along when the first session syncs.
+  Future<void> _syncTitleIfChanged(_EditableBlock block) async {
+    if (block.apiTimeBlockId == null || block.title == block.syncedTitle) {
       return;
     }
-
-    final request = routineBlockToRequest(_toRoutineBlock(block));
-
-    if (_apiRoutineId == null) {
-      // First block ever: creates the routine + block together.
-      final result = await ref.read(createRoutineWithTimeBlockUseCaseProvider)(
-        request,
-      );
-      result.fold((f) => throw f, (created) {
-        if (mounted) {
-          setState(() {
-            _apiRoutineId = created.routineId;
-            block.apiTimeBlockId = created.timeBlockId;
-            block.id = created.timeBlockId;
-          });
-        }
-      });
-    } else if (block.apiTimeBlockId == null) {
-      // Routine exists but this block is new.
-      final result = await ref.read(createTimeBlockUseCaseProvider)(
-        _apiRoutineId!,
-        request,
-      );
-      result.fold((f) => throw f, (timeBlockId) {
-        if (mounted) {
-          setState(() {
-            block.apiTimeBlockId = timeBlockId;
-            block.id = timeBlockId;
-          });
-        }
-      });
-    } else {
-      // Both exist — full replacement update.
-      final result = await ref.read(updateTimeBlockUseCaseProvider)(
-        _apiRoutineId!,
-        block.apiTimeBlockId!,
-        request,
-      );
-      result.fold((f) => throw f, (_) {});
+    final previous = block.syncedTitle;
+    block.syncedTitle = block.title;
+    try {
+      await _syncBlock(block);
+    } catch (e) {
+      block.syncedTitle = previous;
+      if (mounted) _showErrorSnackBar(_mapError(e));
     }
-  });
+  }
 
   /// Deletes a persisted time block from the server.
   Future<void> _deletePersistedBlock(String apiTimeBlockId) =>
@@ -657,7 +695,14 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       }
     }
 
-    // 2. Capture Riverpod handles BEFORE pop. `ref` becomes invalid once
+    // 2. A title still focused has not hit the server yet; queue it before
+    //    the op queue is captured so the background drain waits for it.
+    FocusManager.instance.primaryFocus?.unfocus();
+    for (final block in _blocks) {
+      unawaited(_syncTitleIfChanged(block));
+    }
+
+    // 3. Capture Riverpod handles BEFORE pop. `ref` becomes invalid once
     //    this State is disposed, but the captured notifier instances are
     //    kept alive by the ProviderScope (these providers are not
     //    autoDispose), so the background block below can use them safely.
@@ -666,7 +711,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     final pendingOps = _opQueue;
     final blocks = _blocks.map(_toRoutineBlock).toList();
 
-    // 3. Await ONLY the Hive write. It is fast (~ms) and the next screen
+    // 4. Await ONLY the Hive write. It is fast (~ms) and the next screen
     //    reads from Hive-backed state, so this must complete before pop.
     //    A failure here is fatal: we surface it and stay on the screen.
     _logger.info('[EDIT-SAVE] persisting ${blocks.length} blocks');
@@ -678,7 +723,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       return;
     }
 
-    // 4. Invalidate while context is alive. These are cheap; the actual
+    // 5. Invalidate while context is alive. These are cheap; the actual
     //    refetch happens lazily when the next screen reads the provider.
     ref.invalidate(userRoutineProvider);
     ref.invalidate(userPlansFutureProvider);
@@ -689,7 +734,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
       context.pop();
     }
 
-    // 5. Fire-and-forget the slow work. Errors are non-fatal:
+    // 6. Fire-and-forget the slow work. Errors are non-fatal:
     //    - API queue: each op's user-visible error was already surfaced
     //      inline when the user added the item.
     //    - Notification sync: startup bootstrap re-syncs on next launch.
@@ -1619,7 +1664,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                 Text(
                   localizations.routine_edit_title,
                   style: const TextStyle(
-                    fontSize: 28,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -1646,9 +1691,12 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                       return RoutineTimeBlock(
                         key: ValueKey(block.id),
                         time: block.time,
+                        title: block.title,
                         notificationEnabled: block.notificationEnabled,
                         items: block.items,
                         onTimeChanged: () => _pickTime(index),
+                        onTitleChanged: (raw) => _onTitleChanged(block, raw),
+                        onTitleEditingDone: () => _syncTitleIfChanged(block),
                         onNotificationToggle: () => _toggleNotification(index),
                         onDelete: () => _deleteBlock(index),
                         onAddSession: () => _navigateToSelectSession(index),

@@ -368,4 +368,53 @@ void main() {
       expect(item.itemCount, 3);
     });
   });
+
+  group('time block title', () {
+    TimeBlockDTO dto(String? title) => TimeBlockDTO.fromJson({
+      'id': 'tb-1',
+      'time': '20:00',
+      'time_int': 2000,
+      if (title != null) 'title': title,
+      'notification_enabled': true,
+      'sessions': const [],
+    });
+
+    test('carries the API title onto the block', () {
+      expect(routineBlockFromDto(dto('Vesak Day Practice')).title,
+          'Vesak Day Practice');
+    });
+
+    test('treats a missing or blank API title as unset', () {
+      expect(routineBlockFromDto(dto(null)).title, isNull);
+      expect(routineBlockFromDto(dto('   ')).title, isNull);
+    });
+
+    test('sends the title on create/update and omits it when unset', () {
+      final titled = RoutineBlock(
+        time: const TimeOfDay(hour: 20, minute: 0),
+        title: 'Vesak Day Practice',
+      );
+      final untitled = RoutineBlock(time: const TimeOfDay(hour: 20, minute: 0));
+
+      expect(routineBlockToRequest(titled).toJson()['title'],
+          'Vesak Day Practice');
+      expect(routineBlockToRequest(untitled).toJson(), isNot(contains('title')));
+    });
+
+    test('survives a local persistence round trip', () {
+      final block = RoutineBlock(
+        time: const TimeOfDay(hour: 20, minute: 0),
+        title: 'Vesak Day Practice',
+      );
+
+      expect(RoutineBlock.fromJson(block.toJson()).title, 'Vesak Day Practice');
+    });
+
+    test('normalizeTitle trims and collapses blanks to null', () {
+      expect(RoutineBlock.normalizeTitle('  Evening  '), 'Evening');
+      expect(RoutineBlock.normalizeTitle('   '), isNull);
+      expect(RoutineBlock.normalizeTitle(''), isNull);
+      expect(RoutineBlock.normalizeTitle(null), isNull);
+    });
+  });
 }

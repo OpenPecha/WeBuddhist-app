@@ -14,6 +14,7 @@ RoutineBlock routineBlockFromDto(TimeBlockDTO tb) {
   return RoutineBlock(
     id: tb.id,
     time: hhmmToTime(tb.timeInt),
+    title: RoutineBlock.normalizeTitle(tb.title),
     notificationEnabled: tb.notificationEnabled,
     apiTimeBlockId: tb.id,
     items: sessions.map(routineItemFromSessionDto).toList(),
@@ -94,6 +95,7 @@ TimeBlockRequest routineBlockToRequest(RoutineBlock block) {
   return TimeBlockRequest(
     time: formatRoutineTime24h(block.time),
     timeInt: timeToHHMM(block.time),
+    title: block.title,
     notificationEnabled: block.notificationEnabled,
     sessions: _sessionsForBlock(block),
   );

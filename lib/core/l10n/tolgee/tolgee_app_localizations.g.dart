@@ -872,6 +872,142 @@ class TolgeeAppLocalizations extends AppLocalizations {
   );
 
   @override
+  String get my_recitation_collection_new_title => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_new_title',
+    () => _fallback.my_recitation_collection_new_title,
+  );
+
+  @override
+  String get my_recitation_collection_next => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_next',
+    () => _fallback.my_recitation_collection_next,
+  );
+
+  @override
+  String get my_recitation_collection_create => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_create',
+    () => _fallback.my_recitation_collection_create,
+  );
+
+  @override
+  String get my_recitation_collection_create_button => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_create_button',
+    () => _fallback.my_recitation_collection_create_button,
+  );
+
+  @override
+  String get my_recitation_collection_change_title => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_change_title',
+    () => _fallback.my_recitation_collection_change_title,
+  );
+
+  @override
+  String get my_recitation_collection_change => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_change',
+    () => _fallback.my_recitation_collection_change,
+  );
+
+  @override
+  String get my_recitation_collection_add_chants => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_add_chants',
+    () => _fallback.my_recitation_collection_add_chants,
+  );
+
+  @override
+  String get my_recitation_collection_search_chants => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_search_chants',
+    () => _fallback.my_recitation_collection_search_chants,
+  );
+
+  @override
+  String get my_recitation_collection_add_to_collection => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_add_to_collection',
+    () => _fallback.my_recitation_collection_add_to_collection,
+  );
+
+  @override
+  String get my_recitation_collection_edit => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_edit',
+    () => _fallback.my_recitation_collection_edit,
+  );
+
+  @override
+  String get my_recitation_collection_delete => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_delete',
+    () => _fallback.my_recitation_collection_delete,
+  );
+
+  @override
+  String get my_recitation_collection_delete_title => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_delete_title',
+    () => _fallback.my_recitation_collection_delete_title,
+  );
+
+  @override
+  String get my_recitation_collection_delete_message => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_delete_message',
+    () => _fallback.my_recitation_collection_delete_message,
+  );
+
+  @override
+  String get my_recitation_collection_fallback_title => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_fallback_title',
+    () => _fallback.my_recitation_collection_fallback_title,
+  );
+
+  @override
+  String get my_recitation_collection_unavailable => TolgeeBridge.get(
+    localeName,
+    'my_recitation_collection_unavailable',
+    () => _fallback.my_recitation_collection_unavailable,
+  );
+
+  @override
+  String my_recitation_collection_chant_count(int count) => TolgeeBridge.format(
+    localeName,
+    'my_recitation_collection_chant_count',
+    <String, Object>{'count': count},
+    () => _fallback.my_recitation_collection_chant_count(count),
+  );
+
+  @override
+  String my_recitation_collection_chant_count_owner(int count) =>
+      TolgeeBridge.format(
+        localeName,
+        'my_recitation_collection_chant_count_owner',
+        <String, Object>{'count': count},
+        () => _fallback.my_recitation_collection_chant_count_owner(count),
+      );
+
+  @override
+  String get bookmarks_empty_chant_collections_title => TolgeeBridge.get(
+    localeName,
+    'bookmarks_empty_chant_collections_title',
+    () => _fallback.bookmarks_empty_chant_collections_title,
+  );
+
+  @override
+  String get bookmarks_empty_chant_collections_subtitle => TolgeeBridge.get(
+    localeName,
+    'bookmarks_empty_chant_collections_subtitle',
+    () => _fallback.bookmarks_empty_chant_collections_subtitle,
+  );
+
+  @override
   String get notification_settings => TolgeeBridge.get(
     localeName,
     'notification_settings',
@@ -2565,6 +2701,27 @@ class TolgeeAppLocalizations extends AppLocalizations {
     localeName,
     'routine_delete_block',
     () => _fallback.routine_delete_block,
+  );
+
+  @override
+  String get routine_session_title_hint => TolgeeBridge.get(
+    localeName,
+    'routine_session_title_hint',
+    () => _fallback.routine_session_title_hint,
+  );
+
+  @override
+  String get routine_expand_all => TolgeeBridge.get(
+    localeName,
+    'routine_expand_all',
+    () => _fallback.routine_expand_all,
+  );
+
+  @override
+  String get routine_collapse_all => TolgeeBridge.get(
+    localeName,
+    'routine_collapse_all',
+    () => _fallback.routine_collapse_all,
   );
 
   @override

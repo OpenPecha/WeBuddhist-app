@@ -1252,7 +1252,9 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
                   if (collection.itemCount > 0) ...[
                     const SizedBox(height: 4),
                     Text(
-                      context.l10n.home_recitation_count(collection.itemCount),
+                      context.l10n.my_recitation_collection_chant_count(
+                        collection.itemCount,
+                      ),
                       style: TextStyle(
                         fontSize: 13,
                         color: secondaryColor,

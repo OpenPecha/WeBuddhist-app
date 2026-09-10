@@ -43,6 +43,7 @@ BookmarkType? bookmarkTypeFromItem(BookmarkItemType type) => switch (type) {
   BookmarkItemType.timer => BookmarkType.timer,
   BookmarkItemType.groupRecitationCollection =>
     BookmarkType.groupRecitationCollection,
+  BookmarkItemType.recitationCollection => BookmarkType.recitationCollection,
   BookmarkItemType.groupAccumulator => BookmarkType.groupAccumulator,
   BookmarkItemType.plan => null,
 };
@@ -255,7 +256,8 @@ extension BookmarkTabFilter on BookmarkTab {
       bookmark.type == BookmarkItemType.plan ||
           bookmark.type == BookmarkItemType.series,
     BookmarkTab.chants =>
-      bookmark.type == BookmarkItemType.groupRecitationCollection,
+      bookmark.type == BookmarkItemType.groupRecitationCollection ||
+          bookmark.type == BookmarkItemType.recitationCollection,
     BookmarkTab.mala => bookmark.type == BookmarkItemType.accumulator,
     BookmarkTab.groupAccumulation =>
       bookmark.type == BookmarkItemType.groupAccumulator,

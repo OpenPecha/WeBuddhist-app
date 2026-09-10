@@ -457,6 +457,84 @@ class AppLocalizationsHi extends AppLocalizations {
       'अपने सेव किए गए पाठ देखने के लिए साइन इन करें';
 
   @override
+  String get my_recitation_collection_new_title => 'नया संग्रह';
+
+  @override
+  String get my_recitation_collection_next => 'अगला';
+
+  @override
+  String get my_recitation_collection_create => 'बनाएँ';
+
+  @override
+  String get my_recitation_collection_create_button => 'संग्रह बनाएँ';
+
+  @override
+  String get my_recitation_collection_change_title => 'शीर्षक बदलें';
+
+  @override
+  String get my_recitation_collection_change => 'बदलें';
+
+  @override
+  String get my_recitation_collection_add_chants => 'पाठ जोड़ें';
+
+  @override
+  String get my_recitation_collection_search_chants => 'पाठ खोजें';
+
+  @override
+  String get my_recitation_collection_add_to_collection => 'संग्रह में जोड़ें';
+
+  @override
+  String get my_recitation_collection_edit => 'संग्रह संपादित करें';
+
+  @override
+  String get my_recitation_collection_delete => 'संग्रह हटाएँ';
+
+  @override
+  String get my_recitation_collection_delete_title => 'संग्रह हटाएँ?';
+
+  @override
+  String get my_recitation_collection_delete_message =>
+      'यह संग्रह स्थायी रूप से हटा दिया जाएगा.';
+
+  @override
+  String get my_recitation_collection_fallback_title => 'पाठ संग्रह';
+
+  @override
+  String get my_recitation_collection_unavailable => 'अब उपलब्ध नहीं';
+
+  @override
+  String my_recitation_collection_chant_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count पाठ',
+      one: '1 पाठ',
+      zero: '0 पाठ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String my_recitation_collection_chant_count_owner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count पाठ • मेरा',
+      one: '1 पाठ • मेरा',
+      zero: '0 पाठ • मेरा',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bookmarks_empty_chant_collections_title =>
+      'अभी तक कोई पाठ संग्रह बुकमार्क नहीं है.';
+
+  @override
+  String get bookmarks_empty_chant_collections_subtitle =>
+      'किसी पाठ संग्रह को यहाँ सेव करने के लिए बुकमार्क करें.';
+
+  @override
   String get notification_settings => 'नोटिफिकेशन सेटिंग्स';
 
   @override
@@ -1315,6 +1393,15 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get routine_delete_block => 'ब्लॉक हटाएँ';
+
+  @override
+  String get routine_session_title_hint => 'Title...';
+
+  @override
+  String get routine_expand_all => 'Expand all';
+
+  @override
+  String get routine_collapse_all => 'Collapse all';
 
   @override
   String get routine_delete_time_block => 'टाइम ब्लॉक हटाएँ';
