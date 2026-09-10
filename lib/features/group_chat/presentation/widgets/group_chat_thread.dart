@@ -15,19 +15,23 @@ import 'package:flutter_pecha/features/group_chat/data/models/chat_message_dto.d
 import 'package:flutter_pecha/features/group_chat/domain/repositories/group_chat_repository.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/providers/group_chat_providers.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/providers/group_chat_thread_providers.dart';
+import 'package:flutter_pecha/features/group_chat/presentation/utils/chat_copy_text.dart';
+import 'package:flutter_pecha/features/group_chat/presentation/utils/chat_haptics.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/utils/chat_reactions.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/utils/chat_report_feedback.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/utils/chat_report_reason.dart';
+import 'package:flutter_pecha/features/group_chat/presentation/utils/chat_selection.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/utils/chat_sender.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/utils/chat_thread_rows.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_date_separator.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_delete_dialog.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_emoji_picker.dart';
+import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_emoji_pill.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_empty_state.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_message_bubble.dart';
-import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_message_menu.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_report_sheet.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_reactions_sheet.dart';
+import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_selection_header.dart';
 import 'package:flutter_pecha/features/group_chat/presentation/widgets/group_chat_swipe_to_reply.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,6 +45,7 @@ class GroupChatThread extends ConsumerStatefulWidget {
     required this.roomId,
     required this.groupId,
     required this.onReply,
+    required this.onSelectionChanged,
   });
 
   final String roomId;
@@ -49,6 +54,10 @@ class GroupChatThread extends ConsumerStatefulWidget {
   /// Starts a reply in the composer, which the screen owns.
   final ValueChanged<ChatMessageDTO> onReply;
 
+  /// The selection as it stands, or null once cleared. The screen swaps its
+  /// header for the selection bar while this is non-null.
+  final ValueChanged<ChatSelection?> onSelectionChanged;
+
   @override
   ConsumerState<GroupChatThread> createState() => _GroupChatThreadState();
 }
@@ -56,8 +65,26 @@ class GroupChatThread extends ConsumerStatefulWidget {
 class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
   final _scrollController = ScrollController();
 
-  /// One key per message so the long-press menu can measure the row it lifts.
+  /// One key per message so the emoji pill can be placed against the row it
+  /// belongs to, and a quote can scroll to its original.
   final _rowKeys = <String, GlobalKey>{};
+
+  /// The stack the pill is positioned in; row rects are measured against it.
+  final _stackKey = GlobalKey();
+
+  /// Selected message ids, in the order they were picked.
+  final _selectedIds = <String>{};
+
+  /// Where the pill sits, in the stack's own coordinates, or null while it is
+  /// hidden. Scrolling hides it; the selection stays.
+  Rect? _pillRect;
+
+  /// The message the pill reacts on. Held separately from [_selectedIds] so
+  /// the pill can be gone while that row is still selected.
+  String? _pillMessageId;
+
+  /// Gap between the pill and the bubble it floats over.
+  static const double _pillGap = 8;
 
   /// The newest message already seen, so an arrival can be told from a rebuild.
   String? _newestId;
@@ -128,6 +155,10 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
     if (shouldShow != _showJumpToLatest) {
       setState(() => _showJumpToLatest = shouldShow);
     }
+
+    // The pill is anchored to where its row *was*; rather than chase the
+    // row it goes away, and the selection it belongs to stays.
+    if (_pillRect != null) _hidePill();
   }
 
   GlobalKey _rowKey(String messageId) =>
@@ -280,45 +311,195 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
     };
   }
 
-  Future<void> _openMenu(ChatMessageDTO message, Widget row) async {
-    final renderObject =
-        _rowKeys[message.id]?.currentContext?.findRenderObject();
-    if (renderObject is! RenderBox || !renderObject.hasSize) return;
-    final anchor = renderObject.localToGlobal(Offset.zero) & renderObject.size;
+  // ---- Selection ---------------------------------------------------------
 
-    final result = await showChatMessageMenu(
-      context,
-      anchor: anchor,
-      message: row,
-      myEmoji: currentChatReactionEmoji(message.reactions),
-      // Reporting your own message is meaningless, and the server refuses it
-      // with a generic 400 — so the gate is here. It waits for the viewer's
-      // identity: until the profile has loaded, `_isSelf` cannot say "mine"
-      // about anything, and "not mine" is then no grounds for offering it.
-      canReport:
-          _isViewerKnown && !_isSelf(message) && message.deletedAt == null,
-      // Sender-only, and never twice. The backend enforces this too; the gate
-      // is here because the API answers a non-sender attempt generically.
-      canDelete: _canDelete(message),
-    );
-    if (!mounted || result == null) return;
+  bool get _hasSelection => _selectedIds.isNotEmpty;
 
-    switch (result) {
-      case ChatMessageReact(emoji: final emoji):
-        await _toggleReaction(message.id, emoji);
-      case ChatMessageMoreEmoji():
-        final picked = await showChatEmojiPicker(context);
-        if (!mounted || picked == null) return;
-        await _toggleReaction(message.id, picked);
-      case ChatMessageActionPicked(action: final action):
-        await _onAction(action, message);
-    }
+  /// The selected messages as the thread holds them now — reactions and
+  /// deletion state included — dropping any that have since left the window.
+  List<ChatMessageDTO> get _selectedMessages {
+    final byId = {
+      for (final message
+          in ref.read(groupChatThreadProvider(widget.roomId)).messages)
+        message.id: message,
+    };
+    return [
+      for (final id in _selectedIds)
+        if (byId[id] case final message?) message,
+    ];
   }
 
-  bool get _isViewerKnown => isChatViewerKnown(
-    currentUserId: _viewerId,
-    currentUserEmail: _viewerEmail,
-  );
+  /// Long-press: the haptic first, so it lands the moment the press is
+  /// recognised, then the row joins the selection and gets the pill.
+  void _onLongPressRow(ChatMessageDTO message) {
+    unawaited(chatLongPressHaptic());
+    if (!_selectedIds.contains(message.id) && !_trySelect(message)) return;
+    _showPillFor(message);
+  }
+
+  /// Tap while a selection exists toggles the row. Outside selection mode the
+  /// bubble takes no tap at all, so this is never reached.
+  void _onTapRow(ChatMessageDTO message) {
+    HapticFeedback.selectionClick();
+    if (_selectedIds.contains(message.id)) {
+      _selectedIds.remove(message.id);
+      _hidePill();
+      _publishSelection();
+      return;
+    }
+    if (_trySelect(message)) _hidePill();
+  }
+
+  /// Adds [message], or refuses it — a tombstone, or the cap — and says why
+  /// when it is the cap.
+  bool _trySelect(ChatMessageDTO message) {
+    if (!chatMessageIsSelectable(message)) return false;
+    if (!chatSelectionHasRoom(_selectedIds.length)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.l10n.group_chat_selection_limit(kChatMaxSelection),
+          ),
+        ),
+      );
+      return false;
+    }
+    _selectedIds.add(message.id);
+    _publishSelection();
+    return true;
+  }
+
+  void _clearSelection() {
+    if (!_hasSelection && _pillRect == null) return;
+    _selectedIds.clear();
+    _pillRect = null;
+    _pillMessageId = null;
+    _publishSelection();
+  }
+
+  /// Rebuilds and hands the screen a fresh [ChatSelection], or null.
+  void _publishSelection() {
+    if (!mounted) return;
+    setState(() {});
+    if (!_hasSelection) {
+      widget.onSelectionChanged(null);
+      return;
+    }
+    final gates = chatSelectionGates(
+      _selectedMessages,
+      currentUserId: _viewerId,
+      currentUserEmail: _viewerEmail,
+    );
+    widget.onSelectionChanged(
+      ChatSelection(
+        count: _selectedIds.length,
+        gates: gates,
+        onReply: _replySelected,
+        onCopy: _copySelection,
+        onDelete: _deleteSelection,
+        onReport: _reportSelected,
+        onClear: _clearSelection,
+      ),
+    );
+  }
+
+  /// Places the pill above [message]'s bubble, aligned to the bubble's near
+  /// edge — right for own messages, left for everyone else's — and flips it
+  /// below the bubble when there is no room above.
+  void _showPillFor(ChatMessageDTO message) {
+    final row = _rowKeys[message.id]?.currentContext?.findRenderObject();
+    final stack = _stackKey.currentContext?.findRenderObject();
+    if (row is! RenderBox || stack is! RenderBox) return;
+    if (!row.hasSize || !stack.hasSize) return;
+
+    final rowRect = row.localToGlobal(Offset.zero, ancestor: stack) & row.size;
+    final isSelf = _isSelf(message);
+    var left =
+        isSelf
+            ? rowRect.right -
+                GroupChatMessageBubble.bubbleEdgeInset -
+                GroupChatEmojiPill.width
+            : rowRect.left + GroupChatMessageBubble.bubbleEdgeInset;
+    final maxLeft = stack.size.width - GroupChatEmojiPill.width - 8;
+    left = maxLeft < 8 ? 8 : left.clamp(8.0, maxLeft);
+
+    var top = rowRect.top - GroupChatEmojiPill.height - _pillGap;
+    if (top < 0) top = rowRect.bottom + _pillGap;
+
+    setState(() {
+      _pillMessageId = message.id;
+      _pillRect = Rect.fromLTWH(
+        left,
+        top,
+        GroupChatEmojiPill.width,
+        GroupChatEmojiPill.height,
+      );
+    });
+  }
+
+  void _hidePill() {
+    if (_pillRect == null && _pillMessageId == null) return;
+    setState(() {
+      _pillRect = null;
+      _pillMessageId = null;
+    });
+  }
+
+  Future<void> _reactFromPill(String emoji) async {
+    final messageId = _pillMessageId;
+    _clearSelection();
+    if (messageId == null) return;
+    await _toggleReaction(messageId, emoji);
+  }
+
+  Future<void> _pickMoreFromPill() async {
+    final messageId = _pillMessageId;
+    _clearSelection();
+    if (messageId == null) return;
+    final picked = await showChatEmojiPicker(context);
+    if (!mounted || picked == null) return;
+    await _toggleReaction(messageId, picked);
+  }
+
+  void _replySelected() {
+    final selected = _selectedMessages;
+    if (selected.length != 1) return;
+    final message = selected.single;
+    _clearSelection();
+    widget.onReply(message);
+  }
+
+  Future<void> _copySelection() async {
+    final selected = _selectedMessages;
+    if (selected.isEmpty) return;
+    final l10n = context.l10n;
+    final text = chatCopyText(
+      selected,
+      timeOf: (message) => GroupChatMessageBubble.timeLabel(context, message),
+      nameOf:
+          (message) =>
+              _isSelf(message)
+                  ? l10n.group_chat_you
+                  : chatSenderDisplayName(
+                        messageName: message.senderName,
+                        senderEmail: message.senderEmail,
+                      ) ??
+                      l10n.group_chat_unknown_sender,
+    );
+    final messenger = ScaffoldMessenger.of(context);
+    _clearSelection();
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
+    messenger.showSnackBar(SnackBar(content: Text(l10n.group_chat_copied)));
+  }
+
+  Future<void> _reportSelected() async {
+    final selected = _selectedMessages;
+    if (selected.length != 1) return;
+    final message = selected.single;
+    _clearSelection();
+    await _reportMessage(message);
+  }
 
   bool _isSelf(ChatMessageDTO message) {
     return isSelfChatMessage(
@@ -361,41 +542,54 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
     return message.deletedAt == null && _isSelf(message);
   }
 
-  Future<void> _deleteMessage(ChatMessageDTO message) async {
-    if (!await confirmChatMessageDelete(context)) return;
+  /// Deletes every selected own message, one call each, after one dialog.
+  ///
+  /// Each success tombstones its row and drops it from the selection as it
+  /// lands. Whatever failed stays selected, under one snackbar, so Delete can
+  /// simply be tapped again. The selection only stays behind the dialog
+  /// (mock 5); the pill does not.
+  Future<void> _deleteSelection() async {
+    final targets = _selectedMessages;
+    // All or nothing: a selection holding anyone else's message offers no
+    // Delete at all, and this must not quietly delete the own subset either.
+    if (targets.isEmpty || !targets.every(_canDelete)) return;
+    _hidePill();
+
+    if (!await confirmChatMessageDelete(context, count: targets.length)) {
+      return;
+    }
     if (!mounted) return;
 
     // Resolved before the await for the same reason as `_toggleReaction`:
     // leaving the screen mid-request deactivates this element.
     final messenger = ScaffoldMessenger.of(context);
-    final failedMessage = context.l10n.group_chat_delete_failed;
+    final l10n = context.l10n;
+    final notifier = ref.read(groupChatThreadProvider(widget.roomId).notifier);
 
-    final failure = await ref
-        .read(groupChatThreadProvider(widget.roomId).notifier)
-        .deleteMessage(message.id);
-
-    if (!mounted || failure == null) return;
-    messenger.showSnackBar(SnackBar(content: Text(failedMessage)));
-  }
-
-  Future<void> _onAction(
-    ChatMessageAction action,
-    ChatMessageDTO message,
-  ) async {
-    switch (action) {
-      case ChatMessageAction.copy:
-        final messenger = ScaffoldMessenger.of(context);
-        final copied = context.l10n.group_chat_copied;
-        await Clipboard.setData(ClipboardData(text: message.body));
-        if (!mounted) return;
-        messenger.showSnackBar(SnackBar(content: Text(copied)));
-      case ChatMessageAction.reply:
-        widget.onReply(message);
-      case ChatMessageAction.delete:
-        await _deleteMessage(message);
-      case ChatMessageAction.report:
-        await _reportMessage(message);
+    var failed = 0;
+    for (final message in targets) {
+      final failure = await notifier.deleteMessage(message.id);
+      if (!mounted) return;
+      if (failure == null) {
+        _selectedIds.remove(message.id);
+      } else {
+        failed++;
+      }
     }
+
+    if (failed == 0) {
+      _clearSelection();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.group_chat_message_deleted_toast(targets.length)),
+        ),
+      );
+      return;
+    }
+    _publishSelection();
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.group_chat_delete_failed)),
+    );
   }
 
   @override
@@ -435,21 +629,50 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
 
     final rows = buildChatThreadRows(state.messages);
 
+    // The pill reacts on the live copy of its message, so the tinted circle
+    // follows a reaction that lands while it is open.
+    final pillMessage =
+        _pillMessageId == null
+            ? null
+            : state.messages.cast<ChatMessageDTO?>().firstWhere(
+              (message) => message!.id == _pillMessageId,
+              orElse: () => null,
+            );
+    final pillRect = _pillRect;
+
     // No keyboard inset here. The composer sits in the same Column and grows
     // by the inset itself, which already shrinks this Expanded to the space
     // above the field — adding it again would double the gap under the newest
     // message.
-    return _dismissKeyboardOnTap(
-      Stack(
-        children: [
-          _buildList(state, rows, user),
-          if (_showJumpToLatest)
-            Positioned(
-              right: 16,
-              bottom: 12,
-              child: _JumpToLatestButton(onTap: _scrollToNewest),
-            ),
-        ],
+    return PopScope(
+      // System back leaves selection mode before it leaves the chat.
+      canPop: !_hasSelection,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _clearSelection();
+      },
+      child: _dismissKeyboardOnTap(
+        Stack(
+          key: _stackKey,
+          children: [
+            _buildList(state, rows, user),
+            if (_showJumpToLatest)
+              Positioned(
+                right: 16,
+                bottom: 12,
+                child: _JumpToLatestButton(onTap: _scrollToNewest),
+              ),
+            if (pillRect != null && pillMessage != null)
+              Positioned(
+                left: pillRect.left,
+                top: pillRect.top,
+                child: GroupChatEmojiPill(
+                  myEmoji: currentChatReactionEmoji(pillMessage.reactions),
+                  onPick: _reactFromPill,
+                  onMore: _pickMoreFromPill,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -459,6 +682,16 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
     List<ChatThreadRow> rows,
     User? user,
   ) {
+    // Until the server stamps `deleted_at` onto a quoted parent, the thread
+    // knows a quote's original is gone only when that original is loaded.
+    final deletedIds = {
+      for (final message in state.messages)
+        if (message.deletedAt != null) message.id,
+    };
+    final viewerId = user?.id?.trim() ?? '';
+    final viewerEmail = user?.email;
+    final selecting = _hasSelection;
+
     return ListView.builder(
       controller: _scrollController,
       reverse: true,
@@ -481,46 +714,76 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
             isRunStart: final isRunStart,
           ):
             final isDeleted = message.deletedAt != null;
+            final parent = message.parent;
 
-            GroupChatMessageBubble bubble({VoidCallback? onLongPress}) {
-              return GroupChatMessageBubble(
-                message: message,
-                isSelf: isSelfChatMessage(
-                  senderId: message.senderId,
-                  senderEmail: message.senderEmail,
-                  currentUserId: user?.id?.trim() ?? '',
-                  currentUserEmail: user?.email,
+            final bubble = GroupChatMessageBubble(
+              message: message,
+              isSelf: isSelfChatMessage(
+                senderId: message.senderId,
+                senderEmail: message.senderEmail,
+                currentUserId: viewerId,
+                currentUserEmail: viewerEmail,
+              ),
+              isRunStart: isRunStart,
+              selfAvatarUrl: user?.avatarUrl,
+              selfDisplayName: joinChatName(user?.firstName, user?.lastName),
+              isHighlighted: message.id == _highlightedId,
+              isSelected: _selectedIds.contains(message.id),
+              isParentDeleted:
+                  parent != null && deletedIds.contains(parent.id),
+              isParentOwn:
+                  parent != null &&
+                  isSelfChatMessage(
+                    senderId: parent.senderId,
+                    senderEmail: parent.senderEmail,
+                    currentUserId: viewerId,
+                    currentUserEmail: viewerEmail,
+                  ),
+              onShowReactions: () => _showReactions(message),
+              onTapQuote:
+                  parent == null ? null : () => _scrollToMessage(parent.id),
+            );
+
+            // In selection mode the whole tinted row is the target, not just
+            // the bubble: a tap anywhere on it toggles the row, a long-press
+            // adds it with the pill, and nothing inside — badge, quote, link
+            // — fires. A tombstone swallows the tap so it neither joins the
+            // selection nor clears it by falling through to the thread.
+            if (selecting) {
+              return KeyedSubtree(
+                key: _rowKey(message.id),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: isDeleted ? () {} : () => _onTapRow(message),
+                  onLongPress: isDeleted ? null : () => _onLongPressRow(message),
+                  child: AbsorbPointer(child: bubble),
                 ),
-                isRunStart: isRunStart,
-                selfAvatarUrl: user?.avatarUrl,
-                selfDisplayName: joinChatName(user?.firstName, user?.lastName),
-                onLongPress: onLongPress,
-                isHighlighted: message.id == _highlightedId,
-                onShowReactions: () => _showReactions(message),
-                onTapQuote:
-                    message.parent == null
-                        ? null
-                        : () => _scrollToMessage(message.parent!.id),
               );
             }
 
-            // The menu re-renders the row over its own blurred backdrop, so it
-            // gets a copy without the long-press handler.
-            final lifted = bubble();
-
-            // Nothing on offer for a message that is gone: no menu to react,
-            // quote or copy from, and nothing to swipe a reply at.
+            // Nothing on offer for a message that is gone: nothing to react
+            // to, quote, copy or select.
             if (isDeleted) {
-              return KeyedSubtree(key: _rowKey(message.id), child: lifted);
+              return KeyedSubtree(key: _rowKey(message.id), child: bubble);
             }
 
             return KeyedSubtree(
               key: _rowKey(message.id),
-              // Swipe and long-press reach the same reply path, so the two
-              // gestures cannot disagree about what a reply means.
-              child: GroupChatSwipeToReply(
-                onReply: () => widget.onReply(message),
-                child: bubble(onLongPress: () => _openMenu(message, lifted)),
+              // Long-press anywhere on the row — bubble, avatar or the space
+              // beside them — starts a selection. Translucent, so the taps
+              // inside the bubble (badge, quote, links) keep working, and
+              // only a still press wins the arena against the swipe and the
+              // scroll.
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onLongPress: () => _onLongPressRow(message),
+                // Swipe and the selection header reach the same reply path,
+                // so the two gestures cannot disagree about what a reply
+                // means.
+                child: GroupChatSwipeToReply(
+                  onReply: () => widget.onReply(message),
+                  child: bubble,
+                ),
               ),
             );
         }
@@ -528,12 +791,15 @@ class _GroupChatThreadState extends ConsumerState<GroupChatThread> {
     );
   }
 
-  /// Taps that no child claims fall through to here and drop focus, so tapping
-  /// the thread closes the keyboard.
+  /// Taps that no child claims fall through to here: they drop focus, so
+  /// tapping the thread closes the keyboard, and they end a selection.
   Widget _dismissKeyboardOnTap(Widget child) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => FocusScope.of(context).unfocus(),
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        _clearSelection();
+      },
       child: child,
     );
   }

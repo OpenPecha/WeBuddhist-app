@@ -197,21 +197,17 @@ class GroupChatThreadNotifier extends StateNotifier<GroupChatThreadState> {
     if (_pendingDeletions.isEmpty) return;
 
     var changed = false;
-    final messages = [
-      for (final message in state.messages)
-        if (message.deletedAt != null)
-          message
-        else
-          () {
-            // Read, not consumed: a second page still in flight can commit
-            // the same stale copy, and `_dropStalePending` clears the map
-            // once none is running.
-            final deletedAt = _pendingDeletions[message.id];
-            if (deletedAt == null) return message;
-            changed = true;
-            return message.copyWith(deletedAt: deletedAt);
-          }(),
-    ];
+    // Read, not consumed: a second page still in flight can commit the same
+    // stale copy, and `_dropStalePending` clears the map once none is
+    // running. Each held id is swept over the row and over any reply quoting
+    // it, the same way a live frame is applied.
+    var messages = state.messages;
+    for (final entry in _pendingDeletions.entries) {
+      messages = [
+        for (final message in messages)
+          _withDeletion(message, entry.key, entry.value, () => changed = true),
+      ];
+    }
 
     if (changed) state = state.copyWith(messages: messages);
   }
@@ -1023,20 +1019,37 @@ class GroupChatThreadNotifier extends StateNotifier<GroupChatThreadState> {
     // flight it is safe to drop: any later fetch carries `deleted_at` itself.
     if (_fetchesInFlight > 0) _pendingDeletions[messageId] = deletedAt;
 
-    final index = state.messages.indexWhere(
-      (message) => message.id == messageId,
-    );
-    if (index < 0) return;
-    if (state.messages[index].deletedAt != null) return;
+    // The original and every loaded reply quoting it, in one pass. The
+    // replies are stamped even when the original itself is outside the loaded
+    // window: a quote of a message paged out of view still has to become a
+    // tombstone in the same frame as everyone else's copy of it.
+    var changed = false;
+    final messages = [
+      for (final message in state.messages)
+        _withDeletion(message, messageId, deletedAt, () => changed = true),
+    ];
+    if (changed) state = state.copyWith(messages: messages);
+  }
 
-    state = state.copyWith(
-      messages: [
-        for (final message in state.messages)
-          message.id == messageId
-              ? message.copyWith(deletedAt: deletedAt)
-              : message,
-      ],
-    );
+  /// [message] with [deletedAt] stamped where [messageId] is the message
+  /// itself or its quoted original. The first timestamp stands on both.
+  ChatMessageDTO _withDeletion(
+    ChatMessageDTO message,
+    String messageId,
+    String deletedAt,
+    void Function() onChanged,
+  ) {
+    var result = message;
+    if (message.id == messageId && message.deletedAt == null) {
+      result = result.copyWith(deletedAt: deletedAt);
+      onChanged();
+    }
+    final parent = message.parent;
+    if (parent != null && parent.id == messageId && parent.deletedAt == null) {
+      result = result.copyWith(parent: parent.copyWith(deletedAt: deletedAt));
+      onChanged();
+    }
+    return result;
   }
 
   /// Deletes one of this member's own messages, for everyone.
