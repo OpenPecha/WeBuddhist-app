@@ -1314,6 +1314,15 @@ class AppLocalizationsHi extends AppLocalizations {
   String get routine_delete_block => 'ब्लॉक हटाएँ';
 
   @override
+  String get routine_session_title_hint => 'Title...';
+
+  @override
+  String get routine_expand_all => 'Expand all';
+
+  @override
+  String get routine_collapse_all => 'Collapse all';
+
+  @override
   String get routine_delete_time_block => 'टाइम ब्लॉक हटाएँ';
 
   @override

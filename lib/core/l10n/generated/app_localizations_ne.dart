@@ -1320,6 +1320,15 @@ class AppLocalizationsNe extends AppLocalizations {
   String get routine_delete_block => 'ब्लक हटाउने?';
 
   @override
+  String get routine_session_title_hint => 'Title...';
+
+  @override
+  String get routine_expand_all => 'Expand all';
+
+  @override
+  String get routine_collapse_all => 'Collapse all';
+
+  @override
   String get routine_delete_time_block => 'समय ब्लक हटाउनुहोस्';
 
   @override
