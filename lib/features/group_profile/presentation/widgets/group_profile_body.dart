@@ -716,25 +716,25 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
       return;
     }
 
-    final created = await GroupPostComposerScreen.show(context, profile);
-    if (created == null || !mounted) return;
+    final result = await GroupPostComposerScreen.show(context, profile);
+    if (result == null || !mounted) return;
 
     final notifier = ref.read(groupPostsProvider(profile.id).notifier);
-    notifier.prependPost(_withGroupFields(created, profile));
+    notifier.prependPost(_withGroupFields(result.post, profile));
     notifier.loadInitial();
-    _showPostSnackBar(context.l10n.group_post_published);
+    if (result.saved) _showPostSnackBar(context.l10n.group_post_published);
   }
 
   Future<void> _onEditPost(GroupProfile profile, ConnectPost post) async {
-    final updated = await GroupPostComposerScreen.show(
+    final result = await GroupPostComposerScreen.show(
       context,
       profile,
       post: post,
     );
-    if (updated == null || !mounted) return;
+    if (result == null || !mounted) return;
 
     // CMS responses don't carry the viewer's like state; keep what we had.
-    final merged = _withGroupFields(updated, profile).copyWith(
+    final merged = _withGroupFields(result.post, profile).copyWith(
       likeCount: post.likeCount,
       commentCount: post.commentCount,
       likedByMe: post.likedByMe,
@@ -742,7 +742,8 @@ class _GroupProfileBodyState extends ConsumerState<GroupProfileBody>
     final notifier = ref.read(groupPostsProvider(profile.id).notifier);
     notifier.updatePost(merged);
     notifier.loadInitial();
-    _showPostSnackBar(context.l10n.group_post_updated);
+    // A partial save already showed its error inside the composer.
+    if (result.saved) _showPostSnackBar(context.l10n.group_post_updated);
   }
 
   /// CMS responses may omit group fields the card needs; fill them from the

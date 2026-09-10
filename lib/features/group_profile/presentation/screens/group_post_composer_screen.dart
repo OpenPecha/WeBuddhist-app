@@ -19,7 +19,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// Full-screen composer. Pops with the created or updated [ConnectPost].
+/// What the composer pops with. [saved] is false when the screen closed
+/// after a save that only partially persisted; the list should still take
+/// [post], but the caller must not report success.
+class GroupPostComposerResult {
+  final ConnectPost post;
+  final bool saved;
+
+  const GroupPostComposerResult(this.post, {required this.saved});
+}
+
+/// Full-screen composer. Pops with the created or updated post, or null when
+/// nothing was persisted.
 class GroupPostComposerScreen extends ConsumerStatefulWidget {
   final GroupProfile profile;
 
@@ -31,12 +42,12 @@ class GroupPostComposerScreen extends ConsumerStatefulWidget {
   static const int maxPhotos = 10;
   static const int maxLinkLabelLength = 255;
 
-  static Future<ConnectPost?> show(
+  static Future<GroupPostComposerResult?> show(
     BuildContext context,
     GroupProfile profile, {
     ConnectPost? post,
   }) {
-    return Navigator.of(context).push<ConnectPost>(
+    return Navigator.of(context).push<GroupPostComposerResult>(
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (_) => GroupPostComposerScreen(profile: profile, post: post),
@@ -148,8 +159,11 @@ class _GroupPostComposerScreenState
   }
 
   /// Parts that persisted before a failed save; the list must still see them.
-  ConnectPost? get _partialResult =>
-      identical(_basePost, widget.post) ? null : _basePost;
+  GroupPostComposerResult? get _partialResult {
+    final base = _basePost;
+    if (base == null || identical(base, widget.post)) return null;
+    return GroupPostComposerResult(base, saved: false);
+  }
 
   Future<void> _confirmDiscard() async {
     final l10n = context.l10n;
@@ -294,7 +308,7 @@ class _GroupPostComposerScreenState
       );
       return;
     }
-    Navigator.of(context).pop(saved);
+    Navigator.of(context).pop(GroupPostComposerResult(saved, saved: true));
   }
 
   /// Uploads new photos and lists every item in display order. Null when an
