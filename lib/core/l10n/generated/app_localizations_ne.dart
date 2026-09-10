@@ -160,6 +160,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get bookmark_texts => 'ग्रन्थहरू';
 
   @override
+  String get bookmark_group_accumulation => 'Group accumulation';
+
+  @override
   String get mala_add_to_practice => 'मेरा अभ्यासहरूमा थप्नुहोस्';
 
   @override
@@ -2105,6 +2108,10 @@ class AppLocalizationsNe extends AppLocalizations {
       'संचयमा सामेल हुन असमर्थ। कृपया फेरि प्रयास गर्नुहोस्।';
 
   @override
+  String get group_accumulator_join_before_practice =>
+      'Join this accumulation before adding it to your practices';
+
+  @override
   String group_accumulator_participants(int count) {
     return '$count सहभागी';
   }
@@ -2329,6 +2336,14 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get bookmarks_empty_malas_subtitle =>
       'यहाँ सुरक्षित गर्न कुनै माला बुकमार्क गर्नुहोस्।';
+
+  @override
+  String get bookmarks_empty_group_accumulations_title =>
+      'No group accumulations bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_group_accumulations_subtitle =>
+      'Bookmark a group accumulation to save it here.';
 
   @override
   String get bookmarks_empty_timers_title =>
@@ -2795,4 +2810,8 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get practice_collection_already_added =>
       'This collection is already in your practices';
+
+  @override
+  String get practice_group_accumulator_already_added =>
+      'This accumulation is already in your practices';
 }

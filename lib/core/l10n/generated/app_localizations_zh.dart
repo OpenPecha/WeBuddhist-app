@@ -151,6 +151,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bookmark_texts => '經文';
 
   @override
+  String get bookmark_group_accumulation => 'Group accumulation';
+
+  @override
   String get mala_add_to_practice => '加入我的修持';
 
   @override
@@ -1979,6 +1982,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get group_accumulator_join_error => '無法加入累積，請再試一次。';
 
   @override
+  String get group_accumulator_join_before_practice =>
+      'Join this accumulation before adding it to your practices';
+
+  @override
   String group_accumulator_participants(int count) {
     return '$count 位參與者';
   }
@@ -2186,6 +2193,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get bookmarks_empty_malas_subtitle => '將念珠加入書籤即可儲存於此。';
+
+  @override
+  String get bookmarks_empty_group_accumulations_title =>
+      'No group accumulations bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_group_accumulations_subtitle =>
+      'Bookmark a group accumulation to save it here.';
 
   @override
   String get bookmarks_empty_timers_title => '尚無已加書籤的計時器。';
@@ -2626,4 +2641,8 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get practice_collection_already_added =>
       'This collection is already in your practices';
+
+  @override
+  String get practice_group_accumulator_already_added =>
+      'This accumulation is already in your practices';
 }

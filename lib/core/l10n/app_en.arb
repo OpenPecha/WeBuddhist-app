@@ -60,6 +60,7 @@
   "bookmark_mala": "Malas",
   "bookmark_timers": "Timers",
   "bookmark_texts": "Texts",
+  "bookmark_group_accumulation": "Group accumulation",
   "mala_add_to_practice": "Add to my practices",
   "mala_add_mala_round": "Add mala round",
   "mala_add_rounds_title": "Add mala rounds:",
@@ -974,6 +975,7 @@
   "group_change_practice_message": "You are already practicing this plan with another group. Would you like to change your practice group?",
   "group_join_to_contribute": "Join to contribute",
   "group_accumulator_join_error": "Unable to join accumulation. Please try again.",
+  "group_accumulator_join_before_practice": "Join this accumulation before adding it to your practices",
   "group_accumulator_participants": "{count} participants",
   "@group_accumulator_participants": {
     "placeholders": {
@@ -1106,6 +1108,8 @@
   "bookmarks_empty_plans_subtitle": "Bookmark a plan to save it here.",
   "bookmarks_empty_malas_title": "No malas bookmarked yet.",
   "bookmarks_empty_malas_subtitle": "Bookmark a mala to save it here.",
+  "bookmarks_empty_group_accumulations_title": "No group accumulations bookmarked yet.",
+  "bookmarks_empty_group_accumulations_subtitle": "Bookmark a group accumulation to save it here.",
   "bookmarks_empty_timers_title": "No timers bookmarked yet.",
   "bookmarks_empty_timers_subtitle": "Bookmark a timer to save it here.",
   "bookmarks_empty_texts_title": "No texts bookmarked yet.",
@@ -1348,5 +1352,6 @@
   "group_post_edit_title": "Edit post",
   "group_post_update_error": "Unable to save your changes. Please try again.",
   "group_post_updated": "Your changes are saved.",
-  "practice_collection_already_added": "This collection is already in your practices"
+  "practice_collection_already_added": "This collection is already in your practices",
+  "practice_group_accumulator_already_added": "This accumulation is already in your practices"
 }

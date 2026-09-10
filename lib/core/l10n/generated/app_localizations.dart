@@ -382,6 +382,12 @@ abstract class AppLocalizations {
   /// **'Texts'**
   String get bookmark_texts;
 
+  /// No description provided for @bookmark_group_accumulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Group accumulation'**
+  String get bookmark_group_accumulation;
+
   /// No description provided for @mala_add_to_practice.
   ///
   /// In en, this message translates to:
@@ -3766,6 +3772,12 @@ abstract class AppLocalizations {
   /// **'Unable to join accumulation. Please try again.'**
   String get group_accumulator_join_error;
 
+  /// No description provided for @group_accumulator_join_before_practice.
+  ///
+  /// In en, this message translates to:
+  /// **'Join this accumulation before adding it to your practices'**
+  String get group_accumulator_join_before_practice;
+
   /// No description provided for @group_accumulator_participants.
   ///
   /// In en, this message translates to:
@@ -4117,6 +4129,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bookmark a mala to save it here.'**
   String get bookmarks_empty_malas_subtitle;
+
+  /// No description provided for @bookmarks_empty_group_accumulations_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No group accumulations bookmarked yet.'**
+  String get bookmarks_empty_group_accumulations_title;
+
+  /// No description provided for @bookmarks_empty_group_accumulations_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark a group accumulation to save it here.'**
+  String get bookmarks_empty_group_accumulations_subtitle;
 
   /// No description provided for @bookmarks_empty_timers_title.
   ///
@@ -4915,6 +4939,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This collection is already in your practices'**
   String get practice_collection_already_added;
+
+  /// No description provided for @practice_group_accumulator_already_added.
+  ///
+  /// In en, this message translates to:
+  /// **'This accumulation is already in your practices'**
+  String get practice_group_accumulator_already_added;
 }
 
 class _AppLocalizationsDelegate

@@ -98,6 +98,9 @@ class BookmarkCard extends StatelessWidget {
   /// Secondary line under the title: a chant count for collections (or a notice
   /// when the group deleted the collection), otherwise the plan/series schedule.
   String? _secondaryLabel(BuildContext context) {
+    if (bookmark.type == BookmarkItemType.groupAccumulator) {
+      return bookmark.isOrphaned ? 'No longer available' : null;
+    }
     if (bookmark.type == BookmarkItemType.groupRecitationCollection ||
         bookmark.type == BookmarkItemType.recitationCollection) {
       if (bookmark.isOrphaned) {
@@ -243,7 +246,9 @@ class _IconTile extends StatelessWidget {
     BookmarkItemType.timer => PhosphorIconsRegular.timer,
     BookmarkItemType.plan => PhosphorIconsRegular.calendarCheck,
     BookmarkItemType.series => PhosphorIconsRegular.cards,
-    BookmarkItemType.accumulator => PhosphorIconsRegular.circlesThree,
+    BookmarkItemType.accumulator ||
+    BookmarkItemType.groupAccumulator =>
+      PhosphorIconsRegular.circlesThree,
     BookmarkItemType.text ||
     BookmarkItemType.verse ||
     BookmarkItemType.groupRecitationCollection ||

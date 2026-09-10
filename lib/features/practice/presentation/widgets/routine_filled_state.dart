@@ -139,6 +139,15 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
       return;
     }
 
+    if (itemType == RoutineItemType.groupAccumulator) {
+      ref.read(pendingNotificationNavProvider.notifier).state = null;
+      context.pushNamed(
+        'home-group-accumulator',
+        pathParameters: {'accumulatorId': pendingNav.itemId},
+      );
+      return;
+    }
+
     if (itemType == RoutineItemType.groupRecitationCollection ||
         itemType == RoutineItemType.myRecitationCollection) {
       ref.read(pendingNotificationNavProvider.notifier).state = null;
@@ -475,6 +484,11 @@ class _RoutineBlockSectionState extends ConsumerState<_RoutineBlockSection> {
         _navigateToTimer(context, item);
       case RoutineItemType.accumulator:
         context.push('/mala', extra: {'presetId': item.id});
+      case RoutineItemType.groupAccumulator:
+        context.pushNamed(
+          'home-group-accumulator',
+          pathParameters: {'accumulatorId': item.id},
+        );
       case RoutineItemType.groupRecitationCollection:
         context.pushNamed(
           'recitation-collection',

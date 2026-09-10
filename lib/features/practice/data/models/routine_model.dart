@@ -14,6 +14,7 @@ enum RoutineItemType {
   accumulator,
   groupRecitationCollection,
   myRecitationCollection,
+  groupAccumulator,
 
   /// A session type this build doesn't recognise. Carried through the UI so
   /// re-syncing a block never silently deletes it.
@@ -156,6 +157,7 @@ class RoutineItem {
       'accumulator' => RoutineItemType.accumulator,
       'groupRecitationCollection' => RoutineItemType.groupRecitationCollection,
       'myRecitationCollection' => RoutineItemType.myRecitationCollection,
+      'groupAccumulator' => RoutineItemType.groupAccumulator,
       'unknown' => RoutineItemType.unknown,
       _ => RoutineItemType.series,
     };

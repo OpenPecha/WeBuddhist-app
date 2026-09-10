@@ -8,7 +8,10 @@ import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/core/widgets/cached_network_image_widget.dart';
 import 'package:flutter_pecha/core/widgets/error_state_widget.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_accumulator_hero_card.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_accumulator_more_sheet.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_accumulator_session_complete_sheet.dart';
+import 'package:flutter_pecha/features/practice/data/datasource/bookmark_remote_datasource.dart';
+import 'package:flutter_pecha/features/practice/presentation/providers/bookmark_providers.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
@@ -85,6 +88,15 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
       data: (either) => either.fold((_) => null, (detail) => detail),
     );
     if (resolvedDetail != null) {
+      // Warm the bookmark state so the more-sheet opens with the right icon.
+      ref.watch(
+        prefetchBookmarkExistsProvider(
+          BookmarkTarget(
+            type: BookmarkType.groupAccumulator,
+            sourceId: resolvedDetail.id,
+          ),
+        ),
+      );
       ref.listen(
         groupFollowProvider(
           GroupFollowKey(
@@ -155,8 +167,23 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
     );
   }
 
-  Widget _buildAppBar(BuildContext context, GroupAccumulatorDetail? detail) {
+  /// Header text: the group title from the route extra when present, else the
+  /// group profile (fetched on demand for routine/bookmark/notification entry
+  /// points, which pass only the accumulator id), else the accumulation title.
+  String _appBarTitle(GroupAccumulatorDetail? detail) {
     final title = widget.groupTitle?.trim();
+    if (title != null && title.isNotEmpty) return title;
+    if (detail == null) return '';
+    final groupName = ref
+        .watch(groupProfileProvider(detail.groupId))
+        .whenOrNull(
+          data:
+              (either) => either.fold((_) => null, (profile) => profile.title),
+        );
+    return groupName ?? detail.title;
+  }
+
+  Widget _buildAppBar(BuildContext context, GroupAccumulatorDetail? detail) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
@@ -167,7 +194,7 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
           ),
           Expanded(
             child: Text(
-              title != null && title.isNotEmpty ? title : '',
+              _appBarTitle(detail),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
               maxLines: 1,
@@ -178,11 +205,48 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
             const SizedBox(width: 48, height: 48)
           else
             IconButton(
-              icon: const Icon(AppAssets.readerShare),
-              onPressed: () => _onShareTap(detail),
+              icon: const Icon(AppAssets.dotsThreeVertical),
+              onPressed: () => _openMoreSheet(detail),
             ),
         ],
       ),
+    );
+  }
+
+  void _openMoreSheet(GroupAccumulatorDetail detail) {
+    showGroupAccumulatorMoreSheet(
+      context,
+      accumulatorId: detail.id,
+      accumulatorTitle: detail.title,
+      onAddToPractices: () => _onAddToPractices(detail),
+      onShare: () => _onShareTap(detail),
+    );
+  }
+
+  /// The routine API never auto-joins, so the user must join here first.
+  void _onAddToPractices(GroupAccumulatorDetail detail) {
+    final authState = ref.read(authProvider);
+    if (authState.isGuest || !authState.isLoggedIn) {
+      LoginDrawer.show(context, ref);
+      return;
+    }
+
+    final localJoinedIds = ref.read(
+      groupAccumulatorJoinCacheProvider(detail.groupId),
+    );
+    if (!accumulatorHasJoined(detail, localJoinedIds: localJoinedIds)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.group_accumulator_join_before_practice),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    context.pushNamed(
+      'edit-routine',
+      extra: {'initialGroupAccumulator': detail},
     );
   }
 
