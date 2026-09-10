@@ -79,7 +79,7 @@ class BookmarkExistsCacheNotifier
 }
 
 final bookmarkExistsCacheProvider = StateNotifierProvider<
-  BookmarkExistsCacheNotifier,
+    BookmarkExistsCacheNotifier,
     Map<BookmarkTarget, BookmarkExistsResult>>((ref) {
   return BookmarkExistsCacheNotifier();
 });
@@ -137,14 +137,18 @@ final bookmarkExistsProvider = FutureProvider.autoDispose
 
       final result = await ref
           .read(bookmarkRepositoryProvider)
-          .checkBookmarkExists(sourceId: target.sourceId, type: target.type);
-      return result.fold((failure) => throw Exception(failure.message), (
-        exists,
-      ) {
-        ref.read(bookmarkExistsCacheProvider.notifier).set(target, exists);
-        ref.keepAlive();
-        return exists;
-      });
+          .checkBookmarkExists(
+            sourceId: target.sourceId,
+            type: target.type,
+          );
+      return result.fold(
+        (failure) => throw Exception(failure.message),
+        (exists) {
+          ref.read(bookmarkExistsCacheProvider.notifier).set(target, exists);
+          ref.keepAlive();
+          return exists;
+        },
+      );
     });
 
 /// Starts loading bookmark exists state early so sheets open with the right icon.
@@ -153,43 +157,41 @@ final bookmarkExistsProvider = FutureProvider.autoDispose
 /// the host screen is mounted.
 final prefetchBookmarkExistsProvider =
     Provider.autoDispose.family<void, BookmarkTarget>((ref, target) {
-  final auth = ref.watch(authProvider);
-  if (auth.isGuest || !auth.isLoggedIn) return;
+      final auth = ref.watch(authProvider);
+      if (auth.isGuest || !auth.isLoggedIn) return;
 
-  warmBookmarkExistsCacheFromList(ref, target);
+      warmBookmarkExistsCacheFromList(ref, target);
 
-  // If the bookmarks list is already in memory, re-warm when it finishes loading.
-  if (ref.exists(bookmarksProvider)) {
-    ref.listen(bookmarksProvider, (_, next) {
-      if (next.isLoading) return;
-      applyBookmarkListCache(
-        ref.read(bookmarkExistsCacheProvider.notifier),
-        next.bookmarks,
-        target,
-        alreadyCached: ref
-            .read(bookmarkExistsCacheProvider)
-            .containsKey(target),
-      );
-    }, fireImmediately: true);
-  }
+      // If the bookmarks list is already in memory, re-warm when it finishes loading.
+      if (ref.exists(bookmarksProvider)) {
+        ref.listen(bookmarksProvider, (_, next) {
+          if (next.isLoading) return;
+          applyBookmarkListCache(
+            ref.read(bookmarkExistsCacheProvider.notifier),
+            next.bookmarks,
+            target,
+            alreadyCached: ref.read(bookmarkExistsCacheProvider).containsKey(target),
+          );
+        }, fireImmediately: true);
+      }
 
-  ref.watch(bookmarkExistsProvider(target));
-});
+      ref.watch(bookmarkExistsProvider(target));
+    });
 
 /// Synchronous bookmark-filled state for UI — prefers cache over async loading.
-final isBookmarkedProvider = Provider.autoDispose.family<bool, BookmarkTarget>((
-  ref,
-  target,
-) {
-  ref.watch(prefetchBookmarkExistsProvider(target));
+final isBookmarkedProvider = Provider.autoDispose.family<bool, BookmarkTarget>(
+  (ref, target) {
+    ref.watch(prefetchBookmarkExistsProvider(target));
 
-  final cached = ref.watch(bookmarkExistsCacheProvider)[target];
-  if (cached != null) return cached.exists;
+    final cached = ref.watch(bookmarkExistsCacheProvider)[target];
+    if (cached != null) return cached.exists;
 
-  return ref
-      .watch(bookmarkExistsProvider(target))
-      .maybeWhen(data: (result) => result.exists, orElse: () => false);
-});
+    return ref.watch(bookmarkExistsProvider(target)).maybeWhen(
+          data: (result) => result.exists,
+          orElse: () => false,
+        );
+  },
+);
 
 /// Reads the best-known bookmark status synchronously (cache → list → async data).
 BookmarkExistsResult readBookmarkStatus(WidgetRef ref, BookmarkTarget target) {
@@ -347,9 +349,9 @@ class BookmarksNotifier extends StateNotifier<BookmarksState> {
     if (!mounted) return false;
     return result.fold(
       (failure) {
-      _logger.error('Failed to remove bookmark: ${failure.message}');
-      state = state.copyWith(bookmarks: previous);
-      return false;
+        _logger.error('Failed to remove bookmark: ${failure.message}');
+        state = state.copyWith(bookmarks: previous);
+        return false;
       },
       (_) => true,
     );
@@ -358,17 +360,17 @@ class BookmarksNotifier extends StateNotifier<BookmarksState> {
 
 final bookmarksProvider =
     StateNotifierProvider.autoDispose<BookmarksNotifier, BookmarksState>((ref) {
-  // `select` narrows to a single bool: AuthState has no `==`, so watching it
-  // whole would rebuild the notifier — and refetch — on every auth emission.
-  final isAuthenticated = ref.watch(
-    authProvider.select((auth) => auth.isLoggedIn && !auth.isGuest),
-  );
+      // `select` narrows to a single bool: AuthState has no `==`, so watching it
+      // whole would rebuild the notifier — and refetch — on every auth emission.
+      final isAuthenticated = ref.watch(
+        authProvider.select((auth) => auth.isLoggedIn && !auth.isGuest),
+      );
 
-  // Watch the content language so changing locale refetches localized
-  // bookmark titles/metadata.
-  return BookmarksNotifier(
-    ref.watch(bookmarkRepositoryProvider),
-    ref.watch(contentLanguageProvider),
-    isAuthenticated: isAuthenticated,
-  );
-});
+      // Watch the content language so changing locale refetches localized
+      // bookmark titles/metadata.
+      return BookmarksNotifier(
+        ref.watch(bookmarkRepositoryProvider),
+        ref.watch(contentLanguageProvider),
+        isAuthenticated: isAuthenticated,
+      );
+    });

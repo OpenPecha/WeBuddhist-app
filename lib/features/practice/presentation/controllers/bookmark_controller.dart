@@ -30,10 +30,10 @@ class BookmarkController {
       toggle(type: BookmarkType.timer, sourceId: timerId);
 
   Future<bool> toggleMala(String accumulatorId, {String? name}) => toggle(
-    type: BookmarkType.accumulator,
-    sourceId: accumulatorId,
-    name: name,
-  );
+        type: BookmarkType.accumulator,
+        sourceId: accumulatorId,
+        name: name,
+      );
 
   Future<bool> toggleSeries(String seriesId, {String? name}) => toggle(
         type: BookmarkType.series,
@@ -46,19 +46,20 @@ class BookmarkController {
     String? name,
   }) =>
       toggle(
-    type: BookmarkType.groupRecitationCollection,
-    sourceId: collectionId,
-    name: name,
-  );
+        type: BookmarkType.groupRecitationCollection,
+        sourceId: collectionId,
+        name: name,
+      );
 
   Future<bool> toggleRecitationCollection(
     String collectionId, {
     String? name,
-  }) => toggle(
-    type: BookmarkType.recitationCollection,
-    sourceId: collectionId,
-    name: name,
-  );
+  }) =>
+      toggle(
+        type: BookmarkType.recitationCollection,
+        sourceId: collectionId,
+        name: name,
+      );
 
   /// Optimistically toggles bookmark state, then POST or DELETE (one call).
   ///
@@ -140,15 +141,16 @@ class BookmarkController {
       sourceId: target.sourceId,
       type: target.type,
     );
-    return existsResult.fold((failure) => throw Exception(failure.message), (
-      exists,
-    ) {
-      final id = exists.id;
-      if (!exists.exists || id == null || id.isEmpty) {
-        throw Exception('Bookmark exists but id is missing');
-      }
-      return id;
-    });
+    return existsResult.fold(
+      (failure) => throw Exception(failure.message),
+      (exists) {
+        final id = exists.id;
+        if (!exists.exists || id == null || id.isEmpty) {
+          throw Exception('Bookmark exists but id is missing');
+        }
+        return id;
+      },
+    );
   }
 
   void _showSavedSnackBar() {

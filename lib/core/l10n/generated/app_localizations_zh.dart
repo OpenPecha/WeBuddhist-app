@@ -2438,4 +2438,7 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get practice_collection_already_added =>
       'This collection is already in your practices';
+
+  @override
+  String get bookmark_your_collection => 'Your collection';
 }

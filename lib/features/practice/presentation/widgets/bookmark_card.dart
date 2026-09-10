@@ -106,8 +106,10 @@ class BookmarkCard extends StatelessWidget {
       final count = bookmark.itemCount;
       if (count == null || count <= 0) return null;
       final countLabel = context.l10n.home_recitation_count(count);
+      // Personal collections sit beside group ones in the Chants tab, so say
+      // which is which rather than showing two identical count lines.
       return bookmark.type == BookmarkItemType.recitationCollection
-          ? '$countLabel • me'
+          ? '$countLabel • ${context.l10n.bookmark_your_collection}'
           : countLabel;
     }
 
@@ -188,9 +190,7 @@ class _Leading extends StatelessWidget {
   Widget build(BuildContext context) {
     final image = bookmark.leadingImage;
     if (image != null && !image.isEmpty) {
-      final radius = BorderRadius.circular(
-        bookmark.isRoundLeading ? _size / 2 : 10,
-      );
+      final radius = BorderRadius.circular(bookmark.isRoundLeading ? _size / 2 : 10);
       return ResponsiveCoverImage(
         image: image,
         width: _size,

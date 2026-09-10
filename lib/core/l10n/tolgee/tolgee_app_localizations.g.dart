@@ -5039,4 +5039,11 @@ class TolgeeAppLocalizations extends AppLocalizations {
     'practice_collection_already_added',
     () => _fallback.practice_collection_already_added,
   );
+
+  @override
+  String get bookmark_your_collection => TolgeeBridge.get(
+    localeName,
+    'bookmark_your_collection',
+    () => _fallback.bookmark_your_collection,
+  );
 }
