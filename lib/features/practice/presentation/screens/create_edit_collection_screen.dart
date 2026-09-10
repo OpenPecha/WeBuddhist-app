@@ -15,9 +15,11 @@ import 'package:flutter_pecha/features/practice/presentation/providers/practice_
 import 'package:flutter_pecha/features/practice/presentation/screens/add_chants_to_collection_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/collection_name_dialog.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart' show Either;
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Placeholder mustard accent used for the empty cover tile in the designs.
 const Color _kCoverPlaceholder = Color(0xFFC9A84C);
@@ -145,7 +147,9 @@ class _CreateEditCollectionScreenState
     );
     if (xFile == null || !mounted) return;
 
-    final file = File(xFile.path);
+    final file = await _normalizeCoverOrientation(xFile.path);
+    if (!mounted) return;
+
     setState(() {
       _localCoverFile = file;
       _isUploadingImage = true;
@@ -185,6 +189,24 @@ class _CreateEditCollectionScreenState
         });
       },
     );
+  }
+
+  /// Physically rotates picked photos according to EXIF before upload.
+  ///
+  /// Phone camera images can store landscape sensor pixels plus an EXIF
+  /// orientation tag. The collection image pipeline may later ignore that tag,
+  /// so upload upright pixels instead of relying on renderer/server behavior.
+  Future<File> _normalizeCoverOrientation(String sourcePath) async {
+    final tmpDir = await getTemporaryDirectory();
+    final destPath =
+        '${tmpDir.path}/collection_cover_normalized_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final result = await FlutterImageCompress.compressAndGetFile(
+      sourcePath,
+      destPath,
+      quality: 90,
+      autoCorrectionAngle: true,
+    );
+    return result != null ? File(result.path) : File(sourcePath);
   }
 
   Future<void> _changeName() async {
