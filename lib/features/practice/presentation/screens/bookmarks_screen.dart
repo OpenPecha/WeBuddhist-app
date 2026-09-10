@@ -138,6 +138,12 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
           '/home/group/$groupId/recitation-collections/${bookmark.sourceId}',
           extra: {'title': bookmark.displayTitle},
         );
+      case BookmarkItemType.recitationCollection:
+        context.pushNamed(
+          'my-recitation-collection',
+          pathParameters: {'collectionId': bookmark.sourceId},
+          extra: {'title': bookmark.displayTitle},
+        );
       case BookmarkItemType.plan:
         // No reliable id-based deep link for a plan from bookmark data alone.
         break;

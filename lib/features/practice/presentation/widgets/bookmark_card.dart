@@ -98,13 +98,19 @@ class BookmarkCard extends StatelessWidget {
   /// Secondary line under the title: a chant count for collections (or a notice
   /// when the group deleted the collection), otherwise the plan/series schedule.
   String? _secondaryLabel(BuildContext context) {
-    if (bookmark.type == BookmarkItemType.groupRecitationCollection) {
+    if (bookmark.type == BookmarkItemType.groupRecitationCollection ||
+        bookmark.type == BookmarkItemType.recitationCollection) {
       if (bookmark.isOrphaned) {
         return 'No longer available';
       }
       final count = bookmark.itemCount;
       if (count == null || count <= 0) return null;
-      return context.l10n.home_recitation_count(count);
+      final countLabel = context.l10n.home_recitation_count(count);
+      // Personal collections sit beside group ones in the Chants tab, so say
+      // which is which rather than showing two identical count lines.
+      return bookmark.type == BookmarkItemType.recitationCollection
+          ? '$countLabel • ${context.l10n.bookmark_your_collection}'
+          : countLabel;
     }
 
     return PlanDateFormat.formatRangeOrSingle(
@@ -230,8 +236,8 @@ class _IconTile extends StatelessWidget {
     BookmarkItemType.accumulator => PhosphorIconsRegular.circlesThree,
     BookmarkItemType.text ||
     BookmarkItemType.verse ||
-    BookmarkItemType.groupRecitationCollection =>
-      PhosphorIconsRegular.bookOpenText,
+    BookmarkItemType.groupRecitationCollection ||
+    BookmarkItemType.recitationCollection => PhosphorIconsRegular.bookOpenText,
   };
 }
 
