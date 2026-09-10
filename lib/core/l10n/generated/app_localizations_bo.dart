@@ -2589,6 +2589,118 @@ class AppLocalizationsBo extends AppLocalizations {
       'འཕྲིན་ཐུང་དེ་མི་འདུག་པས་ལུང་འདྲེན་ཕྱིར་བསུབས། ཡང་བསྐྱར་གཏོང་རོགས།';
 
   @override
+  String get group_tab_posts => 'སྤེལ་བ།';
+
+  @override
+  String get group_tab_events => 'བྱེད་སྒོ།';
+
+  @override
+  String get group_posts_empty_title => 'ད་དུང་སྤེལ་བ་གང་ཡང་མེད།';
+
+  @override
+  String get group_posts_empty_message =>
+      'ཁྱེད་ཀྱི་ཚོགས་པར་གསར་འགྱུར་ཐོག་མ་དེ་སྤེལ་རོགས།';
+
+  @override
+  String get group_posts_load_error =>
+      'སྤེལ་བ་ཁག་འཇུག་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་བྱོས།';
+
+  @override
+  String get group_post_button => 'སྤེལ།';
+
+  @override
+  String get group_post_new_title => 'སྤེལ་བ་གསར་པ།';
+
+  @override
+  String get group_post_posting_to => 'སྤེལ་ཡུལ།';
+
+  @override
+  String get group_post_caption_hint => 'གསར་འགྱུར་ཅི་ཡོད།';
+
+  @override
+  String get group_post_photos => 'འདྲ་པར།';
+
+  @override
+  String get group_post_link => 'འབྲེལ་ཐག';
+
+  @override
+  String get group_post_discard_title => 'སྤེལ་བ་འདོར་རྒྱུ་ཡིན་ནམ།';
+
+  @override
+  String get group_post_discard_message => 'ཁྱེད་ཀྱིས་བྲིས་པ་རྣམས་བརླག་འགྲོ།';
+
+  @override
+  String get group_post_keep_editing => 'མུ་མཐུད་འབྲི།';
+
+  @override
+  String get group_post_discard => 'འདོར།';
+
+  @override
+  String get group_post_add_link_title => 'འབྲེལ་ཐག་སྣོན།';
+
+  @override
+  String get group_post_add_link_hint =>
+      'འབྲེལ་ཐག་སྦྱར་ན་སྔོན་ལྟ་སྟོན་གྱི་རེད།';
+
+  @override
+  String get group_post_link_field_hint => 'འབྲེལ་ཐག';
+
+  @override
+  String get group_post_attach => 'སྦྱར།';
+
+  @override
+  String get group_post_attach_as_link => 'འབྲེལ་ཐག་ལྟར་སྦྱར།';
+
+  @override
+  String get group_post_preview_failed_title => 'སྔོན་ལྟ་འཇུག་མ་ཐུབ།';
+
+  @override
+  String get group_post_preview_failed_message => 'ད་དུང་འབྲེལ་ཐག་ལྟར་སྦྱར་ཆོག';
+
+  @override
+  String get group_post_invalid_link =>
+      'འབྲེལ་ཐག་ཚད་ལྡན་ཞིག་འཇུག་རོགས། དཔེར་ན་ https://example.com';
+
+  @override
+  String group_post_photo_limit(int count) {
+    return 'འདྲ་པར་ $count བར་སྣོན་ཆོག';
+  }
+
+  @override
+  String get group_post_upload_error =>
+      'འདྲ་པར་ཡར་འཇུག་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་བྱོས།';
+
+  @override
+  String get group_post_publish_error =>
+      'ཁྱེད་ཀྱི་སྤེལ་བ་སྤེལ་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་བྱོས།';
+
+  @override
+  String get group_post_published => 'ཁྱེད་ཀྱི་སྤེལ་བ་སྤེལ་ཟིན།';
+
+  @override
+  String get group_post_delete_title => 'སྤེལ་བ་བསུབ་རྒྱུ་ཡིན་ནམ།';
+
+  @override
+  String get group_post_delete_message => 'སྤེལ་བ་འདི་གཏན་དུ་བསུབ་འགྲོ།';
+
+  @override
+  String get group_post_delete_failed =>
+      'སྤེལ་བ་བསུབ་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་བྱོས།';
+
+  @override
+  String get edit => 'བཟོ་བཅོས།';
+
+  @override
+  String get group_post_edit_title => 'སྤེལ་བ་བཟོ་བཅོས།';
+
+  @override
+  String get group_post_update_error =>
+      'བཟོ་བཅོས་ཉར་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་བྱོས།';
+
+  @override
+  String get group_post_updated => 'བཟོ་བཅོས་ཉར་ཟིན།';
+
+  @override
   String get practice_collection_already_added =>
       'This collection is already in your practices';
 
