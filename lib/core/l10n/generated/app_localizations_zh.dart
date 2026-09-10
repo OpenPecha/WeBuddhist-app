@@ -1239,6 +1239,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get routine_delete_block => '刪除時段';
 
   @override
+  String get routine_session_title_hint => 'Title...';
+
+  @override
+  String get routine_expand_all => 'Expand all';
+
+  @override
+  String get routine_collapse_all => 'Collapse all';
+
+  @override
   String get routine_delete_time_block => '移除時段';
 
   @override

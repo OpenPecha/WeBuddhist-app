@@ -81,12 +81,16 @@ class SessionRequest {
 class TimeBlockRequest {
   final String time;
   final int timeInt;
+
+  /// Optional session title. PUT is a full replace, so null clears it.
+  final String? title;
   final bool notificationEnabled;
   final List<SessionRequest> sessions;
 
   const TimeBlockRequest({
     required this.time,
     required this.timeInt,
+    this.title,
     this.notificationEnabled = true,
     required this.sessions,
   });
@@ -94,6 +98,7 @@ class TimeBlockRequest {
   Map<String, dynamic> toJson() => {
     'time': time,
     'time_int': timeInt,
+    if (title != null) 'title': title,
     'notification_enabled': notificationEnabled,
     'sessions': sessions.map((s) => s.toJson()).toList(),
   };
@@ -212,6 +217,7 @@ class TimeBlockDTO {
   final String id;
   final String time;
   final int timeInt;
+  final String? title;
   final bool notificationEnabled;
   final List<SessionDTO> sessions;
 
@@ -219,6 +225,7 @@ class TimeBlockDTO {
     required this.id,
     required this.time,
     required this.timeInt,
+    this.title,
     required this.notificationEnabled,
     required this.sessions,
   });
@@ -228,6 +235,7 @@ class TimeBlockDTO {
       id: json['id'] as String,
       time: json['time'] as String,
       timeInt: json['time_int'] as int,
+      title: json['title'] as String?,
       notificationEnabled: json['notification_enabled'] as bool,
       sessions:
           (json['sessions'] as List<dynamic>)
