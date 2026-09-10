@@ -939,6 +939,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get connect_event_date_tba => 'Date to be announced';
 
   @override
+  String get connect_event_when => 'When';
+
+  @override
+  String get connect_event_where => 'Where';
+
+  @override
+  String get connect_event_practices => 'Event practices';
+
+  @override
+  String get connect_event_every_day => 'Every day';
+
+  @override
+  String connect_event_every_weekday(String weekday) {
+    return 'Every $weekday';
+  }
+
+  @override
+  String get connect_event_every_month => 'Every month';
+
+  @override
+  String connect_event_every_date(String date) {
+    return 'Every $date';
+  }
+
+  @override
   String get connect_event_about_empty => 'No event details yet';
 
   @override
@@ -2334,6 +2359,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get group_chat_title => '聊天';
 
   @override
+  String get chats_title => '聊天';
+
+  @override
+  String get chats_empty_title => '尚無聊天';
+
+  @override
+  String get chats_empty_body => '加入社群即可開始聊天。';
+
+  @override
   String get group_chat_inappropriate => '此訊息含有不允許的用語，因此無法發送。';
 
   @override
@@ -2388,6 +2422,51 @@ class AppLocalizationsZh extends AppLocalizations {
   String get group_chat_report => '檢舉';
 
   @override
+  String get group_chat_report_title => '你為什麼要檢舉這則訊息？';
+
+  @override
+  String get group_chat_report_privacy => '你的姓名不會公開。';
+
+  @override
+  String get group_chat_report_reason_harassment => '騷擾或霸凌';
+
+  @override
+  String get group_chat_report_reason_hate => '仇恨或有害言論';
+
+  @override
+  String get group_chat_report_reason_sexual => '性相關或露骨內容';
+
+  @override
+  String get group_chat_report_reason_spam => '垃圾訊息或詐騙';
+
+  @override
+  String get group_chat_report_reason_off_topic => '離題或干擾';
+
+  @override
+  String get group_chat_report_reason_other => '其他原因';
+
+  @override
+  String get group_chat_report_note_title => '新增備註';
+
+  @override
+  String get group_chat_report_note_hint => '其他原因...';
+
+  @override
+  String get group_chat_report_submit => '送出檢舉';
+
+  @override
+  String get group_chat_report_thanks => '感謝你的回報';
+
+  @override
+  String get group_chat_report_offline => '你目前離線 — 請稍後再試';
+
+  @override
+  String get group_chat_report_failed => '無法送出檢舉';
+
+  @override
+  String get group_chat_report_retry => '重試';
+
+  @override
   String get group_chat_delete => '刪除';
 
   @override
@@ -2430,4 +2509,8 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get group_chat_reply_parent_gone => '該訊息已不存在，引用已移除。請再次傳送你的訊息。';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

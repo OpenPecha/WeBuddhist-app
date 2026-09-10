@@ -995,6 +995,31 @@ class AppLocalizationsMn extends AppLocalizations {
   String get connect_event_date_tba => 'Date to be announced';
 
   @override
+  String get connect_event_when => 'When';
+
+  @override
+  String get connect_event_where => 'Where';
+
+  @override
+  String get connect_event_practices => 'Event practices';
+
+  @override
+  String get connect_event_every_day => 'Every day';
+
+  @override
+  String connect_event_every_weekday(String weekday) {
+    return 'Every $weekday';
+  }
+
+  @override
+  String get connect_event_every_month => 'Every month';
+
+  @override
+  String connect_event_every_date(String date) {
+    return 'Every $date';
+  }
+
+  @override
   String get connect_event_about_empty => 'No event details yet';
 
   @override
@@ -2479,6 +2504,15 @@ class AppLocalizationsMn extends AppLocalizations {
   String get group_chat_title => 'Чат';
 
   @override
+  String get chats_title => 'Чатууд';
+
+  @override
+  String get chats_empty_title => 'Одоогоор чат алга';
+
+  @override
+  String get chats_empty_body => 'Чат эхлүүлэхийн тулд нэгдэлд нэгдээрэй.';
+
+  @override
   String get group_chat_inappropriate =>
       'Зөвшөөрөгдөөгүй үг агуулсан тул энэ мессежийг илгээж чадсангүй.';
 
@@ -2536,6 +2570,55 @@ class AppLocalizationsMn extends AppLocalizations {
   String get group_chat_report => 'Мэдэгдэх';
 
   @override
+  String get group_chat_report_title => 'Та үүнийг яагаад мэдээлж байна вэ?';
+
+  @override
+  String get group_chat_report_privacy => 'Таны нэр нууц хэвээр үлдэнэ.';
+
+  @override
+  String get group_chat_report_reason_harassment => 'Дарамт эсвэл дээрэлхэлт';
+
+  @override
+  String get group_chat_report_reason_hate =>
+      'Үзэн ядсан эсвэл хортой үг хэллэг';
+
+  @override
+  String get group_chat_report_reason_sexual =>
+      'Бэлгийн болон садар самуун агуулга';
+
+  @override
+  String get group_chat_report_reason_spam => 'Спам эсвэл залилан';
+
+  @override
+  String get group_chat_report_reason_off_topic =>
+      'Сэдвээс гадуур эсвэл саад учруулсан';
+
+  @override
+  String get group_chat_report_reason_other => 'Өөр зүйл';
+
+  @override
+  String get group_chat_report_note_title => 'Тэмдэглэл нэмэх';
+
+  @override
+  String get group_chat_report_note_hint => 'Өөр зүйл...';
+
+  @override
+  String get group_chat_report_submit => 'Мэдээлэл илгээх';
+
+  @override
+  String get group_chat_report_thanks => 'Санал хүсэлт өгсөнд баярлалаа';
+
+  @override
+  String get group_chat_report_offline =>
+      'Та офлайн байна — дараа дахин оролдоно уу';
+
+  @override
+  String get group_chat_report_failed => 'Мэдээлэл илгээж чадсангүй';
+
+  @override
+  String get group_chat_report_retry => 'Дахин оролдох';
+
+  @override
   String get group_chat_delete => 'Устгах';
 
   @override
@@ -2581,4 +2664,8 @@ class AppLocalizationsMn extends AppLocalizations {
   @override
   String get group_chat_reply_parent_gone =>
       'Тэр мессеж байхгүй тул иш татсаныг хаслаа. Мессежээ илгээхийн тулд дахин илгээнэ үү.';
+
+  @override
+  String get practice_collection_already_added =>
+      'This collection is already in your practices';
 }

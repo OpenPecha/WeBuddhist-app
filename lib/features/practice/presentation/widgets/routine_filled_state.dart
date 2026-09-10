@@ -113,19 +113,13 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
         itemType == RoutineItemType.myRecitationCollection) {
       ref.read(pendingNotificationNavProvider.notifier).state = null;
       final item = _findRoutineItem(widget.routineData, pendingNav.itemId);
-      if (itemType == RoutineItemType.myRecitationCollection) {
-        context.pushNamed(
-          'my-recitation-collection',
-          pathParameters: {'collectionId': pendingNav.itemId},
-          extra: {'title': item?.title},
-        );
-      } else {
-        context.pushNamed(
-          'recitation-collection',
-          pathParameters: {'collectionId': pendingNav.itemId},
-          extra: {'title': item?.title},
-        );
-      }
+      context.pushNamed(
+        itemType == RoutineItemType.myRecitationCollection
+            ? 'my-recitation-collection'
+            : 'recitation-collection',
+        pathParameters: {'collectionId': pendingNav.itemId},
+        extra: {'title': item?.title},
+      );
       return;
     }
 
@@ -384,6 +378,9 @@ class _RoutineBlockSectionState extends ConsumerState<_RoutineBlockSection> {
           pathParameters: {'collectionId': item.id},
           extra: {'title': item.title},
         );
+      case RoutineItemType.unknown:
+        // Written by a newer app version — nothing here knows how to open it.
+        break;
     }
   }
 

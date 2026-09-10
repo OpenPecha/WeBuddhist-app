@@ -35,6 +35,7 @@ RoutineItem routineItemFromSessionDto(SessionDTO s) {
         RoutineItemType.groupRecitationCollection,
       SessionType.recitationCollection =>
         RoutineItemType.myRecitationCollection,
+      SessionType.unknown => RoutineItemType.unknown,
     },
     enrolledAt: s.startedAt,
     language: s.language.isEmpty ? null : s.language,
@@ -45,6 +46,7 @@ RoutineItem routineItemFromSessionDto(SessionDTO s) {
     durationMs: s.durationMs,
     firstSegment: s.firstSegment,
     itemCount: s.itemCount,
+    rawSessionType: s.rawSessionType,
   );
 }
 
@@ -72,10 +74,12 @@ List<SessionRequest> _sessionsForBlock(RoutineBlock block) {
             SessionType.groupRecitationCollection,
           RoutineItemType.myRecitationCollection =>
             SessionType.recitationCollection,
+          RoutineItemType.unknown => SessionType.unknown,
         },
         sourceId: item.id,
         displayOrder: i,
         durationMs: item.durationMs,
+        rawSessionType: item.rawSessionType,
       ),
     );
   }
