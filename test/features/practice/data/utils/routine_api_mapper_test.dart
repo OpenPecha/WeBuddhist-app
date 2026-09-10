@@ -104,6 +104,12 @@ void main() {
             title: 'Om Mani',
             type: RoutineItemType.accumulator,
           ),
+          RoutineItem(
+            id: 'collection-1',
+            title: 'Daily Chants',
+            type: RoutineItemType.myRecitationCollection,
+            itemCount: 3,
+          ),
         ],
       );
 
@@ -130,65 +136,168 @@ void main() {
           'accumulator_id': 'preset-1',
           'display_order': 3,
         },
+        {
+          'session_type': 'RECITATION_COLLECTION',
+          'source_id': 'collection-1',
+          'display_order': 4,
+        },
       ]);
+    });
+  });
+
+  group('unknown session types', () {
+    test('parses instead of throwing, so one bad row cannot blank a routine', () {
+      final session = SessionDTO.fromJson({
+        'id': 'session-future',
+        'session_type': 'SOMETHING_THE_FUTURE_ADDED',
+        'source_id': 'source-1',
+        'title': 'From a newer app version',
+        'language': 'en',
+        'display_order': 0,
+      });
+
+      expect(session.sessionType, SessionType.unknown);
+      expect(session.rawSessionType, 'SOMETHING_THE_FUTURE_ADDED');
+      expect(
+        routineItemFromSessionDto(session).type,
+        RoutineItemType.unknown,
+      );
+    });
+
+    test('round-trips its wire value, so re-syncing never deletes it', () {
+      // A time-block PUT replaces every session in the block, so an unknown
+      // session has to be echoed back exactly as it arrived.
+      final session = SessionDTO.fromJson({
+        'id': 'session-future',
+        'session_type': 'SOMETHING_THE_FUTURE_ADDED',
+        'source_id': 'source-1',
+        'title': 'From a newer app version',
+        'language': 'en',
+        'display_order': 0,
+      });
+
+      final block = RoutineBlock(
+        time: const TimeOfDay(hour: 6, minute: 0),
+        items: [routineItemFromSessionDto(session)],
+      );
+
+      final sessions = routineBlockToRequest(block).toJson()['sessions'] as List;
+
+      expect(sessions.single, {
+        'session_type': 'SOMETHING_THE_FUTURE_ADDED',
+        'source_id': 'source-1',
+        'display_order': 0,
+      });
+    });
+
+    test('survives a local persistence round trip', () {
+      final item = routineItemFromSessionDto(
+        SessionDTO.fromJson({
+          'id': 'session-future',
+          'session_type': 'SOMETHING_THE_FUTURE_ADDED',
+          'source_id': 'source-1',
+          'title': 'From a newer app version',
+          'language': 'en',
+          'display_order': 0,
+        }),
+      );
+
+      final restored = RoutineItem.fromJson(item.toJson());
+
+      expect(restored.type, RoutineItemType.unknown);
+      expect(restored.rawSessionType, 'SOMETHING_THE_FUTURE_ADDED');
     });
   });
 
   group('routineItemFromSessionDto existing types', () {
     test('maps SERIES, RECITATION, TIMER, and ACCUMULATOR independently of PLAN', () {
-      expect(
-        routineItemFromSessionDto(
-          const SessionDTO(
-            id: 's1',
-            sessionType: SessionType.series,
-            sourceId: 'series-1',
-            title: 'Ngondro',
-            language: 'en',
-            displayOrder: 0,
-          ),
-        ).type,
-        RoutineItemType.series,
-      );
-      expect(
-        routineItemFromSessionDto(
-          const SessionDTO(
-            id: 's2',
-            sessionType: SessionType.recitation,
-            sourceId: 'text-1',
-            title: 'Heart Sutra',
-            language: 'en',
-            displayOrder: 1,
-          ),
-        ).type,
-        RoutineItemType.recitation,
-      );
-      expect(
-        routineItemFromSessionDto(
-          const SessionDTO(
-            id: 's3',
-            sessionType: SessionType.timer,
-            sourceId: 'timer-1',
-            title: '',
-            language: 'en',
-            displayOrder: 2,
-            durationMs: 600000,
-          ),
-        ).type,
-        RoutineItemType.timer,
-      );
-      expect(
-        routineItemFromSessionDto(
-          const SessionDTO(
-            id: 's4',
-            sessionType: SessionType.accumulator,
-            sourceId: 'preset-1',
-            title: 'Om Mani',
-            language: 'en',
-            displayOrder: 3,
-          ),
-        ).type,
-        RoutineItemType.accumulator,
-      );
+        expect(
+          routineItemFromSessionDto(
+            const SessionDTO(
+              id: 's1',
+              sessionType: SessionType.series,
+              sourceId: 'series-1',
+              title: 'Ngondro',
+              language: 'en',
+              displayOrder: 0,
+            ),
+          ).type,
+          RoutineItemType.series,
+        );
+        expect(
+          routineItemFromSessionDto(
+            const SessionDTO(
+              id: 's2',
+              sessionType: SessionType.recitation,
+              sourceId: 'text-1',
+              title: 'Heart Sutra',
+              language: 'en',
+              displayOrder: 1,
+            ),
+          ).type,
+          RoutineItemType.recitation,
+        );
+        expect(
+          routineItemFromSessionDto(
+            const SessionDTO(
+              id: 's3',
+              sessionType: SessionType.timer,
+              sourceId: 'timer-1',
+              title: '',
+              language: 'en',
+              displayOrder: 2,
+              durationMs: 600000,
+            ),
+          ).type,
+          RoutineItemType.timer,
+        );
+        expect(
+          routineItemFromSessionDto(
+            const SessionDTO(
+              id: 's4',
+              sessionType: SessionType.accumulator,
+              sourceId: 'preset-1',
+              title: 'Om Mani',
+              language: 'en',
+              displayOrder: 3,
+            ),
+          ).type,
+          RoutineItemType.accumulator,
+        );
+        expect(
+          routineItemFromSessionDto(
+            const SessionDTO(
+              id: 's5',
+              sessionType: SessionType.recitationCollection,
+              sourceId: 'collection-1',
+              title: 'Daily Chants',
+              language: 'en',
+              displayOrder: 4,
+            ),
+          ).type,
+          RoutineItemType.myRecitationCollection,
+        );
+      },
+    );
+
+    test('parses RECITATION_COLLECTION as a personal collection session', () {
+      final session = SessionDTO.fromJson({
+        'id': 'session-collection',
+        'session_type': 'RECITATION_COLLECTION',
+        'source_id': 'collection-1',
+        'title': 'Daily Chants',
+        'language': 'en',
+        'display_order': 0,
+        'item_count': 3,
+      });
+
+      final item = routineItemFromSessionDto(session);
+
+      expect(session.sessionType, SessionType.recitationCollection);
+      expect(item.id, 'collection-1');
+      expect(item.title, 'Daily Chants');
+      expect(item.type, RoutineItemType.myRecitationCollection);
+      expect(item.itemCount, 3);
     });
   });
 }

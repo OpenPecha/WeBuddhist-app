@@ -109,11 +109,14 @@ class _RoutineFilledStateState extends ConsumerState<RoutineFilledState> {
       return;
     }
 
-    if (itemType == RoutineItemType.groupRecitationCollection) {
+    if (itemType == RoutineItemType.groupRecitationCollection ||
+        itemType == RoutineItemType.myRecitationCollection) {
       ref.read(pendingNotificationNavProvider.notifier).state = null;
       final item = _findRoutineItem(widget.routineData, pendingNav.itemId);
       context.pushNamed(
-        'recitation-collection',
+        itemType == RoutineItemType.myRecitationCollection
+            ? 'my-recitation-collection'
+            : 'recitation-collection',
         pathParameters: {'collectionId': pendingNav.itemId},
         extra: {'title': item?.title},
       );
@@ -369,6 +372,15 @@ class _RoutineBlockSectionState extends ConsumerState<_RoutineBlockSection> {
           pathParameters: {'collectionId': item.id},
           extra: {'title': item.title},
         );
+      case RoutineItemType.myRecitationCollection:
+        context.pushNamed(
+          'my-recitation-collection',
+          pathParameters: {'collectionId': item.id},
+          extra: {'title': item.title},
+        );
+      case RoutineItemType.unknown:
+        // Written by a newer app version — nothing here knows how to open it.
+        break;
     }
   }
 
@@ -532,7 +544,8 @@ class _RoutineBlockSectionState extends ConsumerState<_RoutineBlockSection> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isCollection =
-        item.type == RoutineItemType.groupRecitationCollection;
+        item.type == RoutineItemType.groupRecitationCollection ||
+        item.type == RoutineItemType.myRecitationCollection;
     final itemCount = item.itemCount;
 
     return Container(

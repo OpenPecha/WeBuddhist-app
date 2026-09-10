@@ -116,7 +116,7 @@ class NotificationSyncReport {
 /// helpers, then diffs against `pendingNotificationRequests()` and reconciles
 /// via the `flutter_local_notifications` plugin.
 ///
-/// Only recitation, mala (accumulator), timer and group-recitation-collection
+/// Only recitation, mala (accumulator), timer and recitation-collection
 /// daily-repeats are scheduled locally; plan/series reminders are delivered
 /// via server push (FCM). The cancel pass still recognises legacy plan/series
 /// IDs (via [NotificationIdScheme.isOurs]) so leftover notifications scheduled
@@ -308,6 +308,21 @@ class NotificationSyncEngine {
         );
         if (hasGroupCollection) {
           final entries = computeForGroupCollectionBlock(
+            block,
+            now,
+            masterOn: masterOn,
+            recitationOn: recitationOn,
+          );
+          for (final e in entries) {
+            desired[e.id] = e;
+            bumpCase(e.debugCase);
+          }
+        }
+        final hasMyCollection = block.items.any(
+          (i) => i.type == RoutineItemType.myRecitationCollection,
+        );
+        if (hasMyCollection) {
+          final entries = computeForMyCollectionBlock(
             block,
             now,
             masterOn: masterOn,
@@ -619,11 +634,64 @@ class NotificationSyncEngine {
         id: NotificationIdScheme.groupCollectionId(block.notificationId),
         fireAt: scheduledDate,
         title: firstItem.title,
-        body: _groupCollectionBody(firstItem),
+        body: _collectionBody(firstItem),
         payload: payload,
         sourceItem: firstItem,
         isDailyRepeat: true,
         debugCase: '4 daily-repeat-group-collection',
+      ),
+    ];
+  }
+
+  /// Computes the daily-repeat [DesiredNotification] for a personal
+  /// recitation collection. Uses a separate ID range from group collections so
+  /// both can coexist in the same routine block.
+  @visibleForTesting
+  List<DesiredNotification> computeForMyCollectionBlock(
+    RoutineBlock block,
+    DateTime now, {
+    required bool masterOn,
+    required bool recitationOn,
+  }) {
+    if (!masterOn) return const [];
+    if (!recitationOn) return const [];
+    if (block.items.isEmpty || !block.notificationEnabled) return const [];
+
+    final collections =
+        block.items
+            .where((i) => i.type == RoutineItemType.myRecitationCollection)
+            .toList();
+    if (collections.isEmpty) return const [];
+
+    final firstItem = collections.first;
+    final nowTz = tz.TZDateTime.from(now, tz.local);
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      nowTz.year,
+      nowTz.month,
+      nowTz.day,
+      block.time.hour,
+      block.time.minute,
+    );
+    if (scheduledDate.isBefore(nowTz)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    final payload = jsonEncode({
+      'itemId': firstItem.id,
+      'itemType': firstItem.type.name,
+    });
+
+    return [
+      DesiredNotification(
+        id: NotificationIdScheme.myCollectionId(block.notificationId),
+        fireAt: scheduledDate,
+        title: firstItem.title,
+        body: _collectionBody(firstItem),
+        payload: payload,
+        sourceItem: firstItem,
+        isDailyRepeat: true,
+        debugCase: '4 daily-repeat-my-collection',
       ),
     ];
   }
@@ -719,10 +787,10 @@ class NotificationSyncEngine {
     return 'Time for your mala practice';
   }
 
-  /// Body for a group-recitation-collection (chants list) reminder. Reports
+  /// Body for a recitation collection (chants list) reminder. Reports
   /// the chant count when known (`"12 chants"`); falls back to a generic line
   /// when [RoutineItem.itemCount] wasn't populated (e.g. stale local data).
-  String _groupCollectionBody(RoutineItem item) {
+  String _collectionBody(RoutineItem item) {
     final count = item.itemCount;
     if (count != null && count > 0) {
       return count == 1 ? '1 chant' : '$count chants';
