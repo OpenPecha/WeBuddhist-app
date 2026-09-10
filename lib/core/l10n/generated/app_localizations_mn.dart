@@ -160,6 +160,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get bookmark_texts => 'Бичвэрүүд';
 
   @override
+  String get bookmark_group_accumulation => 'Group accumulation';
+
+  @override
   String get mala_add_to_practice => 'Миний дадлагад нэмэх';
 
   @override
@@ -2010,6 +2013,10 @@ class AppLocalizationsMn extends AppLocalizations {
       'Хуримтлалд нэгдэх боломжгүй байна. Дахин оролдоно уу.';
 
   @override
+  String get group_accumulator_join_before_practice =>
+      'Join this accumulation before adding it to your practices';
+
+  @override
   String group_accumulator_participants(int count) {
     return '$count оролцогч';
   }
@@ -2234,6 +2241,14 @@ class AppLocalizationsMn extends AppLocalizations {
   @override
   String get bookmarks_empty_malas_subtitle =>
       'Энд хадгалахын тулд мала хавчуургалаарай.';
+
+  @override
+  String get bookmarks_empty_group_accumulations_title =>
+      'No group accumulations bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_group_accumulations_subtitle =>
+      'Bookmark a group accumulation to save it here.';
 
   @override
   String get bookmarks_empty_timers_title =>

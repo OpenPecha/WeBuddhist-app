@@ -119,7 +119,8 @@ class RoutineItemCard extends StatelessWidget {
                 size: imageSize,
                 isDark: isDark,
               )
-            else if (type == RoutineItemType.groupRecitationCollection)
+            else if (type == RoutineItemType.groupRecitationCollection ||
+                type == RoutineItemType.groupAccumulator)
               _CollectionCoverImage(
                 coverImage: coverImage,
                 imageUrl: imageUrl,

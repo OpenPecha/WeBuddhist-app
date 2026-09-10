@@ -27,6 +27,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     context.l10n.home_shortcut_plans,
     context.l10n.home_chants,
     context.l10n.bookmark_mala,
+    context.l10n.bookmark_group_accumulation,
     context.l10n.bookmark_timers,
     context.l10n.bookmark_texts,
   ];
@@ -35,6 +36,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     BookmarkTab.plans,
     BookmarkTab.chants,
     BookmarkTab.mala,
+    BookmarkTab.groupAccumulation,
     BookmarkTab.timers,
     BookmarkTab.texts,
   ];
@@ -55,6 +57,10 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
     (
       context.l10n.bookmarks_empty_malas_title,
       context.l10n.bookmarks_empty_malas_subtitle,
+    ),
+    (
+      context.l10n.bookmarks_empty_group_accumulations_title,
+      context.l10n.bookmarks_empty_group_accumulations_subtitle,
     ),
     (
       context.l10n.bookmarks_empty_timers_title,
@@ -137,6 +143,12 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
         context.push(
           '/home/group/$groupId/recitation-collections/${bookmark.sourceId}',
           extra: {'title': bookmark.displayTitle},
+        );
+      case BookmarkItemType.groupAccumulator:
+        if (bookmark.isOrphaned) return;
+        context.pushNamed(
+          'home-group-accumulator',
+          pathParameters: {'accumulatorId': bookmark.sourceId},
         );
       case BookmarkItemType.plan:
         // No reliable id-based deep link for a plan from bookmark data alone.

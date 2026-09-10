@@ -13,6 +13,7 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/notifications/data/services/notification_service.dart';
 import 'package:flutter_pecha/features/home/domain/entities/series.dart';
 import 'package:flutter_pecha/features/home/domain/usecases/get_series_by_id_usecase.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_accumulator.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_practice.dart';
 import 'package:flutter_pecha/features/mala/domain/entities/mantra.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
@@ -106,6 +107,9 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
   /// after hydration as a RECITATION_COLLECTION session.
   final MyRecitationCollectionDetailModel? initialMyCollection;
 
+  /// Injected after hydration as a GROUP_ACCUMULATOR session (must be joined).
+  final GroupAccumulator? initialGroupAccumulator;
+
   const EditRoutineScreen({
     super.key,
     this.initialPlan,
@@ -116,6 +120,7 @@ class EditRoutineScreen extends ConsumerStatefulWidget {
     this.enrollSeriesId,
     this.initialGroupCollection,
     this.initialMyCollection,
+    this.initialGroupAccumulator,
   });
 
   @override
@@ -352,6 +357,33 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
         coverImage: _myCollectionCoverImage(collection),
         type: RoutineItemType.myRecitationCollection,
         itemCount: collection.items.length,
+        enrolledAt: DateTime.now(),
+      ),
+    );
+    if (resolved.isNewBlock) {
+      _blocks.add(resolved.target);
+    }
+    _sortBlocks();
+    return resolved.target;
+  }
+
+  /// Adds a GROUP_ACCUMULATOR session; dedup is per block, like ACCUMULATOR.
+  _EditableBlock? _injectInitialGroupAccumulator(GroupAccumulator accumulator) {
+    final resolved = _resolveInjectionTarget();
+
+    final duplicateInTarget = resolved.target.items.any(
+      (item) =>
+          item.id == accumulator.id &&
+          item.type == RoutineItemType.groupAccumulator,
+    );
+    if (duplicateInTarget) return null;
+
+    resolved.target.items.add(
+      RoutineItem(
+        id: accumulator.id,
+        title: accumulator.title,
+        coverImage: accumulator.image,
+        type: RoutineItemType.groupAccumulator,
         enrolledAt: DateTime.now(),
       ),
     );
@@ -1446,6 +1478,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
             _EditableBlock? injectedAccumulatorBlock;
             _EditableBlock? injectedCollectionBlock;
             _EditableBlock? injectedMyCollectionBlock;
+            _EditableBlock? injectedGroupAccumulatorBlock;
             var collectionAlreadyInRoutine = false;
             var myCollectionAlreadyInRoutine = false;
             setState(() {
@@ -1484,6 +1517,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                 );
                 myCollectionAlreadyInRoutine =
                     injectedMyCollectionBlock == null;
+              }
+              if (widget.initialGroupAccumulator != null) {
+                injectedGroupAccumulatorBlock = _injectInitialGroupAccumulator(
+                  widget.initialGroupAccumulator!,
+                );
               }
             });
             if (widget.initialPlan != null) {
@@ -1526,6 +1564,11 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               });
             } else if (myCollectionAlreadyInRoutine) {
               _showCollectionAlreadyAddedSnackBar();
+            }
+            if (injectedGroupAccumulatorBlock != null) {
+              _syncBlock(injectedGroupAccumulatorBlock!).catchError((e) {
+                if (mounted) _showErrorSnackBar(_mapError(e));
+              });
             }
             if (widget.enrollSeriesId != null && !_seriesEnrollmentHydrated) {
               _seriesEnrollmentHydrated = true;

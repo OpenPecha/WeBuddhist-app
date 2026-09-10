@@ -160,6 +160,9 @@ class AppLocalizationsBo extends AppLocalizations {
   String get bookmark_texts => 'གསུང་རབ།';
 
   @override
+  String get bookmark_group_accumulation => 'Group accumulation';
+
+  @override
   String get mala_add_to_practice => 'ངའི་ཉམས་ལེན་ནང་སྣོན།';
 
   @override
@@ -2013,6 +2016,10 @@ class AppLocalizationsBo extends AppLocalizations {
       'གྲངས་གསོག་ལ་ཞུགས་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་གནང་རོགས།';
 
   @override
+  String get group_accumulator_join_before_practice =>
+      'Join this accumulation before adding it to your practices';
+
+  @override
   String group_accumulator_participants(int count) {
     return 'མཉམ་ཞུགས་པ་ $count';
   }
@@ -2236,6 +2243,14 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get bookmarks_empty_malas_subtitle =>
       'ཕྲེང་བ་ཞིག་འདིར་ཉར་བར་ཕྲེང་བ་ཞིག་ལ་དཔེ་རྟགས་འགོད་རོགས།';
+
+  @override
+  String get bookmarks_empty_group_accumulations_title =>
+      'No group accumulations bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_group_accumulations_subtitle =>
+      'Bookmark a group accumulation to save it here.';
 
   @override
   String get bookmarks_empty_timers_title =>

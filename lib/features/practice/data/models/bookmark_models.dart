@@ -34,7 +34,8 @@ enum BookmarkItemType {
   accumulator,
   timer,
   verse,
-  groupRecitationCollection;
+  groupRecitationCollection,
+  groupAccumulator;
 
   static BookmarkItemType? tryFromJson(String? value) => switch (value) {
     'TEXT' => BookmarkItemType.text,
@@ -44,6 +45,7 @@ enum BookmarkItemType {
     'TIMER' => BookmarkItemType.timer,
     'VERSE' => BookmarkItemType.verse,
     'GROUP_RECITATION_COLLECTION' => BookmarkItemType.groupRecitationCollection,
+    'GROUP_ACCUMULATOR' => BookmarkItemType.groupAccumulator,
     _ => null,
   };
 }
@@ -79,8 +81,7 @@ class BookmarkDTO {
   /// Duration (ms) for TIMER bookmarks — enough to open the timer.
   final int? timerDurationMs;
 
-  /// Owning group id for GROUP_RECITATION_COLLECTION bookmarks. Required to
-  /// open the collection, whose endpoints are all scoped by group.
+  /// Owning group id for group collection / group accumulator bookmarks.
   final String? groupId;
 
   /// Number of chants in a collection bookmark.
@@ -129,6 +130,7 @@ class BookmarkDTO {
     final timer = json['timer'] as Map<String, dynamic>?;
     final collection =
         json['group_recitation_collection'] as Map<String, dynamic>?;
+    final groupAccumulator = json['group_accumulator'] as Map<String, dynamic>?;
 
     final planMeta = plan?['metadata'] as Map<String, dynamic>?;
     final segment = text?['segment'] as Map<String, dynamic>?;
@@ -156,22 +158,28 @@ class BookmarkDTO {
           _seriesTitle(series) ??
           (accumulator?['title'] as String?) ??
           (timer?['title'] as String?) ??
-          (collection?['title'] as String?),
+          (collection?['title'] as String?) ??
+          (groupAccumulator?['title'] as String?),
       excerpt: segment?['content'] as String?,
       imageUrl:
           (plan?['image'] as String?) ??
           (series?['image'] as String?) ??
           (accumulator?['image'] as String?) ??
-          ImageModel.fromFields(image: collection?['image'])?.displayUrl,
+          ImageModel.fromFields(image: collection?['image'])?.displayUrl ??
+          ImageModel.fromFields(image: groupAccumulator?['image'])?.displayUrl,
       startDate: startDate,
       endDate: endDate,
       textId: text?['id'] as String?,
       timerDurationMs: (timer?['duration'] as num?)?.toInt(),
-      groupId: collection?['group_id'] as String?,
+      groupId:
+          (collection?['group_id'] as String?) ??
+          (groupAccumulator?['group_id'] as String?),
       itemCount: (collection?['item_count'] as num?)?.toInt(),
       isOrphaned:
-          type == BookmarkItemType.groupRecitationCollection &&
-          collection == null,
+          (type == BookmarkItemType.groupRecitationCollection &&
+              collection == null) ||
+          (type == BookmarkItemType.groupAccumulator &&
+              groupAccumulator == null),
     );
   }
 
@@ -192,6 +200,7 @@ class BookmarkDTO {
       BookmarkItemType.series => 'Series',
       BookmarkItemType.accumulator => 'Mala',
       BookmarkItemType.groupRecitationCollection => 'Chant collection',
+      BookmarkItemType.groupAccumulator => 'Group accumulation',
     };
   }
 
@@ -201,6 +210,7 @@ class BookmarkDTO {
     BookmarkItemType.plan => false,
     BookmarkItemType.groupRecitationCollection =>
       !isOrphaned && (groupId?.isNotEmpty ?? false),
+    BookmarkItemType.groupAccumulator => !isOrphaned,
     _ => true,
   };
 

@@ -35,6 +35,7 @@ RoutineItem routineItemFromSessionDto(SessionDTO s) {
         RoutineItemType.groupRecitationCollection,
       SessionType.recitationCollection =>
         RoutineItemType.myRecitationCollection,
+      SessionType.groupAccumulator => RoutineItemType.groupAccumulator,
       SessionType.unknown => RoutineItemType.unknown,
     },
     enrolledAt: s.startedAt,
@@ -74,6 +75,7 @@ List<SessionRequest> _sessionsForBlock(RoutineBlock block) {
             SessionType.groupRecitationCollection,
           RoutineItemType.myRecitationCollection =>
             SessionType.recitationCollection,
+          RoutineItemType.groupAccumulator => SessionType.groupAccumulator,
           RoutineItemType.unknown => SessionType.unknown,
         },
         sourceId: item.id,

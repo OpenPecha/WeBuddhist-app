@@ -320,6 +320,13 @@ class TolgeeAppLocalizations extends AppLocalizations {
   );
 
   @override
+  String get bookmark_group_accumulation => TolgeeBridge.get(
+    localeName,
+    'bookmark_group_accumulation',
+    () => _fallback.bookmark_group_accumulation,
+  );
+
+  @override
   String get mala_add_to_practice => TolgeeBridge.get(
     localeName,
     'mala_add_to_practice',
@@ -3907,6 +3914,13 @@ class TolgeeAppLocalizations extends AppLocalizations {
   );
 
   @override
+  String get group_accumulator_join_before_practice => TolgeeBridge.get(
+    localeName,
+    'group_accumulator_join_before_practice',
+    () => _fallback.group_accumulator_join_before_practice,
+  );
+
+  @override
   String group_accumulator_participants(int count) => TolgeeBridge.format(
     localeName,
     'group_accumulator_participants',
@@ -4336,6 +4350,20 @@ class TolgeeAppLocalizations extends AppLocalizations {
     localeName,
     'bookmarks_empty_malas_subtitle',
     () => _fallback.bookmarks_empty_malas_subtitle,
+  );
+
+  @override
+  String get bookmarks_empty_group_accumulations_title => TolgeeBridge.get(
+    localeName,
+    'bookmarks_empty_group_accumulations_title',
+    () => _fallback.bookmarks_empty_group_accumulations_title,
+  );
+
+  @override
+  String get bookmarks_empty_group_accumulations_subtitle => TolgeeBridge.get(
+    localeName,
+    'bookmarks_empty_group_accumulations_subtitle',
+    () => _fallback.bookmarks_empty_group_accumulations_subtitle,
   );
 
   @override
