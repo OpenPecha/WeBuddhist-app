@@ -693,7 +693,7 @@ class _RoutineBlockSectionState extends ConsumerState<_RoutineBlockSection> {
           type: item.type,
           planTitle:
               isCollection && itemCount != null && itemCount > 0
-                  ? context.l10n.home_recitation_count(itemCount)
+                  ? context.l10n.my_recitation_collection_chant_count(itemCount)
                   : item.currentPlanTitle,
           imageSize: 56,
           onTap: () => _onItemTap(context, ref, item),
