@@ -2561,6 +2561,27 @@ class TolgeeAppLocalizations extends AppLocalizations {
   );
 
   @override
+  String get routine_session_title_hint => TolgeeBridge.get(
+    localeName,
+    'routine_session_title_hint',
+    () => _fallback.routine_session_title_hint,
+  );
+
+  @override
+  String get routine_expand_all => TolgeeBridge.get(
+    localeName,
+    'routine_expand_all',
+    () => _fallback.routine_expand_all,
+  );
+
+  @override
+  String get routine_collapse_all => TolgeeBridge.get(
+    localeName,
+    'routine_collapse_all',
+    () => _fallback.routine_collapse_all,
+  );
+
+  @override
   String get routine_delete_time_block => TolgeeBridge.get(
     localeName,
     'routine_delete_time_block',

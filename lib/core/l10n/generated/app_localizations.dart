@@ -1135,7 +1135,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_delete_block_message.
   ///
   /// In en, this message translates to:
-  /// **'The time block and all its items will be removed'**
+  /// **'The session and all its items will be removed'**
   String get routine_delete_block_message;
 
   /// No description provided for @something_went_wrong.
@@ -2413,14 +2413,32 @@ abstract class AppLocalizations {
   /// No description provided for @routine_edit_title.
   ///
   /// In en, this message translates to:
-  /// **'Edit your routine'**
+  /// **'Edit your practices'**
   String get routine_edit_title;
 
   /// No description provided for @routine_delete_block.
   ///
   /// In en, this message translates to:
-  /// **'Remove block'**
+  /// **'Remove session'**
   String get routine_delete_block;
+
+  /// No description provided for @routine_session_title_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Title...'**
+  String get routine_session_title_hint;
+
+  /// No description provided for @routine_expand_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand all'**
+  String get routine_expand_all;
+
+  /// No description provided for @routine_collapse_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse all'**
+  String get routine_collapse_all;
 
   /// No description provided for @routine_delete_time_block.
   ///
@@ -2485,13 +2503,13 @@ abstract class AppLocalizations {
   /// No description provided for @routine_empty_block_delete_singular.
   ///
   /// In en, this message translates to:
-  /// **'Remove block'**
+  /// **'Remove session'**
   String get routine_empty_block_delete_singular;
 
   /// No description provided for @routine_empty_block_delete_plural.
   ///
   /// In en, this message translates to:
-  /// **'Remove blocks'**
+  /// **'Remove sessions'**
   String get routine_empty_block_delete_plural;
 
   /// No description provided for @routine_notification_title.

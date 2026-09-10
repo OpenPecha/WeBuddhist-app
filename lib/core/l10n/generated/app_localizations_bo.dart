@@ -1317,6 +1317,15 @@ class AppLocalizationsBo extends AppLocalizations {
   String get routine_delete_block => 'ཚན་པ་བསུབ།';
 
   @override
+  String get routine_session_title_hint => 'Title...';
+
+  @override
+  String get routine_expand_all => 'Expand all';
+
+  @override
+  String get routine_collapse_all => 'Collapse all';
+
+  @override
   String get routine_delete_time_block => 'དུས་ཚོད་སྡུབ།';
 
   @override

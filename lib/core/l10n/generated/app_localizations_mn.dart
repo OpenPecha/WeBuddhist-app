@@ -1312,6 +1312,15 @@ class AppLocalizationsMn extends AppLocalizations {
   String get routine_delete_block => 'Блокыг устгах уу?';
 
   @override
+  String get routine_session_title_hint => 'Title...';
+
+  @override
+  String get routine_expand_all => 'Expand all';
+
+  @override
+  String get routine_collapse_all => 'Collapse all';
+
+  @override
   String get routine_delete_time_block => 'Цагийн блокыг устгах';
 
   @override

@@ -572,7 +572,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routine_delete_block_message =>
-      'The time block and all its items will be removed';
+      'The session and all its items will be removed';
 
   @override
   String get something_went_wrong => 'Something went wrong. Please try again';
@@ -1296,10 +1296,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_add_session => 'Add to session';
 
   @override
-  String get routine_edit_title => 'Edit your routine';
+  String get routine_edit_title => 'Edit your practices';
 
   @override
-  String get routine_delete_block => 'Remove block';
+  String get routine_delete_block => 'Remove session';
+
+  @override
+  String get routine_session_title_hint => 'Title...';
+
+  @override
+  String get routine_expand_all => 'Expand all';
+
+  @override
+  String get routine_collapse_all => 'Collapse all';
 
   @override
   String get routine_delete_time_block => 'Remove time block';
@@ -1338,10 +1347,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_empty_block_add_items => 'Add items';
 
   @override
-  String get routine_empty_block_delete_singular => 'Remove block';
+  String get routine_empty_block_delete_singular => 'Remove session';
 
   @override
-  String get routine_empty_block_delete_plural => 'Remove blocks';
+  String get routine_empty_block_delete_plural => 'Remove sessions';
 
   @override
   String get routine_notification_title => 'Make practice a habit';
