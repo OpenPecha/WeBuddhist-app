@@ -650,7 +650,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routine_delete_block_message =>
-      'The time block and all its items will be removed';
+      'The session and all its items will be removed';
 
   @override
   String get something_went_wrong => 'Something went wrong. Please try again';
@@ -1374,10 +1374,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_add_session => 'Add to session';
 
   @override
-  String get routine_edit_title => 'Edit your routine';
+  String get routine_edit_title => 'Edit your practices';
 
   @override
-  String get routine_delete_block => 'Remove block';
+  String get routine_delete_block => 'Remove session';
+
+  @override
+  String get routine_session_title_hint => 'Title...';
+
+  @override
+  String get routine_expand_all => 'Expand all';
+
+  @override
+  String get routine_collapse_all => 'Collapse all';
 
   @override
   String get routine_delete_time_block => 'Remove time block';
@@ -1416,10 +1425,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routine_empty_block_add_items => 'Add items';
 
   @override
-  String get routine_empty_block_delete_singular => 'Remove block';
+  String get routine_empty_block_delete_singular => 'Remove session';
 
   @override
-  String get routine_empty_block_delete_plural => 'Remove blocks';
+  String get routine_empty_block_delete_plural => 'Remove sessions';
 
   @override
   String get routine_notification_title => 'Make practice a habit';
@@ -2632,6 +2641,120 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get group_chat_reply_parent_gone =>
       'That message is no longer available, so the quote was removed. Send again to post your message.';
+
+  @override
+  String get group_tab_posts => 'Posts';
+
+  @override
+  String get group_tab_events => 'Events';
+
+  @override
+  String get group_posts_empty_title => 'No posts yet';
+
+  @override
+  String get group_posts_empty_message =>
+      'Share your first update with your community.';
+
+  @override
+  String get group_posts_load_error =>
+      'Unable to load posts. Please try again.';
+
+  @override
+  String get group_post_button => 'Post';
+
+  @override
+  String get group_post_new_title => 'New post';
+
+  @override
+  String get group_post_posting_to => 'Posting to:';
+
+  @override
+  String get group_post_caption_hint => 'What\'s new?';
+
+  @override
+  String get group_post_photos => 'Photos';
+
+  @override
+  String get group_post_link => 'Link';
+
+  @override
+  String get group_post_discard_title => 'Discard post?';
+
+  @override
+  String get group_post_discard_message => 'You\'ll lose what you\'ve written.';
+
+  @override
+  String get group_post_keep_editing => 'Keep editing';
+
+  @override
+  String get group_post_discard => 'Discard';
+
+  @override
+  String get group_post_add_link_title => 'Add link';
+
+  @override
+  String get group_post_add_link_hint =>
+      'Paste a link and we\'ll show a preview.';
+
+  @override
+  String get group_post_link_field_hint => 'Link';
+
+  @override
+  String get group_post_attach => 'Attach';
+
+  @override
+  String get group_post_attach_as_link => 'Attach as link';
+
+  @override
+  String get group_post_preview_failed_title => 'Couldn\'t load a preview';
+
+  @override
+  String get group_post_preview_failed_message =>
+      'You can still attach it as a link.';
+
+  @override
+  String get group_post_invalid_link =>
+      'Enter a valid link, for example https://example.com';
+
+  @override
+  String group_post_photo_limit(int count) {
+    return 'You can add up to $count photos.';
+  }
+
+  @override
+  String get group_post_upload_error =>
+      'Unable to upload photos. Please try again.';
+
+  @override
+  String get group_post_publish_error =>
+      'Unable to publish your post. Please try again.';
+
+  @override
+  String get group_post_published => 'Your post is live.';
+
+  @override
+  String get group_post_delete_title => 'Delete post?';
+
+  @override
+  String get group_post_delete_message =>
+      'This post will be permanently removed.';
+
+  @override
+  String get group_post_delete_failed =>
+      'Unable to delete the post. Please try again.';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get group_post_edit_title => 'Edit post';
+
+  @override
+  String get group_post_update_error =>
+      'Unable to save your changes. Please try again.';
+
+  @override
+  String get group_post_updated => 'Your changes are saved.';
 
   @override
   String get practice_collection_already_added =>

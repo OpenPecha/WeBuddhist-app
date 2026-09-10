@@ -200,9 +200,7 @@ class _Leading extends StatelessWidget {
   Widget build(BuildContext context) {
     final image = bookmark.leadingImage;
     if (image != null && !image.isEmpty) {
-      final radius = BorderRadius.circular(
-        bookmark.isRoundLeading ? _size / 2 : 10,
-      );
+      final radius = BorderRadius.circular(bookmark.isRoundLeading ? _size / 2 : 10);
       return ResponsiveCoverImage(
         image: image,
         width: _size,

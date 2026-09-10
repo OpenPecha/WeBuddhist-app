@@ -86,9 +86,9 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen>
       final type = bookmarkTypeFromItem(bookmark.type);
       if (type != null) {
         ref.read(bookmarkExistsCacheProvider.notifier).set(
-              BookmarkTarget(type: type, sourceId: bookmark.sourceId),
-              const BookmarkExistsResult(exists: false),
-            );
+          BookmarkTarget(type: type, sourceId: bookmark.sourceId),
+          const BookmarkExistsResult(exists: false),
+        );
       }
     }
     messenger.showSnackBar(

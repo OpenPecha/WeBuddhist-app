@@ -1249,7 +1249,7 @@ abstract class AppLocalizations {
   /// No description provided for @routine_delete_block_message.
   ///
   /// In en, this message translates to:
-  /// **'The time block and all its items will be removed'**
+  /// **'The session and all its items will be removed'**
   String get routine_delete_block_message;
 
   /// No description provided for @something_went_wrong.
@@ -2527,14 +2527,32 @@ abstract class AppLocalizations {
   /// No description provided for @routine_edit_title.
   ///
   /// In en, this message translates to:
-  /// **'Edit your routine'**
+  /// **'Edit your practices'**
   String get routine_edit_title;
 
   /// No description provided for @routine_delete_block.
   ///
   /// In en, this message translates to:
-  /// **'Remove block'**
+  /// **'Remove session'**
   String get routine_delete_block;
+
+  /// No description provided for @routine_session_title_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Title...'**
+  String get routine_session_title_hint;
+
+  /// No description provided for @routine_expand_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand all'**
+  String get routine_expand_all;
+
+  /// No description provided for @routine_collapse_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse all'**
+  String get routine_collapse_all;
 
   /// No description provided for @routine_delete_time_block.
   ///
@@ -2599,13 +2617,13 @@ abstract class AppLocalizations {
   /// No description provided for @routine_empty_block_delete_singular.
   ///
   /// In en, this message translates to:
-  /// **'Remove block'**
+  /// **'Remove session'**
   String get routine_empty_block_delete_singular;
 
   /// No description provided for @routine_empty_block_delete_plural.
   ///
   /// In en, this message translates to:
-  /// **'Remove blocks'**
+  /// **'Remove sessions'**
   String get routine_empty_block_delete_plural;
 
   /// No description provided for @routine_notification_title.
@@ -4687,6 +4705,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That message is no longer available, so the quote was removed. Send again to post your message.'**
   String get group_chat_reply_parent_gone;
+
+  /// No description provided for @group_tab_posts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get group_tab_posts;
+
+  /// No description provided for @group_tab_events.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get group_tab_events;
+
+  /// No description provided for @group_posts_empty_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet'**
+  String get group_posts_empty_title;
+
+  /// No description provided for @group_posts_empty_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your first update with your community.'**
+  String get group_posts_empty_message;
+
+  /// No description provided for @group_posts_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load posts. Please try again.'**
+  String get group_posts_load_error;
+
+  /// No description provided for @group_post_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get group_post_button;
+
+  /// No description provided for @group_post_new_title.
+  ///
+  /// In en, this message translates to:
+  /// **'New post'**
+  String get group_post_new_title;
+
+  /// No description provided for @group_post_posting_to.
+  ///
+  /// In en, this message translates to:
+  /// **'Posting to:'**
+  String get group_post_posting_to;
+
+  /// No description provided for @group_post_caption_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s new?'**
+  String get group_post_caption_hint;
+
+  /// No description provided for @group_post_photos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get group_post_photos;
+
+  /// No description provided for @group_post_link.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get group_post_link;
+
+  /// No description provided for @group_post_discard_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard post?'**
+  String get group_post_discard_title;
+
+  /// No description provided for @group_post_discard_message.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll lose what you\'ve written.'**
+  String get group_post_discard_message;
+
+  /// No description provided for @group_post_keep_editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get group_post_keep_editing;
+
+  /// No description provided for @group_post_discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get group_post_discard;
+
+  /// No description provided for @group_post_add_link_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add link'**
+  String get group_post_add_link_title;
+
+  /// No description provided for @group_post_add_link_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a link and we\'ll show a preview.'**
+  String get group_post_add_link_hint;
+
+  /// No description provided for @group_post_link_field_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get group_post_link_field_hint;
+
+  /// No description provided for @group_post_attach.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach'**
+  String get group_post_attach;
+
+  /// No description provided for @group_post_attach_as_link.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach as link'**
+  String get group_post_attach_as_link;
+
+  /// No description provided for @group_post_preview_failed_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load a preview'**
+  String get group_post_preview_failed_title;
+
+  /// No description provided for @group_post_preview_failed_message.
+  ///
+  /// In en, this message translates to:
+  /// **'You can still attach it as a link.'**
+  String get group_post_preview_failed_message;
+
+  /// No description provided for @group_post_invalid_link.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid link, for example https://example.com'**
+  String get group_post_invalid_link;
+
+  /// No description provided for @group_post_photo_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can add up to {count} photos.'**
+  String group_post_photo_limit(int count);
+
+  /// No description provided for @group_post_upload_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to upload photos. Please try again.'**
+  String get group_post_upload_error;
+
+  /// No description provided for @group_post_publish_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to publish your post. Please try again.'**
+  String get group_post_publish_error;
+
+  /// No description provided for @group_post_published.
+  ///
+  /// In en, this message translates to:
+  /// **'Your post is live.'**
+  String get group_post_published;
+
+  /// No description provided for @group_post_delete_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete post?'**
+  String get group_post_delete_title;
+
+  /// No description provided for @group_post_delete_message.
+  ///
+  /// In en, this message translates to:
+  /// **'This post will be permanently removed.'**
+  String get group_post_delete_message;
+
+  /// No description provided for @group_post_delete_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to delete the post. Please try again.'**
+  String get group_post_delete_failed;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @group_post_edit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit post'**
+  String get group_post_edit_title;
+
+  /// No description provided for @group_post_update_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save your changes. Please try again.'**
+  String get group_post_update_error;
+
+  /// No description provided for @group_post_updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Your changes are saved.'**
+  String get group_post_updated;
 
   /// No description provided for @practice_collection_already_added.
   ///
