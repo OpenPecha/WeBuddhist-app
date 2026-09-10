@@ -104,7 +104,7 @@ class BookmarkCard extends StatelessWidget {
         return context.l10n.my_recitation_collection_unavailable;
       }
       final count = bookmark.itemCount;
-      if (count == null || count <= 0) return null;
+      if (count == null || count < 0) return null;
       return bookmark.type == BookmarkItemType.recitationCollection
           ? context.l10n.my_recitation_collection_chant_count_owner(count)
           : context.l10n.my_recitation_collection_chant_count(count);
