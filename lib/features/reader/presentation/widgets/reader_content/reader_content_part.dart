@@ -96,6 +96,13 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
   /// collapsed "active segments only" view applies.
   bool get _hasActiveSegments => _activeSegmentIds.isNotEmpty;
 
+  /// Match the primary's plan-sized first window so translations cover the
+  /// whole active range, not just the first page of it.
+  int? get _secondaryInitialSize {
+    final count = widget.visibleSegmentIds?.length ?? 0;
+    return count > ReaderConstants.pageSize ? count : null;
+  }
+
   /// True while only the active segments are shown (before "Read Full Text").
   bool get _isCollapsed => _hasActiveSegments && !_isExpanded;
 
@@ -306,6 +313,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
           textId: effectivePrimaryTextId,
           versionId: versionId,
           initialSegmentId: _resolveSecondaryInitialSegmentId(),
+          initialSize: _secondaryInitialSize,
         ),
       ).notifier,
     );
@@ -468,6 +476,7 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
                   textId: effectivePrimaryTextId,
                   versionId: secondaryVersionId,
                   initialSegmentId: _resolveSecondaryInitialSegmentId(),
+                  initialSize: _secondaryInitialSize,
                 ),
               ),
             )

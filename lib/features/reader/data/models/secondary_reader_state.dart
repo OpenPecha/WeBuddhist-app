@@ -14,11 +14,13 @@ class SecondaryReaderKey {
   final String textId;
   final String versionId;
   final String? initialSegmentId;
+  final int? initialSize;
 
   const SecondaryReaderKey({
     required this.textId,
     required this.versionId,
     this.initialSegmentId,
+    this.initialSize,
   });
 
   @override

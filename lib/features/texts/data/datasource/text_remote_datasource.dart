@@ -113,6 +113,9 @@ class TextRemoteDatasource {
     return CommentaryTextResponse.fromJson(response.data);
   }
 
+  // Segments per page when the caller doesn't ask for a specific window.
+  static const int _defaultPageSize = 20;
+
   // post request to get the details of the text
   Future<ReaderResponse> fetchTextDetails({
     required String textId,
@@ -121,7 +124,7 @@ class TextRemoteDatasource {
     String? segmentId,
     String? direction,
     String? language,
-    int size = 20,
+    int? size,
   }) async {
     final response = await dio.post(
       '/texts/$textId/details',
@@ -130,7 +133,7 @@ class TextRemoteDatasource {
         if (versionId != null) 'version_id': versionId,
         if (segmentId != null) 'segment_id': segmentId,
         if (language != null) 'language': language,
-        'size': size,
+        'size': size ?? _defaultPageSize,
         'direction': direction,
       },
     );

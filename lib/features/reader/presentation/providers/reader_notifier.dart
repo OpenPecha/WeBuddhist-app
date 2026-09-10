@@ -135,6 +135,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
     _logger.debug('ReaderNotifier initializing with params: $_params');
 
     final initialSegmentId = useNavParams ? _params.segmentId : null;
+    final initialSize = useNavParams ? _initialPageSize() : null;
 
     state = state.copyWith(
       status: ReaderStatus.loading,
@@ -148,6 +149,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       final response = await _fetchContent(
         segmentId: initialSegmentId,
         direction: 'next',
+        size: initialSize,
       );
       _logger.debug('ReaderNotifier initialized with response: $response');
 
@@ -223,6 +225,13 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
     }
   }
 
+  /// Plan subtasks can span more segments than one page. Ask for the whole
+  /// range up front so the collapsed view isn't cut off at the page size.
+  int? _initialPageSize() {
+    final count = _params.navigationContext?.currentSegmentIds?.length ?? 0;
+    return count > ReaderConstants.pageSize ? count : null;
+  }
+
   /// Fetch content from the repository.
   ///
   /// `version_id` is sourced from the per-text dual settings provider so the
@@ -237,6 +246,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
   Future<ReaderResponse> _fetchContent({
     String? segmentId,
     required String direction,
+    int? size,
   }) async {
     // Note: do NOT update _activeVersionId here. It's the id of the
     // currently-LOADED version (set after a successful initial fetch in
@@ -261,6 +271,7 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
       segmentId: segmentId,
       direction: direction,
       language: (language != null && language.isNotEmpty) ? language : null,
+      size: size,
     );
 
     final result = await _ref.read(textDetailsFutureProvider(params).future);
