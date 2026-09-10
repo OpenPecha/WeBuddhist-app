@@ -4807,6 +4807,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This collection is already in your practices'**
   String get practice_collection_already_added;
+
+  /// No description provided for @practice_group_accumulator_already_added.
+  ///
+  /// In en, this message translates to:
+  /// **'This accumulation is already in your practices'**
+  String get practice_group_accumulator_already_added;
 }
 
 class _AppLocalizationsDelegate

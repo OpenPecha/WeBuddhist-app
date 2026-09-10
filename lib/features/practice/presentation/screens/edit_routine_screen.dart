@@ -367,17 +367,21 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     return resolved.target;
   }
 
-  /// Adds a GROUP_ACCUMULATOR session; dedup is per block, like ACCUMULATOR.
+  /// Adds a GROUP_ACCUMULATOR session. A group accumulation is scheduled at
+  /// most once per routine — across every time block, like collections — so
+  /// the duplicate guard is global and returns null instead of syncing a second
+  /// session (and a second daily reminder) for the same accumulation.
   _EditableBlock? _injectInitialGroupAccumulator(GroupAccumulator accumulator) {
-    final resolved = _resolveInjectionTarget();
-
-    final duplicateInTarget = resolved.target.items.any(
-      (item) =>
-          item.id == accumulator.id &&
-          item.type == RoutineItemType.groupAccumulator,
+    final alreadyInRoutine = _blocks.any(
+      (b) => b.items.any(
+        (item) =>
+            item.id == accumulator.id &&
+            item.type == RoutineItemType.groupAccumulator,
+      ),
     );
-    if (duplicateInTarget) return null;
+    if (alreadyInRoutine) return null;
 
+    final resolved = _resolveInjectionTarget();
     resolved.target.items.add(
       RoutineItem(
         id: accumulator.id,
@@ -401,6 +405,17 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(context.l10n.practice_collection_already_added),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  /// Same as [_showCollectionAlreadyAddedSnackBar] for a group accumulation.
+  void _showGroupAccumulatorAlreadyAddedSnackBar() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.practice_group_accumulator_already_added),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -1481,6 +1496,7 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
             _EditableBlock? injectedGroupAccumulatorBlock;
             var collectionAlreadyInRoutine = false;
             var myCollectionAlreadyInRoutine = false;
+            var groupAccumulatorAlreadyInRoutine = false;
             setState(() {
               _hydratedFromApi = true;
               _applyInitialData(routineData);
@@ -1522,6 +1538,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
                 injectedGroupAccumulatorBlock = _injectInitialGroupAccumulator(
                   widget.initialGroupAccumulator!,
                 );
+                groupAccumulatorAlreadyInRoutine =
+                    injectedGroupAccumulatorBlock == null;
               }
             });
             if (widget.initialPlan != null) {
@@ -1569,6 +1587,8 @@ class _EditRoutineScreenState extends ConsumerState<EditRoutineScreen> {
               _syncBlock(injectedGroupAccumulatorBlock!).catchError((e) {
                 if (mounted) _showErrorSnackBar(_mapError(e));
               });
+            } else if (groupAccumulatorAlreadyInRoutine) {
+              _showGroupAccumulatorAlreadyAddedSnackBar();
             }
             if (widget.enrollSeriesId != null && !_seriesEnrollmentHydrated) {
               _seriesEnrollmentHydrated = true;

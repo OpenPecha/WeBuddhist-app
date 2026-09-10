@@ -5302,4 +5302,11 @@ class TolgeeAppLocalizations extends AppLocalizations {
     'practice_collection_already_added',
     () => _fallback.practice_collection_already_added,
   );
+
+  @override
+  String get practice_group_accumulator_already_added => TolgeeBridge.get(
+    localeName,
+    'practice_group_accumulator_already_added',
+    () => _fallback.practice_group_accumulator_already_added,
+  );
 }

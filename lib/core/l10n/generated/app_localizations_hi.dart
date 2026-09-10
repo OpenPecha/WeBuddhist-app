@@ -2712,4 +2712,8 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get practice_collection_already_added =>
       'This collection is already in your practices';
+
+  @override
+  String get practice_group_accumulator_already_added =>
+      'This accumulation is already in your practices';
 }

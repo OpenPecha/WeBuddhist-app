@@ -167,8 +167,23 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
     );
   }
 
-  Widget _buildAppBar(BuildContext context, GroupAccumulatorDetail? detail) {
+  /// Header text: the group title from the route extra when present, else the
+  /// group profile (fetched on demand for routine/bookmark/notification entry
+  /// points, which pass only the accumulator id), else the accumulation title.
+  String _appBarTitle(GroupAccumulatorDetail? detail) {
     final title = widget.groupTitle?.trim();
+    if (title != null && title.isNotEmpty) return title;
+    if (detail == null) return '';
+    final groupName = ref
+        .watch(groupProfileProvider(detail.groupId))
+        .whenOrNull(
+          data:
+              (either) => either.fold((_) => null, (profile) => profile.title),
+        );
+    return groupName ?? detail.title;
+  }
+
+  Widget _buildAppBar(BuildContext context, GroupAccumulatorDetail? detail) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
@@ -179,7 +194,7 @@ class _GroupAccumulatorScreenState extends ConsumerState<GroupAccumulatorScreen>
           ),
           Expanded(
             child: Text(
-              title != null && title.isNotEmpty ? title : '',
+              _appBarTitle(detail),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
               maxLines: 1,
