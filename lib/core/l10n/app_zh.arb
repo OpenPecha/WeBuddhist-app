@@ -185,6 +185,39 @@
   "recitations_no_content": "沒有可用的持誦",
   "recitations_no_saved": "沒有已保存的持誦",
   "recitations_login_prompt": "請登錄以查看您保存的持誦",
+  "my_recitation_collection_new_title": "新收藏",
+  "my_recitation_collection_next": "下一步",
+  "my_recitation_collection_create": "建立",
+  "my_recitation_collection_create_button": "建立收藏",
+  "my_recitation_collection_change_title": "更改標題",
+  "my_recitation_collection_change": "更改",
+  "my_recitation_collection_add_chants": "加入持誦",
+  "my_recitation_collection_search_chants": "搜尋持誦",
+  "my_recitation_collection_add_to_collection": "加入收藏",
+  "my_recitation_collection_edit": "編輯收藏",
+  "my_recitation_collection_delete": "刪除收藏",
+  "my_recitation_collection_delete_title": "要刪除收藏嗎？",
+  "my_recitation_collection_delete_message": "此收藏將被永久刪除。",
+  "my_recitation_collection_fallback_title": "持誦收藏",
+  "my_recitation_collection_unavailable": "已無法使用",
+  "my_recitation_collection_chant_count": "{count, plural, =0{0 項持誦} =1{1 項持誦} other{{count} 項持誦}}",
+  "@my_recitation_collection_chant_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "my_recitation_collection_chant_count_owner": "{count, plural, =0{0 項持誦 • 我} =1{1 項持誦 • 我} other{{count} 項持誦 • 我}}",
+  "@my_recitation_collection_chant_count_owner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bookmarks_empty_chant_collections_title": "尚未收藏任何持誦收藏。",
+  "bookmarks_empty_chant_collections_subtitle": "收藏持誦收藏後會顯示在這裡。",
   "notification_settings": "通知設定",
   "notification_allow_title": "允許通知",
   "notification_allow_subtitle_enabled": "此應用程式已啟用通知",

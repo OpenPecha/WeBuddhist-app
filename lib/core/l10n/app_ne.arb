@@ -185,6 +185,39 @@
   "recitations_no_content": "कुनै पाठ उपलब्ध छैन",
   "recitations_no_saved": "कुनै सेभ गरिएको पाठ छैन",
   "recitations_login_prompt": "आफ्ना सेभ गरिएका पाठहरू हेर्न साइन इन गर्नुहोस्",
+  "my_recitation_collection_new_title": "नयाँ सङ्ग्रह",
+  "my_recitation_collection_next": "अर्को",
+  "my_recitation_collection_create": "सिर्जना गर्नुहोस्",
+  "my_recitation_collection_create_button": "सङ्ग्रह सिर्जना गर्नुहोस्",
+  "my_recitation_collection_change_title": "शीर्षक परिवर्तन गर्नुहोस्",
+  "my_recitation_collection_change": "परिवर्तन गर्नुहोस्",
+  "my_recitation_collection_add_chants": "पाठहरू थप्नुहोस्",
+  "my_recitation_collection_search_chants": "पाठहरू खोज्नुहोस्",
+  "my_recitation_collection_add_to_collection": "सङ्ग्रहमा थप्नुहोस्",
+  "my_recitation_collection_edit": "सङ्ग्रह सम्पादन गर्नुहोस्",
+  "my_recitation_collection_delete": "सङ्ग्रह मेटाउनुहोस्",
+  "my_recitation_collection_delete_title": "सङ्ग्रह मेटाउने?",
+  "my_recitation_collection_delete_message": "यो सङ्ग्रह स्थायी रूपमा हटाइनेछ.",
+  "my_recitation_collection_fallback_title": "पाठ सङ्ग्रह",
+  "my_recitation_collection_unavailable": "अब उपलब्ध छैन",
+  "my_recitation_collection_chant_count": "{count, plural, =0{0 पाठहरू} =1{1 पाठ} other{{count} पाठहरू}}",
+  "@my_recitation_collection_chant_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "my_recitation_collection_chant_count_owner": "{count, plural, =0{0 पाठहरू • मेरो} =1{1 पाठ • मेरो} other{{count} पाठहरू • मेरो}}",
+  "@my_recitation_collection_chant_count_owner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bookmarks_empty_chant_collections_title": "अहिलेसम्म कुनै पाठ सङ्ग्रह बुकमार्क गरिएको छैन.",
+  "bookmarks_empty_chant_collections_subtitle": "पाठ सङ्ग्रह यहाँ सेभ गर्न बुकमार्क गर्नुहोस्.",
   "notification_settings": "सूचना सेटिङ",
   "notification_allow_title": "सूचनाहरू अनुमति दिनुहोस्",
   "notification_allow_subtitle_enabled": "यस एपका लागि सूचनाहरू सक्षम छन्",

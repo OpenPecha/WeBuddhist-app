@@ -439,6 +439,81 @@ class AppLocalizationsZh extends AppLocalizations {
   String get recitations_login_prompt => '請登錄以查看您保存的持誦';
 
   @override
+  String get my_recitation_collection_new_title => '新收藏';
+
+  @override
+  String get my_recitation_collection_next => '下一步';
+
+  @override
+  String get my_recitation_collection_create => '建立';
+
+  @override
+  String get my_recitation_collection_create_button => '建立收藏';
+
+  @override
+  String get my_recitation_collection_change_title => '更改標題';
+
+  @override
+  String get my_recitation_collection_change => '更改';
+
+  @override
+  String get my_recitation_collection_add_chants => '加入持誦';
+
+  @override
+  String get my_recitation_collection_search_chants => '搜尋持誦';
+
+  @override
+  String get my_recitation_collection_add_to_collection => '加入收藏';
+
+  @override
+  String get my_recitation_collection_edit => '編輯收藏';
+
+  @override
+  String get my_recitation_collection_delete => '刪除收藏';
+
+  @override
+  String get my_recitation_collection_delete_title => '要刪除收藏嗎？';
+
+  @override
+  String get my_recitation_collection_delete_message => '此收藏將被永久刪除。';
+
+  @override
+  String get my_recitation_collection_fallback_title => '持誦收藏';
+
+  @override
+  String get my_recitation_collection_unavailable => '已無法使用';
+
+  @override
+  String my_recitation_collection_chant_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 項持誦',
+      one: '1 項持誦',
+      zero: '0 項持誦',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String my_recitation_collection_chant_count_owner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 項持誦 • 我',
+      one: '1 項持誦 • 我',
+      zero: '0 項持誦 • 我',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bookmarks_empty_chant_collections_title => '尚未收藏任何持誦收藏。';
+
+  @override
+  String get bookmarks_empty_chant_collections_subtitle => '收藏持誦收藏後會顯示在這裡。';
+
+  @override
   String get notification_settings => '通知設定';
 
   @override
@@ -2551,7 +2626,4 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get practice_collection_already_added =>
       'This collection is already in your practices';
-
-  @override
-  String get bookmark_your_collection => 'me';
 }

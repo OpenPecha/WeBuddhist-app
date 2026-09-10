@@ -454,6 +454,84 @@ class AppLocalizationsBo extends AppLocalizations {
       'ཁྱེད་ཀྱིས་ཉར་ཚགས་བྱས་པའི་ཞལ་འདོན་ལ་གཟིགས་ན་ནང་འཛུལ་བྱོས།';
 
   @override
+  String get my_recitation_collection_new_title => 'ཚོགས་སྡེ་གསར་པ།';
+
+  @override
+  String get my_recitation_collection_next => 'རྗེས་མ།';
+
+  @override
+  String get my_recitation_collection_create => 'གསར་བཟོ།';
+
+  @override
+  String get my_recitation_collection_create_button => 'ཚོགས་སྡེ་གསར་བཟོ།';
+
+  @override
+  String get my_recitation_collection_change_title => 'མཚན་བྱང་བསྒྱུར།';
+
+  @override
+  String get my_recitation_collection_change => 'བསྒྱུར།';
+
+  @override
+  String get my_recitation_collection_add_chants => 'ཞལ་འདོན་ཁ་སྣོན།';
+
+  @override
+  String get my_recitation_collection_search_chants => 'ཞལ་འདོན་འཚོལ།';
+
+  @override
+  String get my_recitation_collection_add_to_collection => 'ཚོགས་སྡེར་ཁ་སྣོན།';
+
+  @override
+  String get my_recitation_collection_edit => 'ཚོགས་སྡེ་བཟོ་བཅོས།';
+
+  @override
+  String get my_recitation_collection_delete => 'ཚོགས་སྡེ་སུབས།';
+
+  @override
+  String get my_recitation_collection_delete_title => 'ཚོགས་སྡེ་སུབ་བམ།';
+
+  @override
+  String get my_recitation_collection_delete_message =>
+      'ཚོགས་སྡེ་འདི་གཏན་དུ་སུབ་འགྲོ།';
+
+  @override
+  String get my_recitation_collection_fallback_title => 'ཞལ་འདོན་ཚོགས་སྡེ།';
+
+  @override
+  String get my_recitation_collection_unavailable => 'ད་ལྟ་མི་འདུག';
+
+  @override
+  String my_recitation_collection_chant_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ཞལ་འདོན་ $count',
+      one: 'ཞལ་འདོན་ ༡',
+      zero: 'ཞལ་འདོན་ ༠',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String my_recitation_collection_chant_count_owner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ཞལ་འདོན་ $count • ང་',
+      one: 'ཞལ་འདོན་ ༡ • ང་',
+      zero: 'ཞལ་འདོན་ ༠ • ང་',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bookmarks_empty_chant_collections_title =>
+      'བརྟག་ཉར་བྱས་པའི་ཞལ་འདོན་ཚོགས་སྡེ་མི་འདུག';
+
+  @override
+  String get bookmarks_empty_chant_collections_subtitle =>
+      'ཞལ་འདོན་ཚོགས་སྡེ་ཞིག་བརྟག་ཉར་བྱས་ནས་འདིར་ཉར།';
+
+  @override
   String get notification_settings => 'གསལ་བརྡའི་སྒྲིག་འགོད།';
 
   @override
@@ -2712,7 +2790,4 @@ class AppLocalizationsBo extends AppLocalizations {
   @override
   String get practice_collection_already_added =>
       'This collection is already in your practices';
-
-  @override
-  String get bookmark_your_collection => 'me';
 }

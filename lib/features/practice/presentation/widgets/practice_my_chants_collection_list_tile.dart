@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/core/theme/app_colors.dart';
 import 'package:flutter_pecha/features/recitation/data/models/my_recitation_list_collection_model.dart';
 
@@ -15,10 +16,10 @@ class PracticeMyChantsCollectionListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final subtitleColor =
-        isDark ? AppColors.textSubtleDark : AppColors.grey900;
-    final chantLabel =
-        collection.itemCount == 1 ? '1 chant' : '${collection.itemCount} chants';
+    final subtitleColor = isDark ? AppColors.textSubtleDark : AppColors.grey900;
+    final chantLabel = context.l10n.my_recitation_collection_chant_count_owner(
+      collection.itemCount,
+    );
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -58,11 +59,8 @@ class PracticeMyChantsCollectionListTile extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '$chantLabel • me',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: subtitleColor,
-                          ),
+                          chantLabel,
+                          style: TextStyle(fontSize: 13, color: subtitleColor),
                         ),
                       ],
                     ),
