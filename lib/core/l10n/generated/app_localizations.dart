@@ -4583,7 +4583,7 @@ abstract class AppLocalizations {
   /// No description provided for @bookmark_your_collection.
   ///
   /// In en, this message translates to:
-  /// **'Your collection'**
+  /// **'me'**
   String get bookmark_your_collection;
 }
 

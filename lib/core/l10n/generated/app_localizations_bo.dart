@@ -2593,5 +2593,5 @@ class AppLocalizationsBo extends AppLocalizations {
       'This collection is already in your practices';
 
   @override
-  String get bookmark_your_collection => 'Your collection';
+  String get bookmark_your_collection => 'me';
 }
