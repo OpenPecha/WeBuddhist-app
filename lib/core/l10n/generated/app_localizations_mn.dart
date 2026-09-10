@@ -455,6 +455,84 @@ class AppLocalizationsMn extends AppLocalizations {
       'Хадгалсан уншлагаа харахын тулд нэвтэрнэ үү';
 
   @override
+  String get my_recitation_collection_new_title => 'Шинэ цуглуулга';
+
+  @override
+  String get my_recitation_collection_next => 'Дараах';
+
+  @override
+  String get my_recitation_collection_create => 'Үүсгэх';
+
+  @override
+  String get my_recitation_collection_create_button => 'Цуглуулга үүсгэх';
+
+  @override
+  String get my_recitation_collection_change_title => 'Гарчиг өөрчлөх';
+
+  @override
+  String get my_recitation_collection_change => 'Өөрчлөх';
+
+  @override
+  String get my_recitation_collection_add_chants => 'Уншлага нэмэх';
+
+  @override
+  String get my_recitation_collection_search_chants => 'Уншлага хайх';
+
+  @override
+  String get my_recitation_collection_add_to_collection => 'Цуглуулгад нэмэх';
+
+  @override
+  String get my_recitation_collection_edit => 'Цуглуулга засах';
+
+  @override
+  String get my_recitation_collection_delete => 'Цуглуулга устгах';
+
+  @override
+  String get my_recitation_collection_delete_title => 'Цуглуулгыг устгах уу?';
+
+  @override
+  String get my_recitation_collection_delete_message =>
+      'Энэ цуглуулгыг бүрмөсөн устгана.';
+
+  @override
+  String get my_recitation_collection_fallback_title => 'Уншлагын цуглуулга';
+
+  @override
+  String get my_recitation_collection_unavailable => 'Боломжгүй болсон';
+
+  @override
+  String my_recitation_collection_chant_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count уншлага',
+      one: '1 уншлага',
+      zero: '0 уншлага',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String my_recitation_collection_chant_count_owner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count уншлага • миний',
+      one: '1 уншлага • миний',
+      zero: '0 уншлага • миний',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bookmarks_empty_chant_collections_title =>
+      'Уншлагын цуглуулга хавчуурга болгосон зүйл алга.';
+
+  @override
+  String get bookmarks_empty_chant_collections_subtitle =>
+      'Уншлагын цуглуулгыг хадгалахын тулд хавчуурга болгоно уу.';
+
+  @override
   String get notification_settings => 'Мэдэгдлийн тохиргоо';
 
   @override

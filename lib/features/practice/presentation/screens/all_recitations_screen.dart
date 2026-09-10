@@ -98,8 +98,8 @@ class _AllRecitationsScreenState extends ConsumerState<AllRecitationsScreen> {
   }
 
   Future<void> _ensureLanguageRestored() => ref
-      .read(practiceRecitationsLanguageProvider.notifier)
-      .ensureInitialized();
+          .read(practiceRecitationsLanguageProvider.notifier)
+          .ensureInitialized();
 
   void _onCreateCollectionPressed() {
     // Guests and expired sessions both lack credentials for the protected
@@ -261,7 +261,7 @@ class _CreateCollectionButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Create collection',
+                context.l10n.my_recitation_collection_create_button,
                 style: TextStyle(
                   color: foregroundColor,
                   fontSize: 15,

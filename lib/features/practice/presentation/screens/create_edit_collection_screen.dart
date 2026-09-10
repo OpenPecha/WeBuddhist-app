@@ -191,7 +191,7 @@ class _CreateEditCollectionScreenState
     if (_isSubmitting || _isMetadataLocked) return;
     final result = await showCollectionNameDialog(
       context,
-      title: 'Change title',
+      title: context.l10n.my_recitation_collection_change_title,
       actionLabel: context.l10n.save,
       initialName: _name,
     );
@@ -389,7 +389,10 @@ class _CreateEditCollectionScreenState
             ? (isDark ? AppColors.textPrimary : AppColors.onPrimary)
             : AppColors.onPrimary;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
-    final actionLabel = _isEditing ? context.l10n.save : 'Create';
+    final actionLabel =
+        _isEditing
+            ? context.l10n.save
+            : context.l10n.my_recitation_collection_create;
 
     return Scaffold(
       body: SafeArea(
@@ -449,7 +452,9 @@ class _CreateEditCollectionScreenState
                                         vertical: 7,
                                       ),
                                       child: Text(
-                                        'Change',
+                                        context
+                                            .l10n
+                                            .my_recitation_collection_change,
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -665,7 +670,7 @@ class _AddChantsRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 34),
                 Text(
-                  'Add chants',
+                  context.l10n.my_recitation_collection_add_chants,
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w600,

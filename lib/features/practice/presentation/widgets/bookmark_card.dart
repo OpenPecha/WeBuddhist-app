@@ -66,7 +66,7 @@ class BookmarkCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                bookmark.displayTitle,
+                _displayTitle(context),
                 style: _titleStyle(isDark),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -101,14 +101,13 @@ class BookmarkCard extends StatelessWidget {
     if (bookmark.type == BookmarkItemType.groupRecitationCollection ||
         bookmark.type == BookmarkItemType.recitationCollection) {
       if (bookmark.isOrphaned) {
-        return 'No longer available';
+        return context.l10n.my_recitation_collection_unavailable;
       }
       final count = bookmark.itemCount;
       if (count == null || count <= 0) return null;
-      final countLabel = context.l10n.home_recitation_count(count);
       return bookmark.type == BookmarkItemType.recitationCollection
-          ? '$countLabel • me'
-          : countLabel;
+          ? context.l10n.my_recitation_collection_chant_count_owner(count)
+          : context.l10n.my_recitation_collection_chant_count(count);
     }
 
     return PlanDateFormat.formatRangeOrSingle(
@@ -136,7 +135,7 @@ class BookmarkCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  bookmark.displayTitle,
+                  _displayTitle(context),
                   style: _titleStyle(isDark),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -172,6 +171,19 @@ class BookmarkCard extends StatelessWidget {
     fontWeight: FontWeight.w600,
     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
   );
+
+  String _displayTitle(BuildContext context) {
+    final preferred = bookmark.nestedTitle ?? bookmark.name;
+    if (preferred != null && preferred.trim().isNotEmpty) {
+      return preferred.trim();
+    }
+    return switch (bookmark.type) {
+      BookmarkItemType.groupRecitationCollection ||
+      BookmarkItemType.recitationCollection =>
+        context.l10n.my_recitation_collection_fallback_title,
+      _ => bookmark.displayTitle,
+    };
+  }
 }
 
 /// Leading visual: real artwork when the bookmark carries it (plan/series

@@ -455,6 +455,87 @@ class AppLocalizationsNe extends AppLocalizations {
       'आफ्ना सेभ गरिएका पाठहरू हेर्न साइन इन गर्नुहोस्';
 
   @override
+  String get my_recitation_collection_new_title => 'नयाँ सङ्ग्रह';
+
+  @override
+  String get my_recitation_collection_next => 'अर्को';
+
+  @override
+  String get my_recitation_collection_create => 'सिर्जना गर्नुहोस्';
+
+  @override
+  String get my_recitation_collection_create_button =>
+      'सङ्ग्रह सिर्जना गर्नुहोस्';
+
+  @override
+  String get my_recitation_collection_change_title =>
+      'शीर्षक परिवर्तन गर्नुहोस्';
+
+  @override
+  String get my_recitation_collection_change => 'परिवर्तन गर्नुहोस्';
+
+  @override
+  String get my_recitation_collection_add_chants => 'पाठहरू थप्नुहोस्';
+
+  @override
+  String get my_recitation_collection_search_chants => 'पाठहरू खोज्नुहोस्';
+
+  @override
+  String get my_recitation_collection_add_to_collection =>
+      'सङ्ग्रहमा थप्नुहोस्';
+
+  @override
+  String get my_recitation_collection_edit => 'सङ्ग्रह सम्पादन गर्नुहोस्';
+
+  @override
+  String get my_recitation_collection_delete => 'सङ्ग्रह मेटाउनुहोस्';
+
+  @override
+  String get my_recitation_collection_delete_title => 'सङ्ग्रह मेटाउने?';
+
+  @override
+  String get my_recitation_collection_delete_message =>
+      'यो सङ्ग्रह स्थायी रूपमा हटाइनेछ.';
+
+  @override
+  String get my_recitation_collection_fallback_title => 'पाठ सङ्ग्रह';
+
+  @override
+  String get my_recitation_collection_unavailable => 'अब उपलब्ध छैन';
+
+  @override
+  String my_recitation_collection_chant_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count पाठहरू',
+      one: '1 पाठ',
+      zero: '0 पाठहरू',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String my_recitation_collection_chant_count_owner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count पाठहरू • मेरो',
+      one: '1 पाठ • मेरो',
+      zero: '0 पाठहरू • मेरो',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bookmarks_empty_chant_collections_title =>
+      'अहिलेसम्म कुनै पाठ सङ्ग्रह बुकमार्क गरिएको छैन.';
+
+  @override
+  String get bookmarks_empty_chant_collections_subtitle =>
+      'पाठ सङ्ग्रह यहाँ सेभ गर्न बुकमार्क गर्नुहोस्.';
+
+  @override
   String get notification_settings => 'सूचना सेटिङ';
 
   @override

@@ -928,6 +928,120 @@ abstract class AppLocalizations {
   /// **'Sign in to view your saved recitations'**
   String get recitations_login_prompt;
 
+  /// No description provided for @my_recitation_collection_new_title.
+  ///
+  /// In en, this message translates to:
+  /// **'New Collection'**
+  String get my_recitation_collection_new_title;
+
+  /// No description provided for @my_recitation_collection_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get my_recitation_collection_next;
+
+  /// No description provided for @my_recitation_collection_create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get my_recitation_collection_create;
+
+  /// No description provided for @my_recitation_collection_create_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Create collection'**
+  String get my_recitation_collection_create_button;
+
+  /// No description provided for @my_recitation_collection_change_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Change title'**
+  String get my_recitation_collection_change_title;
+
+  /// No description provided for @my_recitation_collection_change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get my_recitation_collection_change;
+
+  /// No description provided for @my_recitation_collection_add_chants.
+  ///
+  /// In en, this message translates to:
+  /// **'Add chants'**
+  String get my_recitation_collection_add_chants;
+
+  /// No description provided for @my_recitation_collection_search_chants.
+  ///
+  /// In en, this message translates to:
+  /// **'Search chants'**
+  String get my_recitation_collection_search_chants;
+
+  /// No description provided for @my_recitation_collection_add_to_collection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to collection'**
+  String get my_recitation_collection_add_to_collection;
+
+  /// No description provided for @my_recitation_collection_edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit collection'**
+  String get my_recitation_collection_edit;
+
+  /// No description provided for @my_recitation_collection_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete collection'**
+  String get my_recitation_collection_delete;
+
+  /// No description provided for @my_recitation_collection_delete_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete collection?'**
+  String get my_recitation_collection_delete_title;
+
+  /// No description provided for @my_recitation_collection_delete_message.
+  ///
+  /// In en, this message translates to:
+  /// **'This collection will be permanently removed.'**
+  String get my_recitation_collection_delete_message;
+
+  /// No description provided for @my_recitation_collection_fallback_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Chant collection'**
+  String get my_recitation_collection_fallback_title;
+
+  /// No description provided for @my_recitation_collection_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer available'**
+  String get my_recitation_collection_unavailable;
+
+  /// No description provided for @my_recitation_collection_chant_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 chants} =1{1 chant} other{{count} chants}}'**
+  String my_recitation_collection_chant_count(int count);
+
+  /// No description provided for @my_recitation_collection_chant_count_owner.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 chants • me} =1{1 chant • me} other{{count} chants • me}}'**
+  String my_recitation_collection_chant_count_owner(int count);
+
+  /// No description provided for @bookmarks_empty_chant_collections_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No chant collections bookmarked yet.'**
+  String get bookmarks_empty_chant_collections_title;
+
+  /// No description provided for @bookmarks_empty_chant_collections_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark a chant collection to save it here.'**
+  String get bookmarks_empty_chant_collections_subtitle;
+
   /// No description provided for @notification_settings.
   ///
   /// In en, this message translates to:

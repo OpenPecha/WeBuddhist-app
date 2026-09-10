@@ -451,6 +451,84 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sign in to view your saved recitations';
 
   @override
+  String get my_recitation_collection_new_title => 'New Collection';
+
+  @override
+  String get my_recitation_collection_next => 'Next';
+
+  @override
+  String get my_recitation_collection_create => 'Create';
+
+  @override
+  String get my_recitation_collection_create_button => 'Create collection';
+
+  @override
+  String get my_recitation_collection_change_title => 'Change title';
+
+  @override
+  String get my_recitation_collection_change => 'Change';
+
+  @override
+  String get my_recitation_collection_add_chants => 'Add chants';
+
+  @override
+  String get my_recitation_collection_search_chants => 'Search chants';
+
+  @override
+  String get my_recitation_collection_add_to_collection => 'Add to collection';
+
+  @override
+  String get my_recitation_collection_edit => 'Edit collection';
+
+  @override
+  String get my_recitation_collection_delete => 'Delete collection';
+
+  @override
+  String get my_recitation_collection_delete_title => 'Delete collection?';
+
+  @override
+  String get my_recitation_collection_delete_message =>
+      'This collection will be permanently removed.';
+
+  @override
+  String get my_recitation_collection_fallback_title => 'Chant collection';
+
+  @override
+  String get my_recitation_collection_unavailable => 'No longer available';
+
+  @override
+  String my_recitation_collection_chant_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chants',
+      one: '1 chant',
+      zero: '0 chants',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String my_recitation_collection_chant_count_owner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chants • me',
+      one: '1 chant • me',
+      zero: '0 chants • me',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bookmarks_empty_chant_collections_title =>
+      'No chant collections bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_chant_collections_subtitle =>
+      'Bookmark a chant collection to save it here.';
+
+  @override
   String get notification_settings => 'Notification settings';
 
   @override

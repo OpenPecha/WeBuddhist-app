@@ -185,6 +185,39 @@
   "recitations_no_content": "कोई पाठ उपलब्ध नहीं",
   "recitations_no_saved": "कोई सेव किया हुआ पाठ नहीं है",
   "recitations_login_prompt": "अपने सेव किए गए पाठ देखने के लिए साइन इन करें",
+  "my_recitation_collection_new_title": "नया संग्रह",
+  "my_recitation_collection_next": "अगला",
+  "my_recitation_collection_create": "बनाएँ",
+  "my_recitation_collection_create_button": "संग्रह बनाएँ",
+  "my_recitation_collection_change_title": "शीर्षक बदलें",
+  "my_recitation_collection_change": "बदलें",
+  "my_recitation_collection_add_chants": "पाठ जोड़ें",
+  "my_recitation_collection_search_chants": "पाठ खोजें",
+  "my_recitation_collection_add_to_collection": "संग्रह में जोड़ें",
+  "my_recitation_collection_edit": "संग्रह संपादित करें",
+  "my_recitation_collection_delete": "संग्रह हटाएँ",
+  "my_recitation_collection_delete_title": "संग्रह हटाएँ?",
+  "my_recitation_collection_delete_message": "यह संग्रह स्थायी रूप से हटा दिया जाएगा.",
+  "my_recitation_collection_fallback_title": "पाठ संग्रह",
+  "my_recitation_collection_unavailable": "अब उपलब्ध नहीं",
+  "my_recitation_collection_chant_count": "{count, plural, =0{0 पाठ} =1{1 पाठ} other{{count} पाठ}}",
+  "@my_recitation_collection_chant_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "my_recitation_collection_chant_count_owner": "{count, plural, =0{0 पाठ • मेरा} =1{1 पाठ • मेरा} other{{count} पाठ • मेरा}}",
+  "@my_recitation_collection_chant_count_owner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bookmarks_empty_chant_collections_title": "अभी तक कोई पाठ संग्रह बुकमार्क नहीं है.",
+  "bookmarks_empty_chant_collections_subtitle": "किसी पाठ संग्रह को यहाँ सेव करने के लिए बुकमार्क करें.",
   "notification_settings": "नोटिफिकेशन सेटिंग्स",
   "notification_allow_title": "नोटिफिकेशन की अनुमति दें",
   "notification_allow_subtitle_enabled": "इस app के लिए नोटिफिकेशन चालू हैं",
