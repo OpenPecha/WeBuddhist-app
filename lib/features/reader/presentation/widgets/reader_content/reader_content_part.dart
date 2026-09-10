@@ -98,10 +98,8 @@ class _ReaderContentPartState extends ConsumerState<ReaderContentPart> {
 
   /// Match the primary's plan-sized first window so translations cover the
   /// whole active range, not just the first page of it.
-  int? get _secondaryInitialSize {
-    final count = widget.visibleSegmentIds?.length ?? 0;
-    return count > ReaderConstants.pageSize ? count : null;
-  }
+  int? get _secondaryInitialSize =>
+      widget.params.navigationContext?.initialPageSize;
 
   /// True while only the active segments are shown (before "Read Full Text").
   bool get _isCollapsed => _hasActiveSegments && !_isExpanded;

@@ -9,6 +9,7 @@ import 'package:flutter_pecha/features/texts/data/models/text/reader_response.da
 import 'package:flutter_pecha/features/texts/data/models/text/toc_response.dart';
 import 'package:flutter_pecha/features/texts/data/models/text/version_response.dart';
 import 'package:flutter_pecha/features/texts/data/models/text_detail.dart';
+import 'package:flutter_pecha/features/texts/constants/text_details_constants.dart';
 import 'package:flutter_pecha/features/texts/data/models/version.dart';
 
 /// Text remote datasource.
@@ -113,9 +114,6 @@ class TextRemoteDatasource {
     return CommentaryTextResponse.fromJson(response.data);
   }
 
-  // Segments per page when the caller doesn't ask for a specific window.
-  static const int _defaultPageSize = 20;
-
   // post request to get the details of the text
   Future<ReaderResponse> fetchTextDetails({
     required String textId,
@@ -133,7 +131,7 @@ class TextRemoteDatasource {
         if (versionId != null) 'version_id': versionId,
         if (segmentId != null) 'segment_id': segmentId,
         if (language != null) 'language': language,
-        'size': size ?? _defaultPageSize,
+        'size': size ?? TextDetailsConstants.defaultPageSize,
         'direction': direction,
       },
     );

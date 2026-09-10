@@ -135,7 +135,8 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
     _logger.debug('ReaderNotifier initializing with params: $_params');
 
     final initialSegmentId = useNavParams ? _params.segmentId : null;
-    final initialSize = useNavParams ? _initialPageSize() : null;
+    final initialSize =
+        useNavParams ? _params.navigationContext?.initialPageSize : null;
 
     state = state.copyWith(
       status: ReaderStatus.loading,
@@ -223,13 +224,6 @@ class ReaderNotifier extends StateNotifier<ReaderState> {
         errorMessage: e.toString(),
       );
     }
-  }
-
-  /// Plan subtasks can span more segments than one page. Ask for the whole
-  /// range up front so the collapsed view isn't cut off at the page size.
-  int? _initialPageSize() {
-    final count = _params.navigationContext?.currentSegmentIds?.length ?? 0;
-    return count > ReaderConstants.pageSize ? count : null;
   }
 
   /// Fetch content from the repository.
