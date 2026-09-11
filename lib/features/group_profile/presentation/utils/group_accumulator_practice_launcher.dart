@@ -8,6 +8,7 @@ import 'package:flutter_pecha/features/group_profile/presentation/providers/grou
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_accumulator_session_complete_sheet.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -66,9 +67,10 @@ Future<bool> openGroupAccumulatorPractice(
   if (textId == null || textId.isEmpty) return false;
 
   final groupName = _resolveGroupName(ref, detail.groupId);
-  final sessionCount = await context.push<int>(
-    '/reader/$textId',
-    extra: NavigationContext(
+  final sessionCount = await PlanNavigator.push<int>(
+    context,
+    PlanTextItem.sourceReference(textId: textId, title: detail.title),
+    NavigationContext(
       source: NavigationSource.groupAccumulatorChant,
       groupAccumulatorId: detail.id,
       presetAccumulatorId: detail.presetAccumulatorId,

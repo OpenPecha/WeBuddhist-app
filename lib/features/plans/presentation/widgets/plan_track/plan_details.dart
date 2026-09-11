@@ -29,6 +29,8 @@ import 'package:flutter_pecha/features/plans/data/utils/series_plan_utils.dart';
 import 'package:flutter_pecha/features/plans/data/models/user/user_tasks_dto.dart';
 import 'package:flutter_pecha/features/plans/domain/subtask_navigation.dart';
 import 'package:flutter_pecha/features/plans/presentation/utils/plan_day_share.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_embedded_host.dart';
+import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_embedded_panel.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_navigation/plan_navigator.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/plans/data/models/response/user_plan_day_detail_response.dart';
@@ -74,11 +76,13 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   bool _isSharing = false;
   late String _liveLanguage;
   bool _liveAudioOnly = false;
+  final _embedded = PlanEmbeddedController();
 
   @override
   void initState() {
     super.initState();
     selectedDay = widget.selectedDay;
+    _embedded.addListener(_onEmbeddedChanged);
     _liveLanguage = GroupEventLiveUtils.initialLanguage(
       ref.read(contentLanguageProvider),
     );
@@ -100,29 +104,90 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   }
 
   @override
+  void dispose() {
+    _embedded.removeListener(_onEmbeddedChanged);
+    _embedded.dispose();
+    super.dispose();
+  }
+
+  void _onEmbeddedChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     final language = widget.plan.language;
     final localizations = context.l10n;
 
     _listenForDayCompletion();
 
-    return Scaffold(
-      appBar: _buildAppBar(context, language, localizations),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(),
-                  _buildDayCarouselSection(language),
-                  _buildDayContentSection(context, language),
-                ],
-              ),
+    return PopScope(
+      canPop: !_embedded.isOpen,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _embedded.close();
+      },
+      child: Scaffold(
+        appBar: _buildAppBar(context, language, localizations),
+        body:
+            widget.eventId != null
+                ? _buildLiveEventBody(language, localizations)
+                : _buildPlanBody(language, localizations),
+      ),
+    );
+  }
+
+  Widget _buildPlanBody(String language, AppLocalizations localizations) {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                _buildDayCarouselSection(language),
+                _buildDayContentSection(context, language),
+              ],
             ),
           ),
-          _buildStartReadingButton(context, localizations),
+        ),
+        _buildStartReadingButton(context, localizations),
+      ],
+    );
+  }
+
+  /// The stream stays pinned; a tapped task opens below it, not as a route.
+  Widget _buildLiveEventBody(
+    String language,
+    AppLocalizations localizations,
+  ) {
+    return PlanEmbeddedScope(
+      controller: _embedded,
+      child: Column(
+        children: [
+          _buildHeader(),
+          if (_embedded.isOpen)
+            Expanded(child: PlanEmbeddedPanel(controller: _embedded))
+          else ...[
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
+                    _buildDayCarouselSection(language),
+                    _buildDayContentSection(context, language),
+                  ],
+                ),
+              ),
+            ),
+            // Built below the scope so "Practice now" opens in place too.
+            Builder(
+              builder:
+                  (context) =>
+                      _buildStartReadingButton(context, localizations),
+            ),
+          ],
         ],
       ),
     );
@@ -234,7 +299,9 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       leading: IconButton(
         icon: const Icon(AppAssets.arrowLeft),
         onPressed: () {
-          if (context.canPop()) {
+          if (_embedded.isOpen) {
+            _embedded.close();
+          } else if (context.canPop()) {
             context.pop();
           } else {
             // Opened via deep link with no route beneath — go home.
@@ -742,7 +809,11 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     );
   }
 
-  void _startReading(List<UserTasksDto> tasks, {String? audioUrl}) {
+  void _startReading(
+    BuildContext context,
+    List<UserTasksDto> tasks, {
+    String? audioUrl,
+  }) {
     final accumulationTask = _nextGroupAccumulationTask(tasks);
     final accumulatorId =
         accumulationTask == null
@@ -882,7 +953,11 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                   : FilledButton(
                     onPressed:
                         hasReadableContent
-                            ? () => _startReading(tasks, audioUrl: audioUrl)
+                            ? () => _startReading(
+                              context,
+                              tasks,
+                              audioUrl: audioUrl,
+                            )
                             : null,
                     style: buttonStyle,
                     child: Text(

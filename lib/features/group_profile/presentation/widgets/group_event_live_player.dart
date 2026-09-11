@@ -85,7 +85,7 @@ class _GroupEventLiveHeaderState extends ConsumerState<GroupEventLiveHeader> {
     } else {
       child = widget.fallback;
     }
-    return Padding(padding: const EdgeInsets.only(bottom: 12), child: child);
+    return child;
   }
 
   GroupEventLiveStream? _resolve(GroupEvent event) {
