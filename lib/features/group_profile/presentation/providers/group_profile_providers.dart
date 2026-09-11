@@ -1142,10 +1142,13 @@ class GroupEventParticipantsNotifier
 final groupEventParticipantsProvider = StateNotifierProvider.autoDispose
     .family<GroupEventParticipantsNotifier, GroupEventParticipantsState, String>(
       (ref, eventId) {
-        return GroupEventParticipantsNotifier(
+        final notifier = GroupEventParticipantsNotifier(
           repository: ref.watch(groupProfileRepositoryProvider),
           eventId: eventId,
         );
+        // Load on creation so the first watch already has participants.
+        notifier.loadInitial();
+        return notifier;
       },
     );
 

@@ -1971,6 +1971,41 @@ class TolgeeAppLocalizations extends AppLocalizations {
   );
 
   @override
+  String get connect_event_enter_puja => TolgeeBridge.get(
+    localeName,
+    'connect_event_enter_puja',
+    () => _fallback.connect_event_enter_puja,
+  );
+
+  @override
+  String get connect_event_tab_accumulations => TolgeeBridge.get(
+    localeName,
+    'connect_event_tab_accumulations',
+    () => _fallback.connect_event_tab_accumulations,
+  );
+
+  @override
+  String get connect_event_tab_recitations => TolgeeBridge.get(
+    localeName,
+    'connect_event_tab_recitations',
+    () => _fallback.connect_event_tab_recitations,
+  );
+
+  @override
+  String get connect_event_add_recitations => TolgeeBridge.get(
+    localeName,
+    'connect_event_add_recitations',
+    () => _fallback.connect_event_add_recitations,
+  );
+
+  @override
+  String get connect_event_add_recitations_message => TolgeeBridge.get(
+    localeName,
+    'connect_event_add_recitations_message',
+    () => _fallback.connect_event_add_recitations_message,
+  );
+
+  @override
   String get connect_event_every_day => TolgeeBridge.get(
     localeName,
     'connect_event_every_day',

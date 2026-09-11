@@ -209,12 +209,16 @@ class GroupEventModel {
   final bool isJoined;
   final List<GroupEventLinkModel> links;
   final String? planId;
+  final String? seriesId;
   final String? accumulatorId;
+  final String? groupAccumulatorId;
   final String? mantraId;
   final String? timerId;
   final String? groupRecitationCollectionId;
   final GroupEventPracticeRefModel? plan;
+  final GroupEventPracticeRefModel? series;
   final GroupEventPracticeRefModel? accumulator;
+  final GroupEventPracticeRefModel? groupAccumulator;
   final GroupEventPracticeRefModel? groupRecitationCollection;
   final String? groupName;
   final String? groupAvatarUrl;
@@ -238,12 +242,16 @@ class GroupEventModel {
     this.isJoined = false,
     this.links = const [],
     this.planId,
+    this.seriesId,
     this.accumulatorId,
+    this.groupAccumulatorId,
     this.mantraId,
     this.timerId,
     this.groupRecitationCollectionId,
     this.plan,
+    this.series,
     this.accumulator,
+    this.groupAccumulator,
     this.groupRecitationCollection,
     this.groupName,
     this.groupAvatarUrl,
@@ -284,13 +292,17 @@ class GroupEventModel {
               .toList() ??
           const [],
       planId: json['plan_id'] as String?,
+      seriesId: json['series_id'] as String?,
       accumulatorId: json['accumulator_id'] as String?,
+      groupAccumulatorId: json['group_accumulator_id'] as String?,
       mantraId: json['mantra_id'] as String?,
       timerId: json['timer_id'] as String?,
       groupRecitationCollectionId:
           json['group_recitation_collection_id'] as String?,
       plan: _parsePracticeRef(json['plan']),
+      series: _parsePracticeRef(json['series']),
       accumulator: _parsePracticeRef(json['accumulator']),
+      groupAccumulator: _parsePracticeRef(json['group_accumulator']),
       groupRecitationCollection: _parsePracticeRef(
         json['group_recitation_collection'],
       ),
@@ -324,12 +336,16 @@ class GroupEventModel {
       isJoined: isJoined,
       links: links.map((link) => link.toEntity()).toList(),
       planId: planId,
+      seriesId: seriesId,
       accumulatorId: accumulatorId,
+      groupAccumulatorId: groupAccumulatorId,
       mantraId: mantraId,
       timerId: timerId,
       groupRecitationCollectionId: groupRecitationCollectionId,
       plan: plan?.toEntity(),
+      series: series?.toEntity(),
       accumulator: accumulator?.toEntity(),
+      groupAccumulator: groupAccumulator?.toEntity(),
       groupRecitationCollection: groupRecitationCollection?.toEntity(),
       groupName: groupName,
       groupAvatarUrl: groupAvatarUrl,

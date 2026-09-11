@@ -1011,6 +1011,22 @@ class AppLocalizationsBo extends AppLocalizations {
   String get connect_event_practices => 'Event practices';
 
   @override
+  String get connect_event_enter_puja => 'Enter puja';
+
+  @override
+  String get connect_event_tab_accumulations => 'Accumulations';
+
+  @override
+  String get connect_event_tab_recitations => 'Recitations';
+
+  @override
+  String get connect_event_add_recitations => 'Add recitations';
+
+  @override
+  String get connect_event_add_recitations_message =>
+      'Add the number of recitations you did with the livestream or outside this app.';
+
+  @override
   String get connect_event_every_day => 'Every day';
 
   @override

@@ -1882,6 +1882,36 @@ abstract class AppLocalizations {
   /// **'Event practices'**
   String get connect_event_practices;
 
+  /// No description provided for @connect_event_enter_puja.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter puja'**
+  String get connect_event_enter_puja;
+
+  /// No description provided for @connect_event_tab_accumulations.
+  ///
+  /// In en, this message translates to:
+  /// **'Accumulations'**
+  String get connect_event_tab_accumulations;
+
+  /// No description provided for @connect_event_tab_recitations.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitations'**
+  String get connect_event_tab_recitations;
+
+  /// No description provided for @connect_event_add_recitations.
+  ///
+  /// In en, this message translates to:
+  /// **'Add recitations'**
+  String get connect_event_add_recitations;
+
+  /// No description provided for @connect_event_add_recitations_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the number of recitations you did with the livestream or outside this app.'**
+  String get connect_event_add_recitations_message;
+
   /// No description provided for @connect_event_every_day.
   ///
   /// In en, this message translates to:
