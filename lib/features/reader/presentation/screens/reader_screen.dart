@@ -41,6 +41,7 @@ import 'package:flutter_pecha/features/reader/presentation/widgets/reader_gestur
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_search/reader_search_delegate.dart';
 import 'package:flutter_pecha/features/reader/presentation/widgets/reader_settings/reader_settings_screen.dart';
 import 'package:flutter_pecha/core/extensions/context_ext.dart';
+import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/utils/get_language.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
@@ -614,6 +615,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             onPressed: () => showFontSizeBottomSheet(context),
           ),
           ReaderTranslateButton(params: _params),
+          IconButton(
+            icon: const Icon(AppAssets.readerVersionSettings),
+            tooltip: context.l10n.parallel_version,
+            onPressed: () => _openReaderSettings(context, textDetail),
+          ),
         ],
       );
     }
@@ -756,6 +762,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       versionLabel: textDetail?.title,
     );
 
+    if (_isEmbedded) {
+      await showReaderSettingsSheet(
+        context,
+        textId: widget.textId,
+        initialPrimaryDisplay: initialPrimaryDisplay,
+      );
+      return;
+    }
     await openReaderSettings(
       context,
       textId: widget.textId,
