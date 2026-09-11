@@ -48,7 +48,7 @@ import 'missed_days_badge.dart';
 
 final _logger = AppLogger('PlanDetails');
 
-enum _LiveStatus { loading, live, none }
+enum _LiveStatus { loading, live, none, failed }
 
 class PlanDetails extends ConsumerStatefulWidget {
   const PlanDetails({
@@ -134,40 +134,57 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       },
       child: Scaffold(
         appBar: _buildAppBar(context, language, localizations, live: live),
-        body:
-            live == _LiveStatus.none
-                ? _buildPlanBody(language, localizations)
-                : _buildLiveEventBody(language, localizations),
+        body: switch (live) {
+          _LiveStatus.none => _buildPlanBody(language, localizations),
+          _LiveStatus.failed => _buildPlanBody(
+            language,
+            localizations,
+            retryLive: _retryLiveEvent,
+          ),
+          _LiveStatus.loading ||
+          _LiveStatus.live => _buildLiveEventBody(language, localizations),
+        },
       ),
     );
   }
 
+  GroupEventLanguageKey get _liveKey => (
+    eventId: widget.eventId!,
+    language: _liveLanguage,
+  );
+
   /// Sticky once a stream was seen, so a language without one keeps the
-  /// toggles reachable.
+  /// toggles reachable. A failed request is `failed`, never `none`, so a
+  /// network blip cannot hide an active stream.
   _LiveStatus _liveStatus() {
-    final eventId = widget.eventId;
-    if (eventId == null) return _LiveStatus.none;
-    final either =
-        ref
-            .watch(
-              groupEventInLanguageProvider((
-                eventId: eventId,
-                language: _liveLanguage,
-              )),
-            )
-            .valueOrNull;
+    if (widget.eventId == null) return _LiveStatus.none;
+    final eventAsync = ref.watch(groupEventInLanguageProvider(_liveKey));
+    final either = eventAsync.valueOrNull;
     if (either == null) {
-      return _liveStreamSeen ? _LiveStatus.live : _LiveStatus.loading;
+      if (_liveStreamSeen) return _LiveStatus.live;
+      return eventAsync.hasError ? _LiveStatus.failed : _LiveStatus.loading;
     }
-    final hasStream = either.fold(
-      (_) => false,
-      (event) => GroupEventLiveUtils.videoIdOf(event) != null,
+    final status = either.fold(
+      (failure) =>
+          failure is NotFoundFailure ? _LiveStatus.none : _LiveStatus.failed,
+      (event) =>
+          GroupEventLiveUtils.videoIdOf(event) != null
+              ? _LiveStatus.live
+              : _LiveStatus.none,
     );
-    if (hasStream) _liveStreamSeen = true;
-    return _liveStreamSeen ? _LiveStatus.live : _LiveStatus.none;
+    if (status == _LiveStatus.live) _liveStreamSeen = true;
+    return _liveStreamSeen ? _LiveStatus.live : status;
   }
 
-  Widget _buildPlanBody(String language, AppLocalizations localizations) {
+  void _retryLiveEvent() {
+    ref.invalidate(groupEventInLanguageProvider(_liveKey));
+  }
+
+  Widget _buildPlanBody(
+    String language,
+    AppLocalizations localizations, {
+    VoidCallback? retryLive,
+  }) {
     return Column(
       children: [
         Expanded(
@@ -176,6 +193,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
+                if (retryLive != null) _buildLiveEventError(retryLive),
                 // The edge-to-edge event cover has no margin of its own.
                 if (widget.eventId != null) const SizedBox(height: 12),
                 _buildDayCarouselSection(language),
@@ -352,7 +370,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           ),
         ),
         _LiveStatus.live => null,
-        _LiveStatus.none => Text(
+        _LiveStatus.none || _LiveStatus.failed => Text(
           widget.plan.title,
           style: TextStyle(fontSize: 20),
         ),
@@ -571,6 +589,24 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
             loading: () => const DayContentSkeleton(),
             error: (error, stackTrace) => _buildDayContentError(),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLiveEventError(VoidCallback onRetry) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              context.l10n.something_went_wrong,
+              style: TextStyle(color: Colors.red[600]),
+            ),
+          ),
+          const SizedBox(width: 12),
+          TextButton(onPressed: onRetry, child: Text(context.l10n.retry)),
         ],
       ),
     );
