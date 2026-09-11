@@ -13,6 +13,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/utils/group_accumulator_practice_launcher.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
@@ -396,6 +397,8 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
                     dayAudioUrl: dayContent.audioUrl,
                     onActivityToggled:
                         (taskId) => _handleTaskToggle(taskId, dayContent.tasks),
+                    onGroupAccumulationPracticed:
+                        (taskId) => _completeTask(taskId, dayContent.tasks),
                     onReaderClosed: _onReaderClosed,
                   );
                 },
@@ -474,6 +477,15 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           ),
       ],
     );
+  }
+
+  // Marks a task complete after a group accumulation session, never unticks.
+  Future<void> _completeTask(String taskId, List<UserTasksDto> tasks) async {
+    final task = tasks.where((t) => t.id == taskId).firstOrNull;
+    if (task == null) return;
+    final isCompleted = _optimisticCompletions[taskId] ?? task.isCompleted;
+    if (isCompleted) return;
+    await _handleTaskToggle(taskId, tasks);
   }
 
   Future<void> _handleTaskToggle(
@@ -678,6 +690,25 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   }
 
   void _startReading(List<UserTasksDto> tasks, {String? audioUrl}) {
+    final accumulationTask = _nextGroupAccumulationTask(tasks);
+    final accumulatorId =
+        accumulationTask == null
+            ? null
+            : PlanSubtaskNavigation.groupAccumulationIdForUserTask(
+              accumulationTask,
+            );
+    if (accumulationTask != null && accumulatorId != null) {
+      openGroupAccumulatorPractice(
+        context,
+        ref,
+        accumulatorId: accumulatorId,
+      ).then((practiced) {
+        if (practiced) _completeTask(accumulationTask.id, tasks);
+        _onReaderClosed();
+      });
+      return;
+    }
+
     final planTextItems = PlanSubtaskNavigation.fromUserTasks(tasks);
     if (planTextItems.isEmpty) return;
 
@@ -701,6 +732,22 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
       target,
       navigationContext,
     ).then((_) => _onReaderClosed());
+  }
+
+  // The next open task when it is a group accumulation, else null.
+  UserTasksDto? _nextGroupAccumulationTask(List<UserTasksDto> tasks) {
+    final sorted = List<UserTasksDto>.from(tasks)
+      ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
+    final navigable = sorted.where(PlanSubtaskNavigation.isUserTaskNavigable);
+    if (navigable.isEmpty) return null;
+    final next = navigable.firstWhere(
+      (t) => !t.isCompleted,
+      orElse: () => navigable.first,
+    );
+    if (PlanSubtaskNavigation.groupAccumulationIdForUserTask(next) == null) {
+      return null;
+    }
+    return next;
   }
 
   Widget _buildStartReadingButton(

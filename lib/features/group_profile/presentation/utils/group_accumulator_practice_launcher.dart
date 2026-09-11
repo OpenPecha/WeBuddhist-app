@@ -1,0 +1,134 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
+import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_accumulator.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_accumulator_providers.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_accumulator_session_complete_sheet.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
+import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
+import 'package:flutter_pecha/features/reader/data/models/navigation_context.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+/// Opens a group accumulation practice directly (reader or mala), joining
+/// first when needed. Returns true when the user recited at least once.
+Future<bool> openGroupAccumulatorPractice(
+  BuildContext context,
+  WidgetRef ref, {
+  required String accumulatorId,
+}) async {
+  final authState = ref.read(authProvider);
+  if (authState.isGuest || !authState.isLoggedIn) {
+    LoginDrawer.show(context, ref);
+    return false;
+  }
+
+  var detail = await _loadDetail(ref, accumulatorId);
+  if (detail == null || !context.mounted) return false;
+
+  if (!detail.hasJoined) {
+    final joined = await joinGroupAccumulator(
+      ref: ref,
+      accumulatorId: detail.id,
+      groupId: detail.groupId,
+    );
+    if (!context.mounted) return false;
+    if (joined) detail = await _loadDetail(ref, accumulatorId) ?? detail;
+    if (!context.mounted) return false;
+  }
+
+  final countBefore = detail.user?.totalCount ?? 0;
+
+  if (!detail.hasTextContent) {
+    final presetId = detail.presetAccumulatorId;
+    if (presetId.isEmpty) return false;
+    await context.push(
+      '/mala',
+      extra: {'presetId': presetId, 'groupAccumulatorId': detail.id},
+    );
+    if (!context.mounted) return false;
+    await _refreshAfterPractice(ref, detail);
+    return await _countIncreased(ref, accumulatorId, countBefore);
+  }
+
+  final textId = detail.textId;
+  if (textId == null || textId.isEmpty) return false;
+
+  final groupName = _resolveGroupName(ref, detail.groupId);
+  final sessionCount = await context.push<int>(
+    '/reader/$textId',
+    extra: NavigationContext(
+      source: NavigationSource.groupAccumulatorChant,
+      groupAccumulatorId: detail.id,
+      presetAccumulatorId: detail.presetAccumulatorId,
+      groupId: detail.groupId,
+      groupTitle: groupName,
+      groupAccumulatorSessionCount: detail.user?.totalCount ?? 0,
+    ),
+  );
+  if (!context.mounted) return false;
+
+  await _refreshAfterPractice(ref, detail);
+  final practiced =
+      (sessionCount ?? 0) > 0 ||
+      await _countIncreased(ref, accumulatorId, countBefore);
+  if (sessionCount == null || !context.mounted) return practiced;
+
+  showGroupAccumulatorSessionCompleteSheet(
+    context,
+    sessionCount: sessionCount,
+    accumulationTitle: detail.title,
+    accumulatorId: detail.id,
+    groupId: detail.groupId,
+    groupName: groupName,
+  );
+  return practiced;
+}
+
+Future<bool> _countIncreased(
+  WidgetRef ref,
+  String accumulatorId,
+  int countBefore,
+) async {
+  final detail = await _loadDetail(ref, accumulatorId);
+  return (detail?.user?.totalCount ?? 0) > countBefore;
+}
+
+Future<GroupAccumulatorDetail?> _loadDetail(
+  WidgetRef ref,
+  String accumulatorId,
+) async {
+  try {
+    final either = await ref.read(
+      groupAccumulatorDetailProvider(accumulatorId).future,
+    );
+    return either.fold((_) => null, (detail) => detail);
+  } catch (_) {
+    return null;
+  }
+}
+
+Future<void> _refreshAfterPractice(
+  WidgetRef ref,
+  GroupAccumulatorDetail detail,
+) async {
+  try {
+    await ref.read(malaSyncManagerProvider).flush(SyncReason.screenLeave);
+  } catch (_) {}
+  refreshGroupAccumulatorData(
+    ref,
+    accumulatorId: detail.id,
+    groupId: detail.groupId,
+  );
+}
+
+String? _resolveGroupName(WidgetRef ref, String groupId) {
+  final title = ref
+      .read(groupProfileProvider(groupId))
+      .whenOrNull(
+        data: (either) => either.fold((_) => null, (profile) => profile.title),
+      );
+  final trimmed = title?.trim();
+  return (trimmed == null || trimmed.isEmpty) ? null : trimmed;
+}
