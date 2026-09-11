@@ -398,49 +398,61 @@ class _CreateEditCollectionScreenState
     // against those confirmed values keeps every PATCH unique; values guessed
     // while dragging could collide with orders the server assigned on add.
     final orderedTextIds = _chants.map((c) => c.textId).toList();
-    final canPlanOrder = orderedTextIds.every(
-      (textId) =>
-          _displayOrdersByTextId.containsKey(textId) &&
-          (_itemIdsByTextId[textId]?.isNotEmpty ?? false),
-    );
-    if (!canPlanOrder) {
-      // Only when the add response omitted a chant; it stays where it landed.
-      _logger.warning(
-        'Skipping chant reorder: a chant has no server item id or order',
-      );
-    } else {
-      final orderedSet = orderedTextIds.toSet();
-      final updates = planDisplayOrderUpdates(
-        orderedKeys: orderedTextIds,
-        currentOrders: {
-          for (final textId in orderedTextIds)
-            textId: _displayOrdersByTextId[textId]!,
-        },
-        reservedOrders: [
-          for (final entry in _displayOrdersByTextId.entries)
-            if (!orderedSet.contains(entry.key)) entry.value,
-        ],
-      );
-      for (final update in updates.entries) {
-        final reorderResult = await repository.updateCollectionItemDisplayOrder(
-          collectionId: collection.id,
-          itemId: _itemIdsByTextId[update.key]!,
-          displayOrder: update.value,
+    if (!_hasServerOrderFor(orderedTextIds)) {
+      // Save lost track of a chant's item id or order (e.g. the add response
+      // omitted it). Reload the collection and plan from its rows; closing as
+      // if the save succeeded would silently drop the arranged order.
+      final detailResult = await repository.getCollectionDetail(collection.id);
+      if (!mounted) return;
+      final detailFailure = _failureOf(detailResult);
+      if (detailFailure != null) {
+        _showSubmitFailure(
+          'Failed to reload collection to reorder',
+          detailFailure,
         );
-        if (!mounted) return;
-        final reorderFailure = _failureOf(reorderResult);
-        if (reorderFailure != null) {
-          _showSubmitFailure(
-            'Failed to reorder chant ${update.key}',
-            reorderFailure,
-          );
-          return;
-        }
-        _displayOrdersByTextId[update.key] = reorderResult.fold(
-          (_) => update.value,
-          (item) => item.displayOrder,
-        );
+        return;
       }
+      detailResult.fold((_) {}, _adoptServerItems);
+      if (!_hasServerOrderFor(orderedTextIds)) {
+        _showSubmitFailure(
+          'Failed to reorder chants',
+          const ServerFailure('A chant has no server item id or display_order'),
+        );
+        return;
+      }
+    }
+
+    final orderedSet = orderedTextIds.toSet();
+    final updates = planDisplayOrderUpdates(
+      orderedKeys: orderedTextIds,
+      currentOrders: {
+        for (final textId in orderedTextIds)
+          textId: _displayOrdersByTextId[textId]!,
+      },
+      reservedOrders: [
+        for (final entry in _displayOrdersByTextId.entries)
+          if (!orderedSet.contains(entry.key)) entry.value,
+      ],
+    );
+    for (final update in updates.entries) {
+      final reorderResult = await repository.updateCollectionItemDisplayOrder(
+        collectionId: collection.id,
+        itemId: _itemIdsByTextId[update.key]!,
+        displayOrder: update.value,
+      );
+      if (!mounted) return;
+      final reorderFailure = _failureOf(reorderResult);
+      if (reorderFailure != null) {
+        _showSubmitFailure(
+          'Failed to reorder chant ${update.key}',
+          reorderFailure,
+        );
+        return;
+      }
+      _displayOrdersByTextId[update.key] = reorderResult.fold(
+        (_) => update.value,
+        (item) => item.displayOrder,
+      );
     }
 
     final languageCode = ref.read(practiceRecitationsLanguageProvider);
@@ -449,6 +461,34 @@ class _CreateEditCollectionScreenState
 
     if (!mounted) return;
     Navigator.of(context).pop(true);
+  }
+
+  /// Whether Save knows the server item id and `display_order` of every chant
+  /// in [textIds]; planning and sending the reorder needs both.
+  bool _hasServerOrderFor(List<String> textIds) => textIds.every(
+    (textId) =>
+        _displayOrdersByTextId.containsKey(textId) &&
+        (_itemIdsByTextId[textId]?.isNotEmpty ?? false),
+  );
+
+  /// Replaces what Save knows about the server with [detail]'s rows, so the
+  /// order is planned against them. A chant absent from the server also drops
+  /// out of [_originalTextIds], so the next Save adds it again rather than
+  /// assuming it landed.
+  void _adoptServerItems(MyRecitationCollectionDetailModel detail) {
+    final items = detail.items.where((item) => item.textId.isNotEmpty);
+    _originalTextIds
+      ..clear()
+      ..addAll(items.map((item) => item.textId));
+    _itemIdsByTextId
+      ..clear()
+      ..addAll({
+        for (final item in items)
+          if (item.id.isNotEmpty) item.textId: item.id,
+      });
+    _displayOrdersByTextId
+      ..clear()
+      ..addAll({for (final item in items) item.textId: item.displayOrder});
   }
 
   static Failure? _failureOf<T>(Either<Failure, T> result) =>
