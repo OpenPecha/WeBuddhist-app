@@ -13,6 +13,7 @@ import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/utils/group_accumulator_practice_launcher.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/utils/group_event_live_utils.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_event_live_player.dart';
@@ -38,6 +39,7 @@ import 'package:flutter_pecha/features/reader/data/models/navigation_context.dar
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../day_completion_bottom_sheet.dart';
 import '../plan_cover_image.dart';
 import '../day_carousel.dart';
@@ -45,6 +47,8 @@ import 'activity_list.dart';
 import 'missed_days_badge.dart';
 
 final _logger = AppLogger('PlanDetails');
+
+enum _LiveStatus { loading, live, none }
 
 class PlanDetails extends ConsumerStatefulWidget {
   const PlanDetails({
@@ -76,6 +80,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   bool _isSharing = false;
   late String _liveLanguage;
   bool _liveAudioOnly = false;
+  bool _liveStreamSeen = false;
   final _embedded = PlanEmbeddedController();
 
   @override
@@ -120,6 +125,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     final localizations = context.l10n;
 
     _listenForDayCompletion();
+    final live = _liveStatus();
 
     return PopScope(
       canPop: !_embedded.isOpen,
@@ -127,13 +133,38 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
         if (!didPop) _embedded.close();
       },
       child: Scaffold(
-        appBar: _buildAppBar(context, language, localizations),
+        appBar: _buildAppBar(context, language, localizations, live: live),
         body:
-            widget.eventId != null
-                ? _buildLiveEventBody(language, localizations)
-                : _buildPlanBody(language, localizations),
+            live == _LiveStatus.none
+                ? _buildPlanBody(language, localizations)
+                : _buildLiveEventBody(language, localizations),
       ),
     );
+  }
+
+  /// Sticky once a stream was seen, so a language without one keeps the
+  /// toggles reachable.
+  _LiveStatus _liveStatus() {
+    final eventId = widget.eventId;
+    if (eventId == null) return _LiveStatus.none;
+    final either =
+        ref
+            .watch(
+              groupEventInLanguageProvider((
+                eventId: eventId,
+                language: _liveLanguage,
+              )),
+            )
+            .valueOrNull;
+    if (either == null) {
+      return _liveStreamSeen ? _LiveStatus.live : _LiveStatus.loading;
+    }
+    final hasStream = either.fold(
+      (_) => false,
+      (event) => GroupEventLiveUtils.videoIdOf(event) != null,
+    );
+    if (hasStream) _liveStreamSeen = true;
+    return _liveStreamSeen ? _LiveStatus.live : _LiveStatus.none;
   }
 
   Widget _buildPlanBody(String language, AppLocalizations localizations) {
@@ -145,6 +176,8 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
+                // The edge-to-edge event cover has no margin of its own.
+                if (widget.eventId != null) const SizedBox(height: 12),
                 _buildDayCarouselSection(language),
                 _buildDayContentSection(context, language),
               ],
@@ -292,9 +325,10 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   AppBar _buildAppBar(
     BuildContext context,
     String language,
-    AppLocalizations localizations,
-  ) {
-    final isLiveEvent = widget.eventId != null;
+    AppLocalizations localizations, {
+    required _LiveStatus live,
+  }) {
+    final isLiveEvent = live == _LiveStatus.live;
     return AppBar(
       leading: IconButton(
         icon: const Icon(AppAssets.arrowLeft),
@@ -309,10 +343,20 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           }
         },
       ),
-      title:
-          isLiveEvent
-              ? null
-              : Text(widget.plan.title, style: TextStyle(fontSize: 20)),
+      title: switch (live) {
+        _LiveStatus.loading => Skeletonizer(
+          child: Bone(
+            width: 180,
+            height: 20,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        _LiveStatus.live => null,
+        _LiveStatus.none => Text(
+          widget.plan.title,
+          style: TextStyle(fontSize: 20),
+        ),
+      },
       actions:
           isLiveEvent
               ? [

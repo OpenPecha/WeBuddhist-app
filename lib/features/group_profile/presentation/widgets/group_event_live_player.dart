@@ -89,14 +89,12 @@ class _GroupEventLiveHeaderState extends ConsumerState<GroupEventLiveHeader> {
   }
 
   GroupEventLiveStream? _resolve(GroupEvent event) {
-    final link = event.liveYoutubeLink;
-    if (link == null) return null;
-    final videoId = YoutubePlayer.convertUrlToId(link.url.trim());
+    final videoId = GroupEventLiveUtils.videoIdOf(event);
     if (videoId == null) return null;
     final title = event.title.trim();
     return GroupEventLiveStream(
       videoId: videoId,
-      isLive: GroupEventLiveUtils.isLiveLabel(link.label),
+      isLive: GroupEventLiveUtils.isLiveLabel(event.liveYoutubeLink?.label),
       subtitle: title.isNotEmpty ? title : widget.fallbackTitle,
     );
   }

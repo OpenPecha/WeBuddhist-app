@@ -1,4 +1,6 @@
 import 'package:flutter_pecha/core/constants/app_config.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_event.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 abstract final class GroupEventLiveUtils {
   /// Languages the live stream can be requested in, in toggle order.
@@ -22,4 +24,11 @@ abstract final class GroupEventLiveUtils {
 
   static bool isLiveLabel(String? label) =>
       label?.toLowerCase().contains('live') ?? false;
+
+  /// YouTube id of the event's stream, or null when it has none.
+  static String? videoIdOf(GroupEvent event) {
+    final link = event.liveYoutubeLink;
+    if (link == null) return null;
+    return YoutubePlayer.convertUrlToId(link.url.trim());
+  }
 }

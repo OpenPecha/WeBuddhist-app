@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pecha/core/analytics/analytics_service.dart';
 import 'package:flutter_pecha/core/analytics/analytics_providers.dart';
@@ -5,8 +7,10 @@ import 'package:flutter_pecha/core/constants/app_assets.dart';
 import 'package:flutter_pecha/core/error/failures.dart';
 import 'package:flutter_pecha/core/l10n/generated/app_localizations.dart';
 import 'package:flutter_pecha/core/utils/local_storage_service.dart';
+import 'package:flutter_pecha/features/group_profile/domain/entities/group_event.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/providers/group_profile_providers.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_event_live_player.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_event_live_toggles.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
 import 'package:flutter_pecha/features/plans/data/models/plan_days_model.dart';
@@ -105,7 +109,10 @@ UserPlanDayDetailResponse _makeDay() => UserPlanDayDetailResponse(
   isCompleted: false,
 );
 
-Future<void> _pumpLiveEventDetails(WidgetTester tester) async {
+Future<void> _pumpLiveEventDetails(
+  WidgetTester tester, {
+  bool streamKnownAbsent = false,
+}) async {
   // Phone portrait: the pinned 16:9 stream must leave room for the list.
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1.0;
@@ -117,8 +124,12 @@ Future<void> _pumpLiveEventDetails(WidgetTester tester) async {
       overrides: [
         analyticsServiceProvider.overrideWithValue(_FakeAnalyticsService()),
         localStorageServiceProvider.overrideWithValue(_FakeStorage()),
+        // Still loading counts as live; a failure means no stream.
         groupEventInLanguageProvider.overrideWith(
-          (ref, key) async => const Left(NetworkFailure('test')),
+          (ref, key) =>
+              streamKnownAbsent
+                  ? Future.value(const Left(NetworkFailure('test')))
+                  : Completer<Either<Failure, GroupEvent>>().future,
         ),
         userPlanDayContentFutureProvider.overrideWith(
           (ref, params) => Stream.value(Right(day)),
@@ -157,6 +168,10 @@ Future<void> _pumpLiveEventDetails(WidgetTester tester) async {
 Finder _body() =>
     find.textContaining('swift protector', findRichText: true);
 
+// The pending stream shimmers forever, so settle for a fixed time instead.
+Future<void> _settle(WidgetTester tester) =>
+    tester.pump(const Duration(milliseconds: 400));
+
 void main() {
   testWidgets('a tapped task opens below the stream and X restores the list', (
     tester,
@@ -164,12 +179,15 @@ void main() {
     await _pumpLiveEventDetails(tester);
 
     expect(find.byType(GroupEventLiveHeader), findsOneWidget);
+    // Stream still loading: neither the title nor the toggles yet.
+    expect(find.byType(GroupEventMediaToggle), findsNothing);
+    expect(find.text('Green Tara'), findsNothing);
     expect(find.text('Tara of the day'), findsOneWidget);
     expect(find.text('Practice now'), findsOneWidget);
     expect(find.byType(PlanEmbeddedHeader), findsNothing);
 
     await tester.tap(find.text('Tara of the day'));
-    await tester.pumpAndSettle();
+    await _settle(tester);
 
     // Same page: the stream header is still there, the list is replaced.
     expect(find.byType(GroupEventLiveHeader), findsOneWidget);
@@ -179,7 +197,7 @@ void main() {
     expect(find.byType(PlanDetails), findsOneWidget);
 
     await tester.tap(find.byIcon(AppAssets.x));
-    await tester.pumpAndSettle();
+    await _settle(tester);
 
     expect(find.byType(PlanEmbeddedHeader), findsNothing);
     expect(_body(), findsNothing);
@@ -190,17 +208,29 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
+  testWidgets('without a stream the page shows the plain plan layout', (
+    tester,
+  ) async {
+    await _pumpLiveEventDetails(tester, streamKnownAbsent: true);
+
+    expect(find.text('Green Tara'), findsOneWidget);
+    expect(find.byType(GroupEventMediaToggle), findsNothing);
+    expect(find.byType(GroupEventLanguageToggle), findsNothing);
+    expect(find.byType(PlanEmbeddedHeader), findsNothing);
+    expect(find.text('Tara of the day'), findsOneWidget);
+  });
+
   testWidgets('the page back arrow closes an open task before leaving', (
     tester,
   ) async {
     await _pumpLiveEventDetails(tester);
 
     await tester.tap(find.text('Practice now'));
-    await tester.pumpAndSettle();
+    await _settle(tester);
     expect(_body(), findsOneWidget);
 
     await tester.tap(find.byIcon(AppAssets.arrowLeft));
-    await tester.pumpAndSettle();
+    await _settle(tester);
 
     expect(_body(), findsNothing);
     expect(find.byType(PlanDetails), findsOneWidget);
