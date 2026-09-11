@@ -15,9 +15,11 @@ import 'package:flutter_pecha/features/practice/presentation/providers/practice_
 import 'package:flutter_pecha/features/practice/presentation/screens/add_chants_to_collection_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/collection_name_dialog.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart' show Either;
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Placeholder mustard accent used for the empty cover tile in the designs.
 const Color _kCoverPlaceholder = Color(0xFFC9A84C);
@@ -70,6 +72,10 @@ class _CreateEditCollectionScreenState
   /// Collection-item ids keyed by `text_id` for chants already on the server.
   late final Map<String, String> _itemIdsByTextId;
   File? _localCoverFile;
+
+  /// Upright copy written by [_normalizeCoverOrientation], if one was made.
+  /// Deleted once nothing previews it; the picker's own file is never deleted.
+  File? _normalizedCoverTemp;
   String? _uploadedImageKey;
   String? _coverPreviewUrl;
 
@@ -132,6 +138,26 @@ class _CreateEditCollectionScreenState
     }
   }
 
+  @override
+  void dispose() {
+    _deleteNormalizedCoverTemp();
+    super.dispose();
+  }
+
+  void _deleteNormalizedCoverTemp() {
+    final temp = _normalizedCoverTemp;
+    _normalizedCoverTemp = null;
+    if (temp != null) _deleteTempFile(temp);
+  }
+
+  /// Best-effort: a failed delete only leaves the file for the OS to clear.
+  void _deleteTempFile(File file) {
+    file.delete().catchError((Object e) {
+      _logger.warning('Failed to delete normalized cover temp file: $e');
+      return file;
+    });
+  }
+
   Future<void> _pickImage() async {
     if (_isUploadingImage || _isSubmitting || _isMetadataLocked) return;
     if (!_ensureSignedIn()) return;
@@ -145,7 +171,25 @@ class _CreateEditCollectionScreenState
     );
     if (xFile == null || !mounted) return;
 
-    final file = File(xFile.path);
+    final File file;
+    try {
+      file = await _normalizeCoverOrientation(xFile.path);
+    } catch (e, st) {
+      _logger.error('Failed to normalize cover image: $e', e, st);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.something_went_wrong),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
+
+    final previousTemp = _normalizedCoverTemp;
+    _normalizedCoverTemp = file.path != xFile.path ? file : null;
+
     setState(() {
       _localCoverFile = file;
       _isUploadingImage = true;
@@ -154,6 +198,11 @@ class _CreateEditCollectionScreenState
         _coverPreviewUrl = null;
       }
     });
+
+    // Only now is the previous upright copy no longer previewed.
+    if (previousTemp != null && previousTemp.path != file.path) {
+      _deleteTempFile(previousTemp);
+    }
 
     final result = await ref
         .read(myRecitationCollectionsRepositoryProvider)
@@ -170,6 +219,7 @@ class _CreateEditCollectionScreenState
           _uploadedImageKey = null;
           _coverPreviewUrl = _isEditing ? widget.collection?.imgUrl : null;
         });
+        _deleteNormalizedCoverTemp();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.l10n.something_went_wrong),
@@ -185,6 +235,31 @@ class _CreateEditCollectionScreenState
         });
       },
     );
+  }
+
+  /// Physically rotates picked photos according to EXIF before upload.
+  ///
+  /// Phone camera images can store landscape sensor pixels plus an EXIF
+  /// orientation tag. The collection image pipeline may later ignore that tag,
+  /// so upload upright pixels instead of relying on renderer/server behavior.
+  Future<File> _normalizeCoverOrientation(String sourcePath) async {
+    final tmpDir = await getTemporaryDirectory();
+    final destPath =
+        '${tmpDir.path}/collection_cover_normalized_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final result = await FlutterImageCompress.compressAndGetFile(
+      sourcePath,
+      destPath,
+      quality: 90,
+      autoCorrectionAngle: true,
+    );
+    if (result == null) {
+      // Upload still proceeds with the original, which may render sideways.
+      _logger.warning(
+        'Cover orientation normalization returned no file; using the original',
+      );
+      return File(sourcePath);
+    }
+    return File(result.path);
   }
 
   Future<void> _changeName() async {

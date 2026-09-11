@@ -14,7 +14,7 @@ Future<void> showNewCollectionDialog(BuildContext context) async {
 
   // Root navigator, as the dialog's own pop-then-push used, so the screen
   // covers the tab shell.
-  Navigator.of(context, rootNavigator: true).push(
+  await Navigator.of(context, rootNavigator: true).push(
     MaterialPageRoute(
       builder: (_) => CreateEditCollectionScreen(initialName: name),
     ),
