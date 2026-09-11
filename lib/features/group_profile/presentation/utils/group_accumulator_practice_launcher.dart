@@ -1,4 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_pecha/core/extensions/context_ext.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/domain/entities/group_accumulator.dart';
@@ -34,7 +35,16 @@ Future<bool> openGroupAccumulatorPractice(
       groupId: detail.groupId,
     );
     if (!context.mounted) return false;
-    if (joined) detail = await _loadDetail(ref, accumulatorId) ?? detail;
+    if (!joined) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.group_accumulator_join_error),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+    detail = await _loadDetail(ref, accumulatorId) ?? detail;
     if (!context.mounted) return false;
   }
 
