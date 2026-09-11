@@ -249,7 +249,7 @@ class _CreateEditCollectionScreenState
         ..clear()
         ..addAll(result);
       if (_isEditing) {
-        _ensureProvisionalDisplayOrders();
+        _syncPendingDisplayOrdersWithCurrentList();
       }
     });
   }
@@ -308,13 +308,70 @@ class _CreateEditCollectionScreenState
     final displayOrder = _displayOrderBetween(index);
     if (displayOrder == null) return;
 
-    _itemDisplayOrdersByTextId[trimmedTextId] = displayOrder;
-    final originalOrder = _originalDisplayOrdersByTextId[trimmedTextId];
+    _setPendingDisplayOrder(trimmedTextId, displayOrder);
+  }
+
+  void _syncPendingDisplayOrdersWithCurrentList() {
+    final currentTextIds = _chants.map((chant) => chant.textId.trim()).toSet();
+    _pendingDisplayOrdersByTextId.clear();
+    _itemDisplayOrdersByTextId
+      ..clear()
+      ..addEntries(
+        _originalDisplayOrdersByTextId.entries.where(
+          (entry) => currentTextIds.contains(entry.key),
+        ),
+      );
+    _ensureProvisionalDisplayOrders();
+
+    double? previousOrder;
+    for (var index = 0; index < _chants.length; index++) {
+      final textId = _chants[index].textId.trim();
+      if (textId.isEmpty) continue;
+
+      final currentOrder = _itemDisplayOrdersByTextId[textId];
+      if (currentOrder != null &&
+          (previousOrder == null || currentOrder > previousOrder)) {
+        previousOrder = currentOrder;
+        continue;
+      }
+
+      final displayOrder = _displayOrderAfter(previousOrder, index);
+      _setPendingDisplayOrder(textId, displayOrder);
+      previousOrder = displayOrder;
+    }
+  }
+
+  double _displayOrderAfter(double? previousOrder, int index) {
+    final nextOrder = _nextDisplayOrderAfter(index, greaterThan: previousOrder);
+    if (previousOrder == null) {
+      return nextOrder != null ? nextOrder - 1 : 1;
+    }
+    if (nextOrder != null) {
+      return (previousOrder + nextOrder) / 2;
+    }
+    return previousOrder + 1;
+  }
+
+  double? _nextDisplayOrderAfter(int index, {double? greaterThan}) {
+    for (var nextIndex = index + 1; nextIndex < _chants.length; nextIndex++) {
+      final nextOrder =
+          _itemDisplayOrdersByTextId[_chants[nextIndex].textId.trim()];
+      if (nextOrder == null) continue;
+      if (greaterThan == null || nextOrder > greaterThan) {
+        return nextOrder;
+      }
+    }
+    return null;
+  }
+
+  void _setPendingDisplayOrder(String textId, double displayOrder) {
+    _itemDisplayOrdersByTextId[textId] = displayOrder;
+    final originalOrder = _originalDisplayOrdersByTextId[textId];
     if (originalOrder != null &&
         (originalOrder - displayOrder).abs() < 0.000001) {
-      _pendingDisplayOrdersByTextId.remove(trimmedTextId);
+      _pendingDisplayOrdersByTextId.remove(textId);
     } else {
-      _pendingDisplayOrdersByTextId[trimmedTextId] = displayOrder;
+      _pendingDisplayOrdersByTextId[textId] = displayOrder;
     }
   }
 
