@@ -1007,9 +1007,6 @@ class AppLocalizationsMn extends AppLocalizations {
   String get connect_event_practices => 'Event practices';
 
   @override
-  String get connect_event_enter_puja => 'Enter puja';
-
-  @override
   String get connect_event_tab_accumulations => 'Accumulations';
 
   @override

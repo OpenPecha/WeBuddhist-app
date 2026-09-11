@@ -1882,12 +1882,6 @@ abstract class AppLocalizations {
   /// **'Event practices'**
   String get connect_event_practices;
 
-  /// No description provided for @connect_event_enter_puja.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter puja'**
-  String get connect_event_enter_puja;
-
   /// No description provided for @connect_event_tab_accumulations.
   ///
   /// In en, this message translates to:

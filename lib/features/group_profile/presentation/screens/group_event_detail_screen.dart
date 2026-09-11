@@ -281,7 +281,7 @@ class _GroupEventDetailScreenState
                   height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-                : Text(context.l10n.connect_event_enter_puja),
+                : Text(context.l10n.start_reading),
       );
       if (isPast) {
         return SizedBox(width: double.infinity, child: pujaButton);
