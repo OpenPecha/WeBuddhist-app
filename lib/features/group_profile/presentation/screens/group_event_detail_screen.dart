@@ -408,6 +408,7 @@ class _GroupEventDetailScreenState
           'selectedDay': selectedDayForStart(startDate, userPlan.totalDays),
           'startDate': startDate,
           'seriesId': seriesId,
+          'eventId': event.id,
         },
       );
     } finally {

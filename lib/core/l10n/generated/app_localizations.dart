@@ -4969,6 +4969,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This accumulation is already in your practices'**
   String get practice_group_accumulator_already_added;
+
+  /// No description provided for @event_live_badge.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get event_live_badge;
+
+  /// No description provided for @event_live_audio.
+  ///
+  /// In en, this message translates to:
+  /// **'Live audio'**
+  String get event_live_audio;
+
+  /// No description provided for @event_live_video_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get event_live_video_mode;
+
+  /// No description provided for @event_live_audio_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get event_live_audio_mode;
+
+  /// No description provided for @event_live_go_live.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get event_live_go_live;
 }
 
 class _AppLocalizationsDelegate

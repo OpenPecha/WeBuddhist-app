@@ -5,6 +5,7 @@ class GroupEventLink {
   final String type;
   final String url;
   final String? label;
+  final String? language;
   final int displayOrder;
 
   const GroupEventLink({
@@ -12,6 +13,7 @@ class GroupEventLink {
     required this.type,
     required this.url,
     this.label,
+    this.language,
     this.displayOrder = 0,
   });
 }
@@ -103,6 +105,7 @@ class GroupEvent {
   final int participantCount;
   final bool isJoined;
   final List<GroupEventLink> links;
+  final List<GroupEventLink> youtube;
   final String? planId;
   final String? seriesId;
   final String? accumulatorId;
@@ -140,6 +143,7 @@ class GroupEvent {
     this.participantCount = 0,
     this.isJoined = false,
     this.links = const [],
+    this.youtube = const [],
     this.planId,
     this.seriesId,
     this.accumulatorId,
@@ -161,6 +165,13 @@ class GroupEvent {
 
   /// A plan or a series (never both) marks the event as a puja to enter.
   bool get hasPuja => plan != null || series != null;
+
+  /// First YouTube stream by display order, or null when the event has none.
+  GroupEventLink? get liveYoutubeLink {
+    final playable = youtube.where((link) => link.url.trim().isNotEmpty);
+    if (playable.isEmpty) return null;
+    return playable.reduce((a, b) => b.displayOrder < a.displayOrder ? b : a);
+  }
 }
 
 class GroupEventParticipantsPage {

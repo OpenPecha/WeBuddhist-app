@@ -1357,5 +1357,10 @@
   "group_post_update_error": "Unable to save your changes. Please try again.",
   "group_post_updated": "Your changes are saved.",
   "practice_collection_already_added": "This collection is already in your practices",
-  "practice_group_accumulator_already_added": "This accumulation is already in your practices"
+  "practice_group_accumulator_already_added": "This accumulation is already in your practices",
+  "event_live_badge": "LIVE",
+  "event_live_audio": "Live audio",
+  "event_live_video_mode": "Video",
+  "event_live_audio_mode": "Audio",
+  "event_live_go_live": "Live"
 }

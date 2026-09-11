@@ -2816,4 +2816,19 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get practice_group_accumulator_already_added =>
       'This accumulation is already in your practices';
+
+  @override
+  String get event_live_badge => 'LIVE';
+
+  @override
+  String get event_live_audio => 'Live audio';
+
+  @override
+  String get event_live_video_mode => 'Video';
+
+  @override
+  String get event_live_audio_mode => 'Audio';
+
+  @override
+  String get event_live_go_live => 'Live';
 }

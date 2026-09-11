@@ -5494,4 +5494,39 @@ class TolgeeAppLocalizations extends AppLocalizations {
     'practice_group_accumulator_already_added',
     () => _fallback.practice_group_accumulator_already_added,
   );
+
+  @override
+  String get event_live_badge => TolgeeBridge.get(
+    localeName,
+    'event_live_badge',
+    () => _fallback.event_live_badge,
+  );
+
+  @override
+  String get event_live_audio => TolgeeBridge.get(
+    localeName,
+    'event_live_audio',
+    () => _fallback.event_live_audio,
+  );
+
+  @override
+  String get event_live_video_mode => TolgeeBridge.get(
+    localeName,
+    'event_live_video_mode',
+    () => _fallback.event_live_video_mode,
+  );
+
+  @override
+  String get event_live_audio_mode => TolgeeBridge.get(
+    localeName,
+    'event_live_audio_mode',
+    () => _fallback.event_live_audio_mode,
+  );
+
+  @override
+  String get event_live_go_live => TolgeeBridge.get(
+    localeName,
+    'event_live_go_live',
+    () => _fallback.event_live_go_live,
+  );
 }

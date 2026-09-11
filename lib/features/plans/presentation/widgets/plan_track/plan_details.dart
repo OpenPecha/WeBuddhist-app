@@ -14,6 +14,9 @@ import 'package:flutter_pecha/core/theme/font_config.dart';
 import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/core/widgets/skeletons/skeletons.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/utils/group_accumulator_practice_launcher.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/utils/group_event_live_utils.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_event_live_player.dart';
+import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_event_live_toggles.dart';
 import 'package:flutter_pecha/features/home/presentation/providers/routine_info_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plan_days_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
@@ -48,11 +51,15 @@ class PlanDetails extends ConsumerStatefulWidget {
     required this.selectedDay,
     required this.startDate,
     this.seriesId,
+    this.eventId,
   });
   final UserPlansModel plan;
   final int selectedDay;
   final DateTime startDate;
   final String? seriesId;
+
+  /// Set when opened from an event, to show its live stream above the days.
+  final String? eventId;
 
   @override
   ConsumerState<PlanDetails> createState() => _PlanDetailsState();
@@ -65,11 +72,16 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
   final Map<String, bool> _optimisticCompletions = {};
   final GlobalKey _shareButtonKey = GlobalKey();
   bool _isSharing = false;
+  late String _liveLanguage;
+  bool _liveAudioOnly = false;
 
   @override
   void initState() {
     super.initState();
     selectedDay = widget.selectedDay;
+    _liveLanguage = GroupEventLiveUtils.initialLanguage(
+      ref.read(contentLanguageProvider),
+    );
     _logger.info(
       'PlanDetails opened — id: ${widget.plan.id} | title: "${widget.plan.title}"',
     );
@@ -103,7 +115,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  PlanCoverImage(image: widget.plan.coverImage),
+                  _buildHeader(),
                   _buildDayCarouselSection(language),
                   _buildDayContentSection(context, language),
                 ],
@@ -217,6 +229,7 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
     String language,
     AppLocalizations localizations,
   ) {
+    final isLiveEvent = widget.eventId != null;
     return AppBar(
       leading: IconButton(
         icon: const Icon(AppAssets.arrowLeft),
@@ -229,8 +242,48 @@ class _PlanDetailsState extends ConsumerState<PlanDetails> {
           }
         },
       ),
-      title: Text(widget.plan.title, style: TextStyle(fontSize: 20)),
+      title:
+          isLiveEvent
+              ? null
+              : Text(widget.plan.title, style: TextStyle(fontSize: 20)),
+      actions:
+          isLiveEvent
+              ? [
+                GroupEventMediaToggle(
+                  audioOnly: _liveAudioOnly,
+                  onChanged:
+                      (audioOnly) =>
+                          setState(() => _liveAudioOnly = audioOnly),
+                ),
+                const SizedBox(width: 8),
+                GroupEventLanguageToggle(
+                  language: _liveLanguage,
+                  onChanged:
+                      (language) => setState(() => _liveLanguage = language),
+                ),
+                const SizedBox(width: 12),
+              ]
+              : null,
       elevation: 0,
+    );
+  }
+
+  Widget _buildHeader() {
+    final eventId = widget.eventId;
+    if (eventId == null) return PlanCoverImage(image: widget.plan.coverImage);
+    return GroupEventLiveHeader(
+      eventId: eventId,
+      language: _liveLanguage,
+      audioOnly: _liveAudioOnly,
+      fallbackTitle: widget.plan.title,
+      fallback: LayoutBuilder(
+        builder:
+            (context, constraints) => PlanCoverImage(
+              image: widget.plan.coverImage,
+              height: constraints.maxWidth * 9 / 16,
+              edgeToEdge: true,
+            ),
+      ),
     );
   }
 
