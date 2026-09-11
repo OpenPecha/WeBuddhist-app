@@ -32,6 +32,7 @@ import 'package:flutter_pecha/features/home/presentation/widgets/youtube_video_p
 import 'package:flutter_pecha/features/mala/presentation/providers/group_accumulation_counts_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
+import 'package:flutter_pecha/features/plans/presentation/providers/user_plans_provider.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -391,7 +392,14 @@ class _GroupEventDetailScreenState
         }
       }
 
-      final userPlan = userPlanFromCatalogPlan(plan);
+      // Prefer the enrolled plan so flexible plans keep their saved start date.
+      final enrolled =
+          ref
+              .read(myPlansPaginatedProvider)
+              .plans
+              .where((p) => p.id == plan.id)
+              .firstOrNull;
+      final userPlan = enrolled ?? userPlanFromCatalogPlan(plan);
       final startDate = userPlan.effectiveStartDate;
       context.push(
         '/practice/details',
