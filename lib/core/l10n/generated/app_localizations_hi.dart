@@ -159,6 +159,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get bookmark_texts => 'ग्रंथ';
 
   @override
+  String get bookmark_group_accumulation => 'Group accumulation';
+
+  @override
   String get mala_add_to_practice => 'मेरे अभ्यास में जोड़ें';
 
   @override
@@ -1392,6 +1395,15 @@ class AppLocalizationsHi extends AppLocalizations {
   String get routine_delete_block => 'ब्लॉक हटाएँ';
 
   @override
+  String get routine_session_title_hint => 'Title...';
+
+  @override
+  String get routine_expand_all => 'Expand all';
+
+  @override
+  String get routine_collapse_all => 'Collapse all';
+
+  @override
   String get routine_delete_time_block => 'टाइम ब्लॉक हटाएँ';
 
   @override
@@ -2086,6 +2098,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'संचय में शामिल होने में असमर्थ। कृपया पुनः प्रयास करें।';
 
   @override
+  String get group_accumulator_join_before_practice =>
+      'Join this accumulation before adding it to your practices';
+
+  @override
   String group_accumulator_participants(int count) {
     return '$count प्रतिभागी';
   }
@@ -2309,6 +2325,14 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get bookmarks_empty_malas_subtitle =>
       'इसे यहाँ सहेजने के लिए किसी माला को बुकमार्क करें।';
+
+  @override
+  String get bookmarks_empty_group_accumulations_title =>
+      'No group accumulations bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_group_accumulations_subtitle =>
+      'Bookmark a group accumulation to save it here.';
 
   @override
   String get bookmarks_empty_timers_title =>
@@ -2659,6 +2683,124 @@ class AppLocalizationsHi extends AppLocalizations {
       'वह संदेश अब उपलब्ध नहीं है, इसलिए उद्धरण हटा दिया गया। अपना संदेश भेजने के लिए फिर से भेजें।';
 
   @override
+  String get group_tab_posts => 'पोस्ट';
+
+  @override
+  String get group_tab_events => 'कार्यक्रम';
+
+  @override
+  String get group_posts_empty_title => 'अभी कोई पोस्ट नहीं';
+
+  @override
+  String get group_posts_empty_message =>
+      'अपने समुदाय के साथ अपना पहला अपडेट साझा करें।';
+
+  @override
+  String get group_posts_load_error =>
+      'पोस्ट लोड नहीं हो सकीं। कृपया फिर से प्रयास करें।';
+
+  @override
+  String get group_post_button => 'पोस्ट करें';
+
+  @override
+  String get group_post_new_title => 'नई पोस्ट';
+
+  @override
+  String get group_post_posting_to => 'यहाँ पोस्ट हो रही है:';
+
+  @override
+  String get group_post_caption_hint => 'क्या नया है?';
+
+  @override
+  String get group_post_photos => 'फ़ोटो';
+
+  @override
+  String get group_post_link => 'लिंक';
+
+  @override
+  String get group_post_discard_title => 'पोस्ट हटाएँ?';
+
+  @override
+  String get group_post_discard_message => 'आपने जो लिखा है वह खो जाएगा।';
+
+  @override
+  String get group_post_keep_editing => 'संपादन जारी रखें';
+
+  @override
+  String get group_post_discard => 'हटाएँ';
+
+  @override
+  String get group_post_add_link_title => 'लिंक जोड़ें';
+
+  @override
+  String get group_post_add_link_hint =>
+      'लिंक पेस्ट करें और हम पूर्वावलोकन दिखाएँगे।';
+
+  @override
+  String get group_post_link_field_hint => 'लिंक';
+
+  @override
+  String get group_post_attach => 'जोड़ें';
+
+  @override
+  String get group_post_attach_as_link => 'लिंक के रूप में जोड़ें';
+
+  @override
+  String get group_post_preview_failed_title => 'पूर्वावलोकन लोड नहीं हो सका';
+
+  @override
+  String get group_post_preview_failed_message =>
+      'आप इसे फिर भी लिंक के रूप में जोड़ सकते हैं।';
+
+  @override
+  String get group_post_invalid_link =>
+      'एक मान्य लिंक दर्ज करें, जैसे https://example.com';
+
+  @override
+  String group_post_photo_limit(int count) {
+    return 'आप अधिकतम $count फ़ोटो जोड़ सकते हैं।';
+  }
+
+  @override
+  String get group_post_upload_error =>
+      'फ़ोटो अपलोड नहीं हो सकीं। कृपया फिर से प्रयास करें।';
+
+  @override
+  String get group_post_publish_error =>
+      'आपकी पोस्ट प्रकाशित नहीं हो सकी। कृपया फिर से प्रयास करें।';
+
+  @override
+  String get group_post_published => 'आपकी पोस्ट प्रकाशित हो गई।';
+
+  @override
+  String get group_post_delete_title => 'पोस्ट हटाएँ?';
+
+  @override
+  String get group_post_delete_message =>
+      'यह पोस्ट स्थायी रूप से हटा दी जाएगी।';
+
+  @override
+  String get group_post_delete_failed =>
+      'पोस्ट हटाई नहीं जा सकी। कृपया फिर से प्रयास करें।';
+
+  @override
+  String get edit => 'संपादित करें';
+
+  @override
+  String get group_post_edit_title => 'पोस्ट संपादित करें';
+
+  @override
+  String get group_post_update_error =>
+      'आपके बदलाव सहेजे नहीं जा सके। कृपया फिर से प्रयास करें।';
+
+  @override
+  String get group_post_updated => 'आपके बदलाव सहेज लिए गए।';
+
+  @override
   String get practice_collection_already_added =>
       'This collection is already in your practices';
+
+  @override
+  String get practice_group_accumulator_already_added =>
+      'This accumulation is already in your practices';
 }

@@ -160,6 +160,9 @@ class AppLocalizationsMn extends AppLocalizations {
   String get bookmark_texts => 'Бичвэрүүд';
 
   @override
+  String get bookmark_group_accumulation => 'Group accumulation';
+
+  @override
   String get mala_add_to_practice => 'Миний дадлагад нэмэх';
 
   @override
@@ -1390,6 +1393,15 @@ class AppLocalizationsMn extends AppLocalizations {
   String get routine_delete_block => 'Блокыг устгах уу?';
 
   @override
+  String get routine_session_title_hint => 'Title...';
+
+  @override
+  String get routine_expand_all => 'Expand all';
+
+  @override
+  String get routine_collapse_all => 'Collapse all';
+
+  @override
   String get routine_delete_time_block => 'Цагийн блокыг устгах';
 
   @override
@@ -2088,6 +2100,10 @@ class AppLocalizationsMn extends AppLocalizations {
       'Хуримтлалд нэгдэх боломжгүй байна. Дахин оролдоно уу.';
 
   @override
+  String get group_accumulator_join_before_practice =>
+      'Join this accumulation before adding it to your practices';
+
+  @override
   String group_accumulator_participants(int count) {
     return '$count оролцогч';
   }
@@ -2312,6 +2328,14 @@ class AppLocalizationsMn extends AppLocalizations {
   @override
   String get bookmarks_empty_malas_subtitle =>
       'Энд хадгалахын тулд мала хавчуургалаарай.';
+
+  @override
+  String get bookmarks_empty_group_accumulations_title =>
+      'No group accumulations bookmarked yet.';
+
+  @override
+  String get bookmarks_empty_group_accumulations_subtitle =>
+      'Bookmark a group accumulation to save it here.';
 
   @override
   String get bookmarks_empty_timers_title =>
@@ -2666,6 +2690,123 @@ class AppLocalizationsMn extends AppLocalizations {
       'Тэр мессеж байхгүй тул иш татсаныг хаслаа. Мессежээ илгээхийн тулд дахин илгээнэ үү.';
 
   @override
+  String get group_tab_posts => 'Нийтлэл';
+
+  @override
+  String get group_tab_events => 'Арга хэмжээ';
+
+  @override
+  String get group_posts_empty_title => 'Одоогоор нийтлэл алга';
+
+  @override
+  String get group_posts_empty_message =>
+      'Анхны мэдээллээ нийгэмлэгтэйгээ хуваалцаарай.';
+
+  @override
+  String get group_posts_load_error =>
+      'Нийтлэлүүдийг ачаалж чадсангүй. Дахин оролдоно уу.';
+
+  @override
+  String get group_post_button => 'Нийтлэх';
+
+  @override
+  String get group_post_new_title => 'Шинэ нийтлэл';
+
+  @override
+  String get group_post_posting_to => 'Нийтлэх газар:';
+
+  @override
+  String get group_post_caption_hint => 'Юу шинэ байна?';
+
+  @override
+  String get group_post_photos => 'Зураг';
+
+  @override
+  String get group_post_link => 'Холбоос';
+
+  @override
+  String get group_post_discard_title => 'Нийтлэлийг устгах уу?';
+
+  @override
+  String get group_post_discard_message => 'Таны бичсэн зүйл устах болно.';
+
+  @override
+  String get group_post_keep_editing => 'Үргэлжлүүлэн засах';
+
+  @override
+  String get group_post_discard => 'Устгах';
+
+  @override
+  String get group_post_add_link_title => 'Холбоос нэмэх';
+
+  @override
+  String get group_post_add_link_hint =>
+      'Холбоос буулгавал бид урьдчилан харуулна.';
+
+  @override
+  String get group_post_link_field_hint => 'Холбоос';
+
+  @override
+  String get group_post_attach => 'Хавсаргах';
+
+  @override
+  String get group_post_attach_as_link => 'Холбоос болгон хавсаргах';
+
+  @override
+  String get group_post_preview_failed_title => 'Урьдчилан харах боломжгүй';
+
+  @override
+  String get group_post_preview_failed_message =>
+      'Та үүнийг холбоос болгон хавсаргаж болно.';
+
+  @override
+  String get group_post_invalid_link =>
+      'Зөв холбоос оруулна уу, жишээ нь https://example.com';
+
+  @override
+  String group_post_photo_limit(int count) {
+    return 'Та хамгийн ихдээ $count зураг нэмэх боломжтой.';
+  }
+
+  @override
+  String get group_post_upload_error =>
+      'Зургуудыг байршуулж чадсангүй. Дахин оролдоно уу.';
+
+  @override
+  String get group_post_publish_error =>
+      'Таны нийтлэлийг нийтэлж чадсангүй. Дахин оролдоно уу.';
+
+  @override
+  String get group_post_published => 'Таны нийтлэл нийтлэгдлээ.';
+
+  @override
+  String get group_post_delete_title => 'Нийтлэлийг устгах уу?';
+
+  @override
+  String get group_post_delete_message => 'Энэ нийтлэл бүрмөсөн устгагдана.';
+
+  @override
+  String get group_post_delete_failed =>
+      'Нийтлэлийг устгаж чадсангүй. Дахин оролдоно уу.';
+
+  @override
+  String get edit => 'Засах';
+
+  @override
+  String get group_post_edit_title => 'Нийтлэлийг засах';
+
+  @override
+  String get group_post_update_error =>
+      'Таны өөрчлөлтийг хадгалж чадсангүй. Дахин оролдоно уу.';
+
+  @override
+  String get group_post_updated => 'Таны өөрчлөлт хадгалагдлаа.';
+
+  @override
   String get practice_collection_already_added =>
       'This collection is already in your practices';
+
+  @override
+  String get practice_group_accumulator_already_added =>
+      'This accumulation is already in your practices';
 }

@@ -1,3 +1,5 @@
+import 'package:flutter_pecha/features/reader/constants/reader_constants.dart';
+
 /// Navigation source types for reader
 enum NavigationSource {
   normal,
@@ -444,6 +446,20 @@ class NavigationContext {
 
   /// Get the current text item's segment IDs for visibility control
   List<String>? get currentSegmentIds => currentItem?.segmentIds;
+
+  /// Page size for the reader's first fetch so the current item's whole
+  /// segment range arrives at once. See [initialPageSizeFor].
+  int? get initialPageSize => initialPageSizeFor(currentSegmentIds);
+
+  /// Plan subtasks can span more segments than one page. When [segmentIds]
+  /// outgrows [ReaderConstants.pageSize], return its length so the first
+  /// window covers the whole (contiguous) range; otherwise return null and
+  /// let the default page size apply. Shared by the primary and secondary
+  /// readers so both request the same window.
+  static int? initialPageSizeFor(List<String>? segmentIds) {
+    final count = segmentIds?.length ?? 0;
+    return count > ReaderConstants.pageSize ? count : null;
+  }
 
   /// Resolve the audio URL for [item], applying precedence: a subtask's own
   /// [PlanTextItem.audioUrl] wins over the shared [dayAudioUrl] fallback.
