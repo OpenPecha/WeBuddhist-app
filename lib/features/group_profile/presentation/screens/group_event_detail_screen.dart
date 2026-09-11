@@ -1352,8 +1352,8 @@ class _EventAccumulatorPanelState
   }
 
   /// Counts go through the mala pipeline so they sync like in-app taps. The
-  /// local total is seeded from the server first, as the reader does, since
-  /// the sync posts an absolute total.
+  /// local total is seeded from a fresh server count first, since the sync
+  /// posts an absolute total and the screen snapshot may be stale.
   Future<void> _addRecitations(GroupAccumulatorDetail detail) async {
     if (!_requireLogin()) return;
     final presetId = detail.presetAccumulatorId;
@@ -1370,9 +1370,9 @@ class _EventAccumulatorPanelState
     final countsNotifier = ref.read(
       groupAccumulationCountsProvider(presetId).notifier,
     );
-    await countsNotifier.mergeFromServerCounts({
-      detail.id: detail.user?.totalCount ?? 0,
-    });
+    final serverTotal = await _fetchServerTotal(detail, countsNotifier);
+    if (!mounted) return;
+    await countsNotifier.mergeFromServerCounts({detail.id: serverTotal});
     if (!mounted) return;
     countsNotifier.addCount(
       groupAccumulatorId: detail.id,
@@ -1389,6 +1389,24 @@ class _EventAccumulatorPanelState
       ref,
       accumulatorId: detail.id,
       groupId: detail.groupId,
+    );
+  }
+
+  /// Falls back to the greatest known total so a failed fetch never seeds a
+  /// lower count than what was already recorded.
+  Future<int> _fetchServerTotal(
+    GroupAccumulatorDetail detail,
+    GroupAccumulationCountsNotifier countsNotifier,
+  ) async {
+    final result = await ref
+        .read(groupAccumulatorRepositoryProvider)
+        .getGroupAccumulator(detail.id);
+    return result.fold(
+      (_) => math.max(
+        detail.user?.totalCount ?? 0,
+        countsNotifier.countFor(detail.id),
+      ),
+      (fresh) => fresh.user?.totalCount ?? 0,
     );
   }
 }
