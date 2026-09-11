@@ -25,11 +25,13 @@ import 'package:flutter_pecha/features/group_profile/presentation/widgets/add_of
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_accumulator_member_lists.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_event_participants_drawer.dart';
 import 'package:flutter_pecha/features/group_profile/presentation/widgets/group_recitation_collection_row.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_enrollment_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/providers/series_provider.dart';
+import 'package:flutter_pecha/features/home/presentation/widgets/plan_list_view.dart';
 import 'package:flutter_pecha/features/home/presentation/widgets/youtube_video_player.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/group_accumulation_counts_provider.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_providers.dart';
 import 'package:flutter_pecha/features/mala/presentation/providers/mala_sync_manager.dart';
-import 'package:flutter_pecha/features/plans/presentation/providers/plans_providers.dart';
 import 'package:flutter_pecha/features/plans/presentation/widgets/plan_inline_markdown_view.dart';
 import 'package:flutter_pecha/shared/utils/helper_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -349,29 +351,60 @@ class _GroupEventDetailScreenState
     _EventTab.recitations => context.l10n.connect_event_tab_recitations,
   };
 
-  /// A series opens directly; a plan is fetched first for the preview route.
+  /// Auto-enrolls in the event series, then opens its (only) plan's day list.
   Future<void> _enterPuja(GroupEvent event) async {
-    final series = event.series;
-    if (series != null) {
-      context.push('/home/series/${series.id}');
+    final seriesId = event.series?.id ?? event.seriesId;
+    if (seriesId == null || _isOpeningPuja) return;
+
+    final authState = ref.read(authProvider);
+    if (authState.isGuest || !authState.isLoggedIn) {
+      LoginDrawer.show(context, ref);
       return;
     }
-    final planRef = event.plan;
-    if (planRef == null || _isOpeningPuja) return;
 
     setState(() => _isOpeningPuja = true);
-    final either = await ref.read(planByIdFutureProvider(planRef.id).future);
-    if (!mounted) return;
-    setState(() => _isOpeningPuja = false);
+    try {
+      final seriesEither = await ref.read(seriesByIdProvider(seriesId).future);
+      if (!mounted) return;
+      final series = seriesEither.fold((_) => null, (s) => s);
+      final plan = series?.plans.firstOrNull;
+      if (plan == null) {
+        _showError(context.l10n.notFound);
+        return;
+      }
 
-    final plan = either.fold((_) => null, (plan) => plan);
-    if (plan == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.notFound)));
-      return;
+      final enrollments = await ref.read(userSeriesEnrollmentsProvider.future);
+      if (!mounted) return;
+      if (!enrollments.contains(seriesId)) {
+        final ok = await ref
+            .read(seriesEnrollmentProvider(seriesId).notifier)
+            .enroll();
+        if (!mounted) return;
+        if (!ok) {
+          final state = ref.read(seriesEnrollmentProvider(seriesId));
+          _showError(
+            state is SeriesEnrollmentFailure
+                ? state.failure.message
+                : context.l10n.series_enroll_error,
+          );
+          return;
+        }
+      }
+
+      final userPlan = userPlanFromCatalogPlan(plan);
+      final startDate = userPlan.effectiveStartDate;
+      context.push(
+        '/practice/details',
+        extra: {
+          'plan': userPlan,
+          'selectedDay': selectedDayForStart(startDate, userPlan.totalDays),
+          'startDate': startDate,
+          'seriesId': seriesId,
+        },
+      );
+    } finally {
+      if (mounted) setState(() => _isOpeningPuja = false);
     }
-    context.push(AppRoutes.practicePlanPreview, extra: {'plan': plan});
   }
 
   List<GroupEventLink> _videoLinks(GroupEvent event) {
