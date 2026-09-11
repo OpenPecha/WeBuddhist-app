@@ -15,9 +15,11 @@ import 'package:flutter_pecha/features/practice/presentation/providers/practice_
 import 'package:flutter_pecha/features/practice/presentation/screens/add_chants_to_collection_screen.dart';
 import 'package:flutter_pecha/features/practice/presentation/widgets/collection_name_dialog.dart';
 import 'package:flutter_pecha/features/recitation/data/models/recitation_model.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart' show Either;
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Placeholder mustard accent used for the empty cover tile in the designs.
 const Color _kCoverPlaceholder = Color(0xFFC9A84C);
@@ -69,6 +71,13 @@ class _CreateEditCollectionScreenState
 
   /// Collection-item ids keyed by `text_id` for chants already on the server.
   late final Map<String, String> _itemIdsByTextId;
+
+  /// Server display-order values keyed by `text_id`. Existing rows come from
+  /// the detail payload; newly staged rows get provisional values until POST
+  /// returns their real collection-item ids.
+  late final Map<String, double> _itemDisplayOrdersByTextId;
+  late final Map<String, double> _originalDisplayOrdersByTextId;
+  final Map<String, double> _pendingDisplayOrdersByTextId = {};
   File? _localCoverFile;
   String? _uploadedImageKey;
   String? _coverPreviewUrl;
@@ -124,11 +133,20 @@ class _CreateEditCollectionScreenState
           if (item.textId.isNotEmpty && item.id.isNotEmpty)
             item.textId: item.id,
       };
+      _itemDisplayOrdersByTextId = {
+        for (final item in existing.items)
+          if (item.textId.isNotEmpty) item.textId: item.displayOrder,
+      };
+      _originalDisplayOrdersByTextId = Map<String, double>.from(
+        _itemDisplayOrdersByTextId,
+      );
     } else {
       _name = widget.initialName ?? '';
       _chants = [];
       _originalTextIds = {};
       _itemIdsByTextId = {};
+      _itemDisplayOrdersByTextId = {};
+      _originalDisplayOrdersByTextId = {};
     }
   }
 
@@ -145,7 +163,9 @@ class _CreateEditCollectionScreenState
     );
     if (xFile == null || !mounted) return;
 
-    final file = File(xFile.path);
+    final file = await _normalizeCoverOrientation(xFile.path);
+    if (!mounted) return;
+
     setState(() {
       _localCoverFile = file;
       _isUploadingImage = true;
@@ -187,6 +207,33 @@ class _CreateEditCollectionScreenState
     );
   }
 
+  /// Physically rotates picked photos according to EXIF before upload.
+  ///
+  /// Phone camera images can store landscape sensor pixels plus an EXIF
+  /// orientation tag. The collection image pipeline may later ignore that tag,
+  /// so upload upright pixels instead of relying on renderer/server behavior.
+  Future<File> _normalizeCoverOrientation(String sourcePath) async {
+    try {
+      final tmpDir = await getTemporaryDirectory();
+      final destPath =
+          '${tmpDir.path}/collection_cover_normalized_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final result = await FlutterImageCompress.compressAndGetFile(
+        sourcePath,
+        destPath,
+        quality: 90,
+        autoCorrectionAngle: true,
+      );
+      return result != null ? File(result.path) : File(sourcePath);
+    } catch (e, stackTrace) {
+      _logger.warning(
+        'Failed to normalize collection image orientation; uploading original',
+        e,
+        stackTrace,
+      );
+      return File(sourcePath);
+    }
+  }
+
   Future<void> _changeName() async {
     if (_isSubmitting || _isMetadataLocked) return;
     final result = await showCollectionNameDialog(
@@ -210,6 +257,9 @@ class _CreateEditCollectionScreenState
       _chants
         ..clear()
         ..addAll(result);
+      if (_isEditing) {
+        _syncPendingDisplayOrdersWithCurrentList();
+      }
     });
   }
 
@@ -226,7 +276,132 @@ class _CreateEditCollectionScreenState
       if (newIndex > oldIndex) newIndex -= 1;
       final item = _chants.removeAt(oldIndex);
       _chants.insert(newIndex, item);
+      if (_isEditing) {
+        _trackPendingDisplayOrder(item.textId, newIndex);
+      }
     });
+  }
+
+  void _ensureProvisionalDisplayOrders() {
+    var nextOrder = _nextDisplayOrder();
+    final currentTextIds = _chants.map((chant) => chant.textId).toSet();
+    _itemDisplayOrdersByTextId.removeWhere(
+      (textId, _) =>
+          !currentTextIds.contains(textId) &&
+          !_originalTextIds.contains(textId),
+    );
+
+    for (final chant in _chants) {
+      final textId = chant.textId.trim();
+      if (textId.isEmpty || _itemDisplayOrdersByTextId.containsKey(textId)) {
+        continue;
+      }
+      _itemDisplayOrdersByTextId[textId] = chant.displayOrder ?? nextOrder;
+      nextOrder = _nextDisplayOrder();
+    }
+  }
+
+  double _nextDisplayOrder() {
+    var maxOrder = 0.0;
+    for (final order in _itemDisplayOrdersByTextId.values) {
+      if (order > maxOrder) maxOrder = order;
+    }
+    return maxOrder + 1;
+  }
+
+  void _trackPendingDisplayOrder(String textId, int index) {
+    final trimmedTextId = textId.trim();
+    if (trimmedTextId.isEmpty) return;
+
+    _ensureProvisionalDisplayOrders();
+    final displayOrder = _displayOrderBetween(index);
+    if (displayOrder == null) return;
+
+    _setPendingDisplayOrder(trimmedTextId, displayOrder);
+  }
+
+  void _syncPendingDisplayOrdersWithCurrentList() {
+    final currentTextIds = _chants.map((chant) => chant.textId.trim()).toSet();
+    _pendingDisplayOrdersByTextId.clear();
+    _itemDisplayOrdersByTextId
+      ..clear()
+      ..addEntries(
+        _originalDisplayOrdersByTextId.entries.where(
+          (entry) => currentTextIds.contains(entry.key),
+        ),
+      );
+    _ensureProvisionalDisplayOrders();
+
+    double? previousOrder;
+    for (var index = 0; index < _chants.length; index++) {
+      final textId = _chants[index].textId.trim();
+      if (textId.isEmpty) continue;
+
+      final currentOrder = _itemDisplayOrdersByTextId[textId];
+      if (currentOrder != null &&
+          (previousOrder == null || currentOrder > previousOrder)) {
+        previousOrder = currentOrder;
+        continue;
+      }
+
+      final displayOrder = _displayOrderAfter(previousOrder, index);
+      _setPendingDisplayOrder(textId, displayOrder);
+      previousOrder = displayOrder;
+    }
+  }
+
+  double _displayOrderAfter(double? previousOrder, int index) {
+    final nextOrder = _nextDisplayOrderAfter(index, greaterThan: previousOrder);
+    if (previousOrder == null) {
+      return nextOrder != null ? nextOrder - 1 : 1;
+    }
+    if (nextOrder != null) {
+      return (previousOrder + nextOrder) / 2;
+    }
+    return previousOrder + 1;
+  }
+
+  double? _nextDisplayOrderAfter(int index, {double? greaterThan}) {
+    for (var nextIndex = index + 1; nextIndex < _chants.length; nextIndex++) {
+      final nextOrder =
+          _itemDisplayOrdersByTextId[_chants[nextIndex].textId.trim()];
+      if (nextOrder == null) continue;
+      if (greaterThan == null || nextOrder > greaterThan) {
+        return nextOrder;
+      }
+    }
+    return null;
+  }
+
+  void _setPendingDisplayOrder(String textId, double displayOrder) {
+    _itemDisplayOrdersByTextId[textId] = displayOrder;
+    final originalOrder = _originalDisplayOrdersByTextId[textId];
+    if (originalOrder != null &&
+        (originalOrder - displayOrder).abs() < 0.000001) {
+      _pendingDisplayOrdersByTextId.remove(textId);
+    } else {
+      _pendingDisplayOrdersByTextId[textId] = displayOrder;
+    }
+  }
+
+  double? _displayOrderBetween(int index) {
+    if (index < 0 || index >= _chants.length) return null;
+
+    final previousOrder =
+        index > 0
+            ? _itemDisplayOrdersByTextId[_chants[index - 1].textId]
+            : null;
+    final nextOrder =
+        index < _chants.length - 1
+            ? _itemDisplayOrdersByTextId[_chants[index + 1].textId]
+            : null;
+
+    if (previousOrder != null && nextOrder != null) {
+      return (previousOrder + nextOrder) / 2;
+    }
+    if (previousOrder != null) return previousOrder + 1;
+    if (nextOrder != null) return nextOrder - 1;
+    return _itemDisplayOrdersByTextId[_chants[index].textId] ?? 1;
   }
 
   Future<void> _onSubmit() async {
@@ -280,7 +455,7 @@ class _CreateEditCollectionScreenState
     );
   }
 
-  /// Applies the edit as metadata → removals → additions. Each step is
+  /// Applies the edit as metadata → removals → additions → order updates. Each step is
   /// idempotent for a retry: the PUT re-sends the same values, ids already
   /// deleted are dropped from [_originalTextIds] as they go, and additions are
   /// computed against what is still known to be on the server.
@@ -323,6 +498,9 @@ class _CreateEditCollectionScreenState
       }
       _originalTextIds.remove(textId);
       _itemIdsByTextId.remove(textId);
+      _itemDisplayOrdersByTextId.remove(textId);
+      _originalDisplayOrdersByTextId.remove(textId);
+      _pendingDisplayOrdersByTextId.remove(textId);
     }
 
     final newTextIds =
@@ -331,16 +509,61 @@ class _CreateEditCollectionScreenState
             .where((id) => !_originalTextIds.contains(id))
             .toList();
     if (newTextIds.isNotEmpty) {
-      final addFailure = _failureOf(
-        await repository.addItemsToCollection(
-          collectionId: collection.id,
-          textIds: newTextIds,
-        ),
+      final addResult = await repository.addItemsToCollection(
+        collectionId: collection.id,
+        textIds: newTextIds,
       );
       if (!mounted) return;
+      final addFailure = _failureOf(addResult);
       if (addFailure != null) {
         _showSubmitFailure('Failed to add chants', addFailure);
         return;
+      }
+      final addResponse = addResult.fold((_) => null, (response) => response);
+      if (addResponse != null) {
+        for (final item in addResponse.items) {
+          final textId = item.textId.trim();
+          if (textId.isEmpty) continue;
+          if (item.id.isNotEmpty) {
+            _itemIdsByTextId[textId] = item.id;
+          }
+          _originalTextIds.add(textId);
+          _originalDisplayOrdersByTextId[textId] = item.displayOrder;
+          _itemDisplayOrdersByTextId[textId] =
+              _pendingDisplayOrdersByTextId[textId] ?? item.displayOrder;
+        }
+      }
+    }
+
+    for (final entry
+        in Map<String, double>.from(_pendingDisplayOrdersByTextId).entries) {
+      final textId = entry.key;
+      if (!currentTextIds.contains(textId)) continue;
+      final itemId = _itemIdsByTextId[textId];
+      if (itemId == null || itemId.isEmpty) continue;
+
+      final reorderResult = await repository.updateCollectionItemDisplayOrder(
+        collectionId: collection.id,
+        itemId: itemId,
+        displayOrder: entry.value,
+      );
+      if (!mounted) return;
+      final reorderFailure = _failureOf(reorderResult);
+      if (reorderFailure != null) {
+        _showSubmitFailure('Failed to reorder chant $textId', reorderFailure);
+        return;
+      }
+      final updatedItem = reorderResult.fold((_) => null, (item) => item);
+      if (updatedItem != null) {
+        final updatedTextId = updatedItem.textId.trim();
+        if (updatedTextId.isNotEmpty) {
+          _itemDisplayOrdersByTextId[updatedTextId] = updatedItem.displayOrder;
+          _originalDisplayOrdersByTextId[updatedTextId] =
+              updatedItem.displayOrder;
+          _pendingDisplayOrdersByTextId.remove(updatedTextId);
+        }
+      } else {
+        _pendingDisplayOrdersByTextId.remove(textId);
       }
     }
 
@@ -476,10 +699,6 @@ class _CreateEditCollectionScreenState
                   ),
                   const SizedBox(height: 32),
                   if (_chants.isNotEmpty) ...[
-                    // Order is only persisted on create, via the text_ids
-                    // array; the API has no reorder call for personal
-                    // collections (unlike the CMS group one), so the drag
-                    // handle is hidden in edit mode rather than lying.
                     ReorderableListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -501,7 +720,7 @@ class _CreateEditCollectionScreenState
                           isDark: isDark,
                           onRemove: () => _removeChant(index),
                           dragIndex: index,
-                          canReorder: !_isEditing,
+                          canReorder: !_isSubmitting,
                         );
                       },
                     ),
