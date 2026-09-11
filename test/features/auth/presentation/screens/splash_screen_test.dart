@@ -46,4 +46,28 @@ void main() {
     expect(splashTaglines, contains(text.data));
     await tester.pump(const Duration(seconds: 2));
   });
+
+  testWidgets('does not overflow in a short viewport with large text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(3)),
+          child: SplashScreen(
+            tagline:
+                'We Buddhists know that things are our own projections, not the way they look.',
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(SingleChildScrollView), findsOneWidget);
+  });
 }

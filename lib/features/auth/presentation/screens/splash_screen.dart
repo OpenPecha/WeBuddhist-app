@@ -79,39 +79,41 @@ class _SplashScreenState extends State<SplashScreen>
     final onSurface = Theme.of(context).colorScheme.onSurface;
 
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FadeTransition(
-                opacity: _logoOpacity,
-                child: ScaleTransition(
-                  scale: _logoScale,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FadeTransition(
+                  opacity: _logoOpacity,
                   child: ScaleTransition(
-                    scale: _pulseScale,
-                    child: Image.asset(AppAssets.weBuddhistLogo, height: 96),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              FadeTransition(
-                opacity: _taglineOpacity,
-                child: SlideTransition(
-                  position: _taglineOffset,
-                  child: Text(
-                    _tagline,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: onSurface,
+                    scale: _logoScale,
+                    child: ScaleTransition(
+                      scale: _pulseScale,
+                      child: Image.asset(AppAssets.weBuddhistLogo, height: 96),
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 24),
+                FadeTransition(
+                  opacity: _taglineOpacity,
+                  child: SlideTransition(
+                    position: _taglineOffset,
+                    child: Text(
+                      _tagline,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: onSurface,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
