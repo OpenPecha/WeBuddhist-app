@@ -10,6 +10,7 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/practice/data/models/my_recitation_collection_models.dart';
+import 'package:flutter_pecha/features/practice/data/utils/collection_display_order_plan.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/my_recitation_collections_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_recitations_paginated_provider.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/add_chants_to_collection_screen.dart';
@@ -65,19 +66,19 @@ class _CreateEditCollectionScreenState
 
   late String _name;
 
-  /// `text_id`s on the server when the screen opened. Save diffs [_chants]
-  /// against this: missing ids are deleted, extra ids are added.
+  /// `text_id`s known to be on the server: seeded when the screen opens and
+  /// kept current through Save, so a retry only re-sends what did not land.
+  /// Save diffs [_chants] against this: missing ids are deleted, extra ids are
+  /// added.
   late final Set<String> _originalTextIds;
 
   /// Collection-item ids keyed by `text_id` for chants already on the server.
   late final Map<String, String> _itemIdsByTextId;
 
-  /// Server display-order values keyed by `text_id`. Existing rows come from
-  /// the detail payload; newly staged rows get provisional values until POST
-  /// returns their real collection-item ids.
-  late final Map<String, double> _itemDisplayOrdersByTextId;
-  late final Map<String, double> _originalDisplayOrdersByTextId;
-  final Map<String, double> _pendingDisplayOrdersByTextId = {};
+  /// Server `display_order` keyed by `text_id`, for every chant known to be on
+  /// the server. Updated as Save deletes, adds and reorders, so the order is
+  /// always planned against values the server actually holds.
+  late final Map<String, double> _displayOrdersByTextId;
   File? _localCoverFile;
   String? _uploadedImageKey;
   String? _coverPreviewUrl;
@@ -123,7 +124,6 @@ class _CreateEditCollectionScreenState
                           ? item.title!
                           : item.textId,
                   language: item.language,
-                  displayOrder: item.displayOrder,
                 ),
               )
               .toList();
@@ -133,20 +133,16 @@ class _CreateEditCollectionScreenState
           if (item.textId.isNotEmpty && item.id.isNotEmpty)
             item.textId: item.id,
       };
-      _itemDisplayOrdersByTextId = {
+      _displayOrdersByTextId = {
         for (final item in existing.items)
           if (item.textId.isNotEmpty) item.textId: item.displayOrder,
       };
-      _originalDisplayOrdersByTextId = Map<String, double>.from(
-        _itemDisplayOrdersByTextId,
-      );
     } else {
       _name = widget.initialName ?? '';
       _chants = [];
       _originalTextIds = {};
       _itemIdsByTextId = {};
-      _itemDisplayOrdersByTextId = {};
-      _originalDisplayOrdersByTextId = {};
+      _displayOrdersByTextId = {};
     }
   }
 
@@ -248,9 +244,6 @@ class _CreateEditCollectionScreenState
       _chants
         ..clear()
         ..addAll(result);
-      if (_isEditing) {
-        _syncPendingDisplayOrdersWithCurrentList();
-      }
     });
   }
 
@@ -262,137 +255,14 @@ class _CreateEditCollectionScreenState
     setState(() => _chants.removeAt(index));
   }
 
+  /// Staged too. On edit, Save plans the `display_order` writes from the
+  /// final list, once removals and additions are on the server.
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
       if (newIndex > oldIndex) newIndex -= 1;
       final item = _chants.removeAt(oldIndex);
       _chants.insert(newIndex, item);
-      if (_isEditing) {
-        _trackPendingDisplayOrder(item.textId, newIndex);
-      }
     });
-  }
-
-  void _ensureProvisionalDisplayOrders() {
-    var nextOrder = _nextDisplayOrder();
-    final currentTextIds = _chants.map((chant) => chant.textId).toSet();
-    _itemDisplayOrdersByTextId.removeWhere(
-      (textId, _) =>
-          !currentTextIds.contains(textId) &&
-          !_originalTextIds.contains(textId),
-    );
-
-    for (final chant in _chants) {
-      final textId = chant.textId.trim();
-      if (textId.isEmpty || _itemDisplayOrdersByTextId.containsKey(textId)) {
-        continue;
-      }
-      _itemDisplayOrdersByTextId[textId] = chant.displayOrder ?? nextOrder;
-      nextOrder = _nextDisplayOrder();
-    }
-  }
-
-  double _nextDisplayOrder() {
-    var maxOrder = 0.0;
-    for (final order in _itemDisplayOrdersByTextId.values) {
-      if (order > maxOrder) maxOrder = order;
-    }
-    return maxOrder + 1;
-  }
-
-  void _trackPendingDisplayOrder(String textId, int index) {
-    final trimmedTextId = textId.trim();
-    if (trimmedTextId.isEmpty) return;
-
-    _ensureProvisionalDisplayOrders();
-    final displayOrder = _displayOrderBetween(index);
-    if (displayOrder == null) return;
-
-    _setPendingDisplayOrder(trimmedTextId, displayOrder);
-  }
-
-  void _syncPendingDisplayOrdersWithCurrentList() {
-    final currentTextIds = _chants.map((chant) => chant.textId.trim()).toSet();
-    _pendingDisplayOrdersByTextId.clear();
-    _itemDisplayOrdersByTextId
-      ..clear()
-      ..addEntries(
-        _originalDisplayOrdersByTextId.entries.where(
-          (entry) => currentTextIds.contains(entry.key),
-        ),
-      );
-    _ensureProvisionalDisplayOrders();
-
-    double? previousOrder;
-    for (var index = 0; index < _chants.length; index++) {
-      final textId = _chants[index].textId.trim();
-      if (textId.isEmpty) continue;
-
-      final currentOrder = _itemDisplayOrdersByTextId[textId];
-      if (currentOrder != null &&
-          (previousOrder == null || currentOrder > previousOrder)) {
-        previousOrder = currentOrder;
-        continue;
-      }
-
-      final displayOrder = _displayOrderAfter(previousOrder, index);
-      _setPendingDisplayOrder(textId, displayOrder);
-      previousOrder = displayOrder;
-    }
-  }
-
-  double _displayOrderAfter(double? previousOrder, int index) {
-    final nextOrder = _nextDisplayOrderAfter(index, greaterThan: previousOrder);
-    if (previousOrder == null) {
-      return nextOrder != null ? nextOrder - 1 : 1;
-    }
-    if (nextOrder != null) {
-      return (previousOrder + nextOrder) / 2;
-    }
-    return previousOrder + 1;
-  }
-
-  double? _nextDisplayOrderAfter(int index, {double? greaterThan}) {
-    for (var nextIndex = index + 1; nextIndex < _chants.length; nextIndex++) {
-      final nextOrder =
-          _itemDisplayOrdersByTextId[_chants[nextIndex].textId.trim()];
-      if (nextOrder == null) continue;
-      if (greaterThan == null || nextOrder > greaterThan) {
-        return nextOrder;
-      }
-    }
-    return null;
-  }
-
-  void _setPendingDisplayOrder(String textId, double displayOrder) {
-    _itemDisplayOrdersByTextId[textId] = displayOrder;
-    final originalOrder = _originalDisplayOrdersByTextId[textId];
-    if (originalOrder != null &&
-        (originalOrder - displayOrder).abs() < 0.000001) {
-      _pendingDisplayOrdersByTextId.remove(textId);
-    } else {
-      _pendingDisplayOrdersByTextId[textId] = displayOrder;
-    }
-  }
-
-  double? _displayOrderBetween(int index) {
-    if (index < 0 || index >= _chants.length) return null;
-
-    final previousOrder =
-        index > 0
-            ? _itemDisplayOrdersByTextId[_chants[index - 1].textId]
-            : null;
-    final nextOrder =
-        index < _chants.length - 1
-            ? _itemDisplayOrdersByTextId[_chants[index + 1].textId]
-            : null;
-
-    if (previousOrder != null && nextOrder != null) {
-      return (previousOrder + nextOrder) / 2;
-    }
-    if (previousOrder != null) return previousOrder + 1;
-    if (nextOrder != null) return nextOrder - 1;
-    return _itemDisplayOrdersByTextId[_chants[index].textId] ?? 1;
   }
 
   Future<void> _onSubmit() async {
@@ -446,10 +316,11 @@ class _CreateEditCollectionScreenState
     );
   }
 
-  /// Applies the edit as metadata → removals → additions → order updates. Each step is
+  /// Applies the edit as metadata → removals → additions → order. Each step is
   /// idempotent for a retry: the PUT re-sends the same values, ids already
-  /// deleted are dropped from [_originalTextIds] as they go, and additions are
-  /// computed against what is still known to be on the server.
+  /// deleted are dropped from [_originalTextIds] as they go, additions are
+  /// computed against what is still known to be on the server, and the order
+  /// is re-planned from the `display_order` values the server last confirmed.
   Future<void> _submitEdit() async {
     final collection = widget.collection;
     if (collection == null) return;
@@ -489,9 +360,7 @@ class _CreateEditCollectionScreenState
       }
       _originalTextIds.remove(textId);
       _itemIdsByTextId.remove(textId);
-      _itemDisplayOrdersByTextId.remove(textId);
-      _originalDisplayOrdersByTextId.remove(textId);
-      _pendingDisplayOrdersByTextId.remove(textId);
+      _displayOrdersByTextId.remove(textId);
     }
 
     final newTextIds =
@@ -519,42 +388,58 @@ class _CreateEditCollectionScreenState
             _itemIdsByTextId[textId] = item.id;
           }
           _originalTextIds.add(textId);
-          _originalDisplayOrdersByTextId[textId] = item.displayOrder;
-          _itemDisplayOrdersByTextId[textId] =
-              _pendingDisplayOrdersByTextId[textId] ?? item.displayOrder;
+          _displayOrdersByTextId[textId] = item.displayOrder;
         }
       }
     }
 
-    for (final entry
-        in Map<String, double>.from(_pendingDisplayOrdersByTextId).entries) {
-      final textId = entry.key;
-      if (!currentTextIds.contains(textId)) continue;
-      final itemId = _itemIdsByTextId[textId];
-      if (itemId == null || itemId.isEmpty) continue;
-
-      final reorderResult = await repository.updateCollectionItemDisplayOrder(
-        collectionId: collection.id,
-        itemId: itemId,
-        displayOrder: entry.value,
+    // Order goes last: removals and additions have now settled which chants
+    // exist and which `display_order` the server gave each one. Planning only
+    // against those confirmed values keeps every PATCH unique; values guessed
+    // while dragging could collide with orders the server assigned on add.
+    final orderedTextIds = _chants.map((c) => c.textId).toList();
+    final canPlanOrder = orderedTextIds.every(
+      (textId) =>
+          _displayOrdersByTextId.containsKey(textId) &&
+          (_itemIdsByTextId[textId]?.isNotEmpty ?? false),
+    );
+    if (!canPlanOrder) {
+      // Only when the add response omitted a chant; it stays where it landed.
+      _logger.warning(
+        'Skipping chant reorder: a chant has no server item id or order',
       );
-      if (!mounted) return;
-      final reorderFailure = _failureOf(reorderResult);
-      if (reorderFailure != null) {
-        _showSubmitFailure('Failed to reorder chant $textId', reorderFailure);
-        return;
-      }
-      final updatedItem = reorderResult.fold((_) => null, (item) => item);
-      if (updatedItem != null) {
-        final updatedTextId = updatedItem.textId.trim();
-        if (updatedTextId.isNotEmpty) {
-          _itemDisplayOrdersByTextId[updatedTextId] = updatedItem.displayOrder;
-          _originalDisplayOrdersByTextId[updatedTextId] =
-              updatedItem.displayOrder;
-          _pendingDisplayOrdersByTextId.remove(updatedTextId);
+    } else {
+      final orderedSet = orderedTextIds.toSet();
+      final updates = planDisplayOrderUpdates(
+        orderedKeys: orderedTextIds,
+        currentOrders: {
+          for (final textId in orderedTextIds)
+            textId: _displayOrdersByTextId[textId]!,
+        },
+        reservedOrders: [
+          for (final entry in _displayOrdersByTextId.entries)
+            if (!orderedSet.contains(entry.key)) entry.value,
+        ],
+      );
+      for (final update in updates.entries) {
+        final reorderResult = await repository.updateCollectionItemDisplayOrder(
+          collectionId: collection.id,
+          itemId: _itemIdsByTextId[update.key]!,
+          displayOrder: update.value,
+        );
+        if (!mounted) return;
+        final reorderFailure = _failureOf(reorderResult);
+        if (reorderFailure != null) {
+          _showSubmitFailure(
+            'Failed to reorder chant ${update.key}',
+            reorderFailure,
+          );
+          return;
         }
-      } else {
-        _pendingDisplayOrdersByTextId.remove(textId);
+        _displayOrdersByTextId[update.key] = reorderResult.fold(
+          (_) => update.value,
+          (item) => item.displayOrder,
+        );
       }
     }
 
