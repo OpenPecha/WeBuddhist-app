@@ -213,16 +213,25 @@ class _CreateEditCollectionScreenState
   /// orientation tag. The collection image pipeline may later ignore that tag,
   /// so upload upright pixels instead of relying on renderer/server behavior.
   Future<File> _normalizeCoverOrientation(String sourcePath) async {
-    final tmpDir = await getTemporaryDirectory();
-    final destPath =
-        '${tmpDir.path}/collection_cover_normalized_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final result = await FlutterImageCompress.compressAndGetFile(
-      sourcePath,
-      destPath,
-      quality: 90,
-      autoCorrectionAngle: true,
-    );
-    return result != null ? File(result.path) : File(sourcePath);
+    try {
+      final tmpDir = await getTemporaryDirectory();
+      final destPath =
+          '${tmpDir.path}/collection_cover_normalized_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final result = await FlutterImageCompress.compressAndGetFile(
+        sourcePath,
+        destPath,
+        quality: 90,
+        autoCorrectionAngle: true,
+      );
+      return result != null ? File(result.path) : File(sourcePath);
+    } catch (e, stackTrace) {
+      _logger.warning(
+        'Failed to normalize collection image orientation; uploading original',
+        e,
+        stackTrace,
+      );
+      return File(sourcePath);
+    }
   }
 
   Future<void> _changeName() async {
