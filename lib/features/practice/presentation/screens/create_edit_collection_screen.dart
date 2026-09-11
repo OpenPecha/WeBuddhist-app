@@ -72,6 +72,10 @@ class _CreateEditCollectionScreenState
   /// Collection-item ids keyed by `text_id` for chants already on the server.
   late final Map<String, String> _itemIdsByTextId;
   File? _localCoverFile;
+
+  /// Upright copy written by [_normalizeCoverOrientation], if one was made.
+  /// Deleted once nothing previews it; the picker's own file is never deleted.
+  File? _normalizedCoverTemp;
   String? _uploadedImageKey;
   String? _coverPreviewUrl;
 
@@ -134,6 +138,26 @@ class _CreateEditCollectionScreenState
     }
   }
 
+  @override
+  void dispose() {
+    _deleteNormalizedCoverTemp();
+    super.dispose();
+  }
+
+  void _deleteNormalizedCoverTemp() {
+    final temp = _normalizedCoverTemp;
+    _normalizedCoverTemp = null;
+    if (temp != null) _deleteTempFile(temp);
+  }
+
+  /// Best-effort: a failed delete only leaves the file for the OS to clear.
+  void _deleteTempFile(File file) {
+    file.delete().catchError((Object e) {
+      _logger.warning('Failed to delete normalized cover temp file: $e');
+      return file;
+    });
+  }
+
   Future<void> _pickImage() async {
     if (_isUploadingImage || _isSubmitting || _isMetadataLocked) return;
     if (!_ensureSignedIn()) return;
@@ -163,6 +187,9 @@ class _CreateEditCollectionScreenState
     }
     if (!mounted) return;
 
+    final previousTemp = _normalizedCoverTemp;
+    _normalizedCoverTemp = file.path != xFile.path ? file : null;
+
     setState(() {
       _localCoverFile = file;
       _isUploadingImage = true;
@@ -171,6 +198,11 @@ class _CreateEditCollectionScreenState
         _coverPreviewUrl = null;
       }
     });
+
+    // Only now is the previous upright copy no longer previewed.
+    if (previousTemp != null && previousTemp.path != file.path) {
+      _deleteTempFile(previousTemp);
+    }
 
     final result = await ref
         .read(myRecitationCollectionsRepositoryProvider)
@@ -187,6 +219,7 @@ class _CreateEditCollectionScreenState
           _uploadedImageKey = null;
           _coverPreviewUrl = _isEditing ? widget.collection?.imgUrl : null;
         });
+        _deleteNormalizedCoverTemp();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.l10n.something_went_wrong),
@@ -219,7 +252,14 @@ class _CreateEditCollectionScreenState
       quality: 90,
       autoCorrectionAngle: true,
     );
-    return result != null ? File(result.path) : File(sourcePath);
+    if (result == null) {
+      // Upload still proceeds with the original, which may render sideways.
+      _logger.warning(
+        'Cover orientation normalization returned no file; using the original',
+      );
+      return File(sourcePath);
+    }
+    return File(result.path);
   }
 
   Future<void> _changeName() async {
