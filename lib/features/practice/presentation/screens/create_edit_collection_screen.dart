@@ -10,6 +10,7 @@ import 'package:flutter_pecha/core/utils/app_logger.dart';
 import 'package:flutter_pecha/features/auth/presentation/providers/state_providers.dart';
 import 'package:flutter_pecha/features/auth/presentation/widgets/login_drawer.dart';
 import 'package:flutter_pecha/features/practice/data/models/my_recitation_collection_models.dart';
+import 'package:flutter_pecha/features/practice/data/utils/collection_display_order_plan.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/my_recitation_collections_providers.dart';
 import 'package:flutter_pecha/features/practice/presentation/providers/practice_recitations_paginated_provider.dart';
 import 'package:flutter_pecha/features/practice/presentation/screens/add_chants_to_collection_screen.dart';
@@ -65,12 +66,19 @@ class _CreateEditCollectionScreenState
 
   late String _name;
 
-  /// `text_id`s on the server when the screen opened. Save diffs [_chants]
-  /// against this: missing ids are deleted, extra ids are added.
+  /// `text_id`s known to be on the server: seeded when the screen opens and
+  /// kept current through Save, so a retry only re-sends what did not land.
+  /// Save diffs [_chants] against this: missing ids are deleted, extra ids are
+  /// added.
   late final Set<String> _originalTextIds;
 
   /// Collection-item ids keyed by `text_id` for chants already on the server.
   late final Map<String, String> _itemIdsByTextId;
+
+  /// Server `display_order` keyed by `text_id`, for every chant known to be on
+  /// the server. Updated as Save deletes, adds and reorders, so the order is
+  /// always planned against values the server actually holds.
+  late final Map<String, double> _displayOrdersByTextId;
   File? _localCoverFile;
 
   /// Upright copy written by [_normalizeCoverOrientation], if one was made.
@@ -120,7 +128,6 @@ class _CreateEditCollectionScreenState
                           ? item.title!
                           : item.textId,
                   language: item.language,
-                  displayOrder: item.displayOrder,
                 ),
               )
               .toList();
@@ -130,11 +137,16 @@ class _CreateEditCollectionScreenState
           if (item.textId.isNotEmpty && item.id.isNotEmpty)
             item.textId: item.id,
       };
+      _displayOrdersByTextId = {
+        for (final item in existing.items)
+          if (item.textId.isNotEmpty) item.textId: item.displayOrder,
+      };
     } else {
       _name = widget.initialName ?? '';
       _chants = [];
       _originalTextIds = {};
       _itemIdsByTextId = {};
+      _displayOrdersByTextId = {};
     }
   }
 
@@ -296,6 +308,8 @@ class _CreateEditCollectionScreenState
     setState(() => _chants.removeAt(index));
   }
 
+  /// Staged too. On edit, Save plans the `display_order` writes from the
+  /// final list, once removals and additions are on the server.
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
       if (newIndex > oldIndex) newIndex -= 1;
@@ -355,10 +369,11 @@ class _CreateEditCollectionScreenState
     );
   }
 
-  /// Applies the edit as metadata → removals → additions. Each step is
+  /// Applies the edit as metadata → removals → additions → order. Each step is
   /// idempotent for a retry: the PUT re-sends the same values, ids already
-  /// deleted are dropped from [_originalTextIds] as they go, and additions are
-  /// computed against what is still known to be on the server.
+  /// deleted are dropped from [_originalTextIds] as they go, additions are
+  /// computed against what is still known to be on the server, and the order
+  /// is re-planned from the `display_order` values the server last confirmed.
   Future<void> _submitEdit() async {
     final collection = widget.collection;
     if (collection == null) return;
@@ -398,6 +413,7 @@ class _CreateEditCollectionScreenState
       }
       _originalTextIds.remove(textId);
       _itemIdsByTextId.remove(textId);
+      _displayOrdersByTextId.remove(textId);
     }
 
     final newTextIds =
@@ -406,17 +422,90 @@ class _CreateEditCollectionScreenState
             .where((id) => !_originalTextIds.contains(id))
             .toList();
     if (newTextIds.isNotEmpty) {
-      final addFailure = _failureOf(
-        await repository.addItemsToCollection(
-          collectionId: collection.id,
-          textIds: newTextIds,
-        ),
+      final addResult = await repository.addItemsToCollection(
+        collectionId: collection.id,
+        textIds: newTextIds,
       );
       if (!mounted) return;
+      final addFailure = _failureOf(addResult);
       if (addFailure != null) {
         _showSubmitFailure('Failed to add chants', addFailure);
         return;
       }
+      final addResponse = addResult.fold((_) => null, (response) => response);
+      if (addResponse != null) {
+        for (final item in addResponse.items) {
+          final textId = item.textId.trim();
+          if (textId.isEmpty) continue;
+          if (item.id.isNotEmpty) {
+            _itemIdsByTextId[textId] = item.id;
+          }
+          _originalTextIds.add(textId);
+          _displayOrdersByTextId[textId] = item.displayOrder;
+        }
+      }
+    }
+
+    // Order goes last: removals and additions have now settled which chants
+    // exist and which `display_order` the server gave each one. Planning only
+    // against those confirmed values keeps every PATCH unique; values guessed
+    // while dragging could collide with orders the server assigned on add.
+    final orderedTextIds = _chants.map((c) => c.textId).toList();
+    if (!_hasServerOrderFor(orderedTextIds)) {
+      // Save lost track of a chant's item id or order (e.g. the add response
+      // omitted it). Reload the collection and plan from its rows; closing as
+      // if the save succeeded would silently drop the arranged order.
+      final detailResult = await repository.getCollectionDetail(collection.id);
+      if (!mounted) return;
+      final detailFailure = _failureOf(detailResult);
+      if (detailFailure != null) {
+        _showSubmitFailure(
+          'Failed to reload collection to reorder',
+          detailFailure,
+        );
+        return;
+      }
+      detailResult.fold((_) {}, _adoptServerItems);
+      if (!_hasServerOrderFor(orderedTextIds)) {
+        _showSubmitFailure(
+          'Failed to reorder chants',
+          const ServerFailure('A chant has no server item id or display_order'),
+        );
+        return;
+      }
+    }
+
+    final orderedSet = orderedTextIds.toSet();
+    final updates = planDisplayOrderUpdates(
+      orderedKeys: orderedTextIds,
+      currentOrders: {
+        for (final textId in orderedTextIds)
+          textId: _displayOrdersByTextId[textId]!,
+      },
+      reservedOrders: [
+        for (final entry in _displayOrdersByTextId.entries)
+          if (!orderedSet.contains(entry.key)) entry.value,
+      ],
+    );
+    for (final update in updates.entries) {
+      final reorderResult = await repository.updateCollectionItemDisplayOrder(
+        collectionId: collection.id,
+        itemId: _itemIdsByTextId[update.key]!,
+        displayOrder: update.value,
+      );
+      if (!mounted) return;
+      final reorderFailure = _failureOf(reorderResult);
+      if (reorderFailure != null) {
+        _showSubmitFailure(
+          'Failed to reorder chant ${update.key}',
+          reorderFailure,
+        );
+        return;
+      }
+      _displayOrdersByTextId[update.key] = reorderResult.fold(
+        (_) => update.value,
+        (item) => item.displayOrder,
+      );
     }
 
     final languageCode = ref.read(practiceRecitationsLanguageProvider);
@@ -425,6 +514,34 @@ class _CreateEditCollectionScreenState
 
     if (!mounted) return;
     Navigator.of(context).pop(true);
+  }
+
+  /// Whether Save knows the server item id and `display_order` of every chant
+  /// in [textIds]; planning and sending the reorder needs both.
+  bool _hasServerOrderFor(List<String> textIds) => textIds.every(
+    (textId) =>
+        _displayOrdersByTextId.containsKey(textId) &&
+        (_itemIdsByTextId[textId]?.isNotEmpty ?? false),
+  );
+
+  /// Replaces what Save knows about the server with [detail]'s rows, so the
+  /// order is planned against them. A chant absent from the server also drops
+  /// out of [_originalTextIds], so the next Save adds it again rather than
+  /// assuming it landed.
+  void _adoptServerItems(MyRecitationCollectionDetailModel detail) {
+    final items = detail.items.where((item) => item.textId.isNotEmpty);
+    _originalTextIds
+      ..clear()
+      ..addAll(items.map((item) => item.textId));
+    _itemIdsByTextId
+      ..clear()
+      ..addAll({
+        for (final item in items)
+          if (item.id.isNotEmpty) item.textId: item.id,
+      });
+    _displayOrdersByTextId
+      ..clear()
+      ..addAll({for (final item in items) item.textId: item.displayOrder});
   }
 
   static Failure? _failureOf<T>(Either<Failure, T> result) =>
@@ -551,10 +668,6 @@ class _CreateEditCollectionScreenState
                   ),
                   const SizedBox(height: 32),
                   if (_chants.isNotEmpty) ...[
-                    // Order is only persisted on create, via the text_ids
-                    // array; the API has no reorder call for personal
-                    // collections (unlike the CMS group one), so the drag
-                    // handle is hidden in edit mode rather than lying.
                     ReorderableListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -576,7 +689,7 @@ class _CreateEditCollectionScreenState
                           isDark: isDark,
                           onRemove: () => _removeChant(index),
                           dragIndex: index,
-                          canReorder: !_isEditing,
+                          canReorder: !_isSubmitting,
                         );
                       },
                     ),
