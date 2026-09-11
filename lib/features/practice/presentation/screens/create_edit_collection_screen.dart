@@ -147,7 +147,20 @@ class _CreateEditCollectionScreenState
     );
     if (xFile == null || !mounted) return;
 
-    final file = await _normalizeCoverOrientation(xFile.path);
+    final File file;
+    try {
+      file = await _normalizeCoverOrientation(xFile.path);
+    } catch (e, st) {
+      _logger.error('Failed to normalize cover image: $e', e, st);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.something_went_wrong),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
     if (!mounted) return;
 
     setState(() {
