@@ -175,7 +175,7 @@ class _GroupEventDetailScreenState
             totalAttending: totalAttending,
             isDark: isDark,
           ),
-          if (!isPast || event.hasPuja) ...[
+          if (!isPast || (event.hasPuja && isAttending)) ...[
             const SizedBox(height: 14),
             _buildActionRow(event, isAttending, isDark, isPast: isPast),
           ],
@@ -260,7 +260,7 @@ class _GroupEventDetailScreenState
               ),
     );
 
-    if (event.hasPuja) {
+    if (event.hasPuja && isAttending) {
       final pujaButton = ElevatedButton(
         onPressed: _isOpeningPuja ? null : () => _enterPuja(event),
         style: ElevatedButton.styleFrom(
